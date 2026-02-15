@@ -8,6 +8,9 @@ using Pharmion.Services.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IPharmacyService, PharmacyService>();
+builder.Services.AddScoped<IChronicDiseaseService, ChronicDiseaseService>();
+builder.Services.AddScoped<IMedicationCategoryService, MedicationCategoryService>();
+builder.Services.AddScoped<IPharmacologicalCategoryService, PharmacologicalCategoryService>();
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost;Database=220207;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 builder.Services.AddDatabaseServices(connectionString);

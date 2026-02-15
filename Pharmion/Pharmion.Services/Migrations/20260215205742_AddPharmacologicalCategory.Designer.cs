@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pharmion.Services.Database;
 
@@ -11,9 +12,11 @@ using Pharmion.Services.Database;
 namespace Pharmion.Services.Migrations
 {
     [DbContext(typeof(PharmionDbContext))]
-    partial class PharmionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260215205742_AddPharmacologicalCategory")]
+    partial class AddPharmacologicalCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -452,7 +455,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PharmacologicalCategories");
+                    b.ToTable("PharmacologicalCategory");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Pharmacy", b =>

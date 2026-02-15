@@ -20,5 +20,12 @@ namespace Pharmion.Services.Database.Entities
         [ForeignKey(nameof(MedicationCategory))]
         public int MedicationCategoryId { get; set; }
         public MedicationCategory? MedicationCategory { get; set; }
+
+        [ForeignKey(nameof(PharmacologicalCategory))]
+        public int? PharmacologicalCategoryId { get; set; }
+        public PharmacologicalCategory? PharmacologicalCategory { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
     }
 }

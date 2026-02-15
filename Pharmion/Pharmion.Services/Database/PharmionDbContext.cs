@@ -35,6 +35,7 @@ namespace Pharmion.Services.Database
         public DbSet<TherapySchedule> TherapySchedules { get; set; }
         public DbSet<TherapyScheduleTime> TherapyScheduleTimes { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<PharmacologicalCategory> PharmacologicalCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -172,7 +173,14 @@ namespace Pharmion.Services.Database
                 .HasForeignKey(md => md.MedicationCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<EarlyDispenseException>()
+            modelBuilder.Entity<MedicationDetail>()
+            .HasOne(md => md.PharmacologicalCategory)
+            .WithMany(pc => pc.MedicationDetails)
+            .HasForeignKey(md => md.PharmacologicalCategoryId)
+            .OnDelete(DeleteBehavior.Restrict); 
+        
+
+          modelBuilder.Entity<EarlyDispenseException>()
                 .HasOne(e => e.PrescriptionItem)
                 .WithMany(pi => pi.EarlyDispenseExceptions)
                 .HasForeignKey(e => e.PrescriptionItemId)
