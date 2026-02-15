@@ -1,0 +1,17 @@
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.AssemblyInfo.cs
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\bin\Debug\net8.0\Pharmion.Services.deps.json
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\bin\Debug\net8.0\Pharmion.Services.runtimeconfig.json
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\bin\Debug\net8.0\Pharmion.Services.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\bin\Debug\net8.0\Pharmion.Services.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\bin\Debug\net8.0\Pharmion.Model.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\bin\Debug\net8.0\Pharmion.Model.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.83D115F8.Up2Date
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\refint\Pharmion.Services.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\Pharmion.Services.genruntimeconfig.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Services\obj\Debug\net8.0\ref\Pharmion.Services.dll

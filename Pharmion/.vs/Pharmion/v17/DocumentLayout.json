@@ -1,0 +1,368 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\interfaces\\iservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\interfaces\\iservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|solutionrelative:pharmion.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\services\\cityservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\services\\cityservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\services\\baseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\services\\baseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\services\\basecrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\services\\basecrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\interfaces\\icrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\interfaces\\icrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\interfaces\\icityservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\interfaces\\icityservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.webapi\\controllers\\citycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|solutionrelative:pharmion.webapi\\controllers\\citycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\database\\entities\\pharmacist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\database\\entities\\pharmacist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\database\\entities\\city.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\database\\entities\\city.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.model\\exceptions\\userexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|solutionrelative:pharmion.model\\exceptions\\userexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\database\\entities\\patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\database\\entities\\patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.model\\searchobjects\\citysearchobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|solutionrelative:pharmion.model\\searchobjects\\citysearchobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.model\\requests\\cityupsertrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|solutionrelative:pharmion.model\\requests\\cityupsertrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.model\\responses\\cityresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|solutionrelative:pharmion.model\\responses\\cityresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\database\\entities\\pharmacy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\database\\entities\\pharmacy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.model\\responses\\pharmacyresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}|Pharmion.Model\\Pharmion.Model.csproj|solutionrelative:pharmion.model\\responses\\pharmacyresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.webapi\\controllers\\basecrudcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|solutionrelative:pharmion.webapi\\controllers\\basecrudcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.webapi\\controllers\\basecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EE9CA658-717A-4AD7-94AE-9840A6264045}|Pharmion.WebAPI\\Pharmion.WebAPI.csproj|solutionrelative:pharmion.webapi\\controllers\\basecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|c:\\users\\user\\desktop\\rsii - pharmion\\pharmion\\pharmion.services\\extensions\\queryableextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6B43BA76-C459-4279-AD64-D688ECD576DD}|Pharmion.Services\\Pharmion.Services.csproj|solutionrelative:pharmion.services\\extensions\\queryableextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3fd5e0cc-709a-4f8c-94c3-7f0f8dff5bb2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "IService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Interfaces\\IService.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Interfaces\\IService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Interfaces\\IService.cs",
+              "RelativeToolTip": "Pharmion.Services\\Interfaces\\IService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T00:10:43.289Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ICityService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Interfaces\\ICityService.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Interfaces\\ICityService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Interfaces\\ICityService.cs",
+              "RelativeToolTip": "Pharmion.Services\\Interfaces\\ICityService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:47:58.272Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CityService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Services\\CityService.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Services\\CityService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Services\\CityService.cs",
+              "RelativeToolTip": "Pharmion.Services\\Services\\CityService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:47:42.583Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "CityUpsertRequest.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Requests\\CityUpsertRequest.cs",
+              "RelativeDocumentMoniker": "Pharmion.Model\\Requests\\CityUpsertRequest.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Requests\\CityUpsertRequest.cs",
+              "RelativeToolTip": "Pharmion.Model\\Requests\\CityUpsertRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:40:46.018Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "City.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\City.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Database\\Entities\\City.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\City.cs",
+              "RelativeToolTip": "Pharmion.Services\\Database\\Entities\\City.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:39:52.873Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BaseCRUDService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Services\\BaseCRUDService.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Services\\BaseCRUDService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Services\\BaseCRUDService.cs",
+              "RelativeToolTip": "Pharmion.Services\\Services\\BaseCRUDService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T15:22:06.111Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BaseService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Services\\BaseService.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Services\\BaseService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Services\\BaseService.cs",
+              "RelativeToolTip": "Pharmion.Services\\Services\\BaseService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T15:10:54.347Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "UserException.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Exceptions\\UserException.cs",
+              "RelativeDocumentMoniker": "Pharmion.Model\\Exceptions\\UserException.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Exceptions\\UserException.cs",
+              "RelativeToolTip": "Pharmion.Model\\Exceptions\\UserException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:53:25.678Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Program.cs",
+              "RelativeDocumentMoniker": "Pharmion.WebAPI\\Program.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Program.cs",
+              "RelativeToolTip": "Pharmion.WebAPI\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-11T15:12:35.293Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "CitySearchObject.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\SearchObjects\\CitySearchObject.cs",
+              "RelativeDocumentMoniker": "Pharmion.Model\\SearchObjects\\CitySearchObject.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\SearchObjects\\CitySearchObject.cs",
+              "RelativeToolTip": "Pharmion.Model\\SearchObjects\\CitySearchObject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:46:30.938Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Patient.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\Patient.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Database\\Entities\\Patient.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\Patient.cs",
+              "RelativeToolTip": "Pharmion.Services\\Database\\Entities\\Patient.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:55:59.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ICRUDService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Interfaces\\ICRUDService.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Interfaces\\ICRUDService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Interfaces\\ICRUDService.cs",
+              "RelativeToolTip": "Pharmion.Services\\Interfaces\\ICRUDService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T15:20:29.452Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Pharmacist.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\Pharmacist.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Database\\Entities\\Pharmacist.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\Pharmacist.cs",
+              "RelativeToolTip": "Pharmion.Services\\Database\\Entities\\Pharmacist.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:56:08.733Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "CityResponse.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Responses\\CityResponse.cs",
+              "RelativeDocumentMoniker": "Pharmion.Model\\Responses\\CityResponse.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Responses\\CityResponse.cs",
+              "RelativeToolTip": "Pharmion.Model\\Responses\\CityResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:39:44.649Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "CityController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Controllers\\CityController.cs",
+              "RelativeDocumentMoniker": "Pharmion.WebAPI\\Controllers\\CityController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Controllers\\CityController.cs",
+              "RelativeToolTip": "Pharmion.WebAPI\\Controllers\\CityController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T00:00:52.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "PharmacyResponse.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Responses\\PharmacyResponse.cs",
+              "RelativeDocumentMoniker": "Pharmion.Model\\Responses\\PharmacyResponse.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Model\\Responses\\PharmacyResponse.cs",
+              "RelativeToolTip": "Pharmion.Model\\Responses\\PharmacyResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:38:49.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Pharmacy.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\Pharmacy.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Database\\Entities\\Pharmacy.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Database\\Entities\\Pharmacy.cs",
+              "RelativeToolTip": "Pharmion.Services\\Database\\Entities\\Pharmacy.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:38:15.488Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "QueryableExtension.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Extensions\\QueryableExtension.cs",
+              "RelativeDocumentMoniker": "Pharmion.Services\\Extensions\\QueryableExtension.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.Services\\Extensions\\QueryableExtension.cs",
+              "RelativeToolTip": "Pharmion.Services\\Extensions\\QueryableExtension.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAAADAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:36:17.269Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "BaseCRUDController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Controllers\\BaseCRUDController.cs",
+              "RelativeDocumentMoniker": "Pharmion.WebAPI\\Controllers\\BaseCRUDController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Controllers\\BaseCRUDController.cs",
+              "RelativeToolTip": "Pharmion.WebAPI\\Controllers\\BaseCRUDController.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAUwA4AAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:29:26.072Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "BaseController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Controllers\\BaseController.cs",
+              "RelativeDocumentMoniker": "Pharmion.WebAPI\\Controllers\\BaseController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\RSII - Pharmion\\Pharmion\\Pharmion.WebAPI\\Controllers\\BaseController.cs",
+              "RelativeToolTip": "Pharmion.WebAPI\\Controllers\\BaseController.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAUwA4AAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T23:26:51.166Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

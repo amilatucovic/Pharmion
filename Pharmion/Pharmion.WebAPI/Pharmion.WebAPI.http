@@ -1,0 +1,6 @@
+@Pharmion.WebAPI_HostAddress = http://localhost:5081
+
+GET {{Pharmion.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

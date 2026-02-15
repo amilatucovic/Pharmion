@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pharmion.WebAPI", "Pharmion.WebAPI\Pharmion.WebAPI.csproj", "{EE9CA658-717A-4AD7-94AE-9840A6264045}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pharmion.Model", "Pharmion.Model\Pharmion.Model.csproj", "{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pharmion.Services", "Pharmion.Services\Pharmion.Services.csproj", "{6B43BA76-C459-4279-AD64-D688ECD576DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE9CA658-717A-4AD7-94AE-9840A6264045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE9CA658-717A-4AD7-94AE-9840A6264045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE9CA658-717A-4AD7-94AE-9840A6264045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE9CA658-717A-4AD7-94AE-9840A6264045}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABE08576-C667-4D0F-ABE0-40FEF2E8A639}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B43BA76-C459-4279-AD64-D688ECD576DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B43BA76-C459-4279-AD64-D688ECD576DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B43BA76-C459-4279-AD64-D688ECD576DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B43BA76-C459-4279-AD64-D688ECD576DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,19 @@
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\bin\Debug\netstandard2.1\Pharmion.Model.deps.json
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\bin\Debug\netstandard2.1\Pharmion.Model.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\bin\Debug\netstandard2.1\Pharmion.Model.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.AssemblyInfo.cs
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion - backend\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\bin\Debug\netstandard2.1\Pharmion.Model.deps.json
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\bin\Debug\netstandard2.1\Pharmion.Model.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\bin\Debug\netstandard2.1\Pharmion.Model.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.AssemblyInfoInputs.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.AssemblyInfo.cs
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.csproj.CoreCompileInputs.cache
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.dll
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.pdb
+C:\Users\User\Desktop\RSII - Pharmion\Pharmion\Pharmion.Model\obj\Debug\netstandard2.1\Pharmion.Model.csproj.AssemblyReference.cache
