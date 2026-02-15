@@ -17,6 +17,5 @@ namespace Pharmion.Services.Database.Entities
         [Required, MaxLength(20)]
         public string PostalCode { get; set; } = string.Empty;
 
-
     }
 }

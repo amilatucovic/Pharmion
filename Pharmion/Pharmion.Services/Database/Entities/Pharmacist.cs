@@ -21,6 +21,5 @@ namespace Pharmion.Services.Database.Entities
         public ICollection<DispenseEvent> DispenseEvents { get; set; } = new List<DispenseEvent>();
         public ICollection<EarlyDispenseException> ApprovedEarlyDispenseExceptions { get; set; } = new List<EarlyDispenseException>();
 
-
     }
 }
