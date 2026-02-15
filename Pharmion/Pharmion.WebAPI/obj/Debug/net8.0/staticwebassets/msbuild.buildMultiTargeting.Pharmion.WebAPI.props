@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\Pharmion.WebAPI.props" />
-</Project>
