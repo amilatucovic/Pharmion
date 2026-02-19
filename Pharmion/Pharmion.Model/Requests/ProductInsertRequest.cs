@@ -1,0 +1,49 @@
+﻿using Pharmion.Model.Enums;
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Pharmion.Model.Requests
+{
+    public class ProductInsertRequest
+    {
+        [Required]
+        [MaxLength(200, ErrorMessage = "Name must not exceed 200 characters.")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        public ProductType Type { get; set; }
+
+        public bool IsPrescriptionRequired { get; set; }
+
+        public bool IsActive { get; set; } = true;
+
+        [MaxLength(100)]
+        public string? SKU { get; set; }
+
+        [MaxLength(100)]
+        public string? Barcode { get; set; }
+
+        [MaxLength(150)]
+        public string? Manufacturer { get; set; }
+
+        [MaxLength(50)]
+        public string? Unit { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Package size must be greater than 0")]
+        public int? PackageSize { get; set; }
+
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
+        public decimal Price { get; set; }
+
+        [MaxLength(1000)]
+        public string SideEffects { get; set; } = string.Empty;
+
+        [MaxLength(1000)]
+        public string InstructionsForUse { get; set; } = string.Empty;
+
+        [MaxLength(1000)]
+        public string Contraindications { get; set; } = string.Empty;
+
+    }
+}

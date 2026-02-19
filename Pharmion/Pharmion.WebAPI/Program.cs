@@ -11,6 +11,8 @@ builder.Services.AddScoped<IPharmacyService, PharmacyService>();
 builder.Services.AddScoped<IChronicDiseaseService, ChronicDiseaseService>();
 builder.Services.AddScoped<IMedicationCategoryService, MedicationCategoryService>();
 builder.Services.AddScoped<IPharmacologicalCategoryService, PharmacologicalCategoryService>();
+builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost;Database=220207;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 builder.Services.AddDatabaseServices(connectionString);
@@ -29,7 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
