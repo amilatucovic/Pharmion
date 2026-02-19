@@ -7,7 +7,8 @@ namespace Pharmion.Model.Enums
     public enum ProductType
     {
         Medication = 1,
-        Supplement = 2
+        Supplement = 2,
+        MedicalDevice = 3,
 
     }
 }
