@@ -20,47 +20,70 @@ namespace Pharmion.WebAPI.Controllers
             _authService = authService;
         }
 
-       
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             try
             {
-                var response = await _authService.LoginAsync(request);
+                var ipAddress = GetIpAddress();
+                var response = await _authService.LoginAsync(request, ipAddress);
                 return Ok(response);
             }
             catch (UserException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
+        }
+
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            try
             {
-                return StatusCode(500, new { message = "An error occurred during login", error = ex.Message });
+                var ipAddress = GetIpAddress();
+                var response = await _authService.RefreshTokenAsync(request.RefreshToken, ipAddress);
+                return Ok(response);
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
 
-        
+        [HttpPost("revoke-token")]
+        [Authorize]
+        public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenRequest request)
+        {
+            try
+            {
+                var ipAddress = GetIpAddress();
+                await _authService.RevokeTokenAsync(request.RefreshToken, ipAddress);
+                return Ok(new { message = "Token revoked successfully" });
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterPatientRequest request)
         {
             try
             {
-                var response = await _authService.RegisterPatientAsync(request);
+                var ipAddress = GetIpAddress();
+                var response = await _authService.RegisterPatientAsync(request, ipAddress);
                 return Ok(response);
             }
             catch (UserException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred during registration", error = ex.Message });
-            }
         }
 
-        
         [HttpPost("change-password")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
@@ -68,9 +91,7 @@ namespace Pharmion.WebAPI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-
-                var result = await _authService.ChangePasswordAsync(userId, request.OldPassword, request.NewPassword);
-
+                await _authService.ChangePasswordAsync(userId, request.OldPassword, request.NewPassword);
                 return Ok(new { message = "Password changed successfully" });
             }
             catch (UserException ex)
@@ -79,25 +100,25 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Get current user info
-        /// </summary>
         [HttpGet("me")]
         [Authorize]
         public IActionResult GetCurrentUser()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var username = User.FindFirst(ClaimTypes.Name)?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
             return Ok(new
             {
-                userId,
-                username,
-                email,
-                role
+                userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                username = User.FindFirst(ClaimTypes.Name)?.Value,
+                email = User.FindFirst(ClaimTypes.Email)?.Value,
+                role = User.FindFirst(ClaimTypes.Role)?.Value
             });
+        }
+
+        private string GetIpAddress()
+        {
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                return Request.Headers["X-Forwarded-For"].ToString();
+
+            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
         }
     }
 }

@@ -10,6 +10,7 @@ using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -28,56 +29,76 @@ namespace Pharmion.Services.Services
             _configuration = configuration;
         }
 
-        public async Task<LoginResponse> LoginAsync(LoginRequest request)
+        public async Task<LoginResponse> LoginAsync(LoginRequest request, string ipAddress)
         {
+            
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive);
 
             if (user == null)
                 throw new UserException("Invalid username or password");
 
+            
             if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
                 throw new UserException("Invalid username or password");
 
             user.LastLoginAt = DateTime.UtcNow;
+
+            var accessToken = GenerateAccessToken(user);
+            var refreshToken = await GenerateRefreshTokenAsync(user.Id, ipAddress);
+
             await _context.SaveChangesAsync();
-
-            var token = GenerateJwtToken(user);
-
-            var response = new LoginResponse
-            {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = user.Role,
-                Token = token,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(GetTokenExpiryMinutes())
-            };
-
-            if (user.Role == Role.Pharmacist)
-            {
-                var pharmacist = await _context.Pharmacists.FindAsync(user.Id);
-                if (pharmacist != null)
-                {
-                    response.IsAdministrator = pharmacist.IsAdministrator;
-                    response.PharmacyId = pharmacist.PharmacyId;
-                }
-            }
-            else if (user.Role == Role.Patient)
-            {
-                var patient = await _context.Patients.FindAsync(user.Id);
-                if (patient != null)
-                {
-                    response.CityId = patient.CityId;
-                }
-            }
-
-            return response;
+            return await BuildLoginResponse(user, accessToken, refreshToken);
         }
 
-        public async Task<LoginResponse> RegisterPatientAsync(RegisterPatientRequest request)
+        public async Task<LoginResponse> RefreshTokenAsync(string refreshToken, string ipAddress)
+        {
+            var storedToken = await _context.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+            if (storedToken == null)
+                throw new UserException("Invalid refresh token");
+
+            if (!storedToken.IsActive)
+                throw new UserException("Refresh token is no longer valid");
+
+            var user = storedToken.User;
+            if (user == null || !user.IsActive)
+                throw new UserException("User not found or inactive");
+
+            storedToken.IsRevoked = true;
+            storedToken.RevokedAt = DateTime.UtcNow;
+            storedToken.RevokedByIp = ipAddress;
+
+            var newAccessToken = GenerateAccessToken(user);
+            var newRefreshToken = await GenerateRefreshTokenAsync(user.Id, ipAddress);
+
+            storedToken.ReplacedByToken = newRefreshToken.Token;
+
+            await _context.SaveChangesAsync();
+            return await BuildLoginResponse(user, newAccessToken, newRefreshToken);
+        }
+
+        public async Task RevokeTokenAsync(string refreshToken, string ipAddress)
+        {
+            var token = await _context.RefreshTokens
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+            if (token == null)
+                throw new UserException("Invalid refresh token");
+
+            if (!token.IsActive)
+                throw new UserException("Token is already revoked");
+
+            token.IsRevoked = true;
+            token.RevokedAt = DateTime.UtcNow;
+            token.RevokedByIp = ipAddress;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<LoginResponse> RegisterPatientAsync(RegisterPatientRequest request, string ipAddress)
         {
             if (await _context.Users.AnyAsync(u => u.Username == request.Username))
                 throw new UserException("Username already exists");
@@ -93,7 +114,6 @@ namespace Pharmion.Services.Services
                 throw new UserException("Invalid city");
 
             var (passwordHash, passwordSalt) = CreatePasswordHash(request.Password);
-
             var patient = new Patient
             {
                 FirstName = request.FirstName,
@@ -123,7 +143,7 @@ namespace Pharmion.Services.Services
             {
                 Username = request.Username,
                 Password = request.Password
-            });
+            }, ipAddress);
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, string oldPassword, string newPassword)
@@ -141,18 +161,27 @@ namespace Pharmion.Services.Services
             user.PasswordSalt = passwordSalt;
             user.UpdatedAt = DateTime.UtcNow;
 
+            var userTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId && rt.IsActive)
+                .ToListAsync();
+
+            foreach (var token in userTokens)
+            {
+                token.IsRevoked = true;
+                token.RevokedAt = DateTime.UtcNow;
+            }
+
             await _context.SaveChangesAsync();
 
             return true;
         }
 
-        #region Helper Methods
-
-        private string GenerateJwtToken(User user)
+        private string GenerateAccessToken(User user)
         {
             var jwtSecret = _configuration["JwtSettings:Secret"];
             var issuer = _configuration["JwtSettings:Issuer"];
             var audience = _configuration["JwtSettings:Audience"];
+            var expiryMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpiryInMinutes"] ?? "15");
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -171,11 +200,86 @@ namespace Pharmion.Services.Services
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(GetTokenExpiryMinutes()),
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
                 signingCredentials: credentials
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private async Task<RefreshToken> GenerateRefreshTokenAsync(int userId, string ipAddress)
+        {
+            var expiryDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpiryInDays"] ?? "7");
+            var randomBytes = new byte[64];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomBytes);
+            }
+
+            var refreshToken = new RefreshToken
+            {
+                UserId = userId,
+                Token = Convert.ToBase64String(randomBytes),
+                ExpiresAt = DateTime.UtcNow.AddDays(expiryDays),
+                CreatedAt = DateTime.UtcNow,
+                CreatedByIp = ipAddress
+            };
+
+            await _context.RefreshTokens.AddAsync(refreshToken);
+            await RemoveOldRefreshTokensAsync(userId);
+            return refreshToken;
+        }
+
+        private async Task RemoveOldRefreshTokensAsync(int userId)
+        {
+            var oldTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId
+                          && rt.CreatedAt.AddDays(30) < DateTime.UtcNow)
+                .ToListAsync();
+
+            if (oldTokens.Any())
+            {
+                _context.RefreshTokens.RemoveRange(oldTokens);
+            }
+        }
+
+        private async Task<LoginResponse> BuildLoginResponse(User user, string accessToken, RefreshToken refreshToken)
+        {
+            var accessTokenExpiryMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpiryInMinutes"] ?? "15");
+
+            var response = new LoginResponse
+            {
+                UserId = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = user.Role,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken.Token,
+                AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(accessTokenExpiryMinutes),
+                RefreshTokenExpiresAt = refreshToken.ExpiresAt
+            };
+
+            if (user.Role == Role.Pharmacist)
+            {
+                var pharmacist = await _context.Pharmacists.FindAsync(user.Id);
+                if (pharmacist != null)
+                {
+                    response.IsAdministrator = pharmacist.IsAdministrator;
+                    response.PharmacyId = pharmacist.PharmacyId;
+                }
+            }
+            else if (user.Role == Role.Patient)
+            {
+                var patient = await _context.Patients.FindAsync(user.Id);
+                if (patient != null)
+                {
+                    response.CityId = patient.CityId;
+                }
+            }
+
+            return response;
         }
 
         private (string hash, string salt) CreatePasswordHash(string password)
@@ -207,12 +311,5 @@ namespace Pharmion.Services.Services
                 return computedHashString == storedHash;
             }
         }
-
-        private int GetTokenExpiryMinutes()
-        {
-            return int.Parse(_configuration["JwtSettings:ExpiryInMinutes"] ?? "60");
-        }
-
-        #endregion
     }
 }

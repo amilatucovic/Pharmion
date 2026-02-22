@@ -36,6 +36,7 @@ namespace Pharmion.Services.Database
         public DbSet<TherapyScheduleTime> TherapyScheduleTimes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<PharmacologicalCategory> PharmacologicalCategories { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -258,6 +259,19 @@ namespace Pharmion.Services.Database
             modelBuilder.Entity<Notification>()
                 .HasIndex(n => new { n.UserId, n.CreatedAt });
 
+            modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany()
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(rt => rt.Token)
+                .IsUnique();
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(rt => new { rt.UserId, rt.CreatedAt });
+
             modelBuilder.Entity<ChronicDisease>()
                 .HasIndex(cd => cd.Code)
                 .IsUnique();
@@ -311,6 +325,8 @@ namespace Pharmion.Services.Database
             modelBuilder.Entity<MedicationCategory>()
                 .Property(mc => mc.FlatFee)
                 .HasPrecision(18, 2);
+
+
 
 
 
