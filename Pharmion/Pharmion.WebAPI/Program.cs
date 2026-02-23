@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using Pharmion.WebAPI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +66,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDatabaseServices(connectionString);
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(x=>
+{
+    x.Filters.Add<ExceptionFilter>();
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
