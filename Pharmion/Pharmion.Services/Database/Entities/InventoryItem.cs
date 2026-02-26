@@ -21,7 +21,7 @@ namespace Pharmion.Services.Database.Entities
 
         public int QuantityOnHand { get; set; }
         public int ReservedQuantity { get; set; }
-        public int ReorderLevel { get; set; }  // prag za “LOW STOCK” upozorenje
+        public int ReorderLevel { get; set; }  
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
@@ -31,3 +31,4 @@ namespace Pharmion.Services.Database.Entities
 
     }
 }
+

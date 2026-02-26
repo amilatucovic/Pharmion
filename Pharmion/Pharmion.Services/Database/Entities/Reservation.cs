@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 
 namespace Pharmion.Services.Database.Entities
 {
@@ -20,9 +21,11 @@ namespace Pharmion.Services.Database.Entities
         public int PharmacyId { get; set; }
         public Pharmacy? Pharmacy { get; set; }
 
-        public ReservationStatus Status { get; set; } = ReservationStatus.Draft;
+        [MaxLength(1000)]
+        public string ReservationState { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
         public DateTime? SubmittedAt { get; set; }
         public DateTime? ApprovedAt { get; set; }
         public DateTime? ReadyForPickupAt { get; set; }

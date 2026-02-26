@@ -9,6 +9,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Pharmion.WebAPI.Filters;
+using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
+using Pharmion.Services.StateMachines.ReservationStateMachine;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +62,16 @@ builder.Services.AddScoped<IMedicationCategoryService, MedicationCategoryService
 builder.Services.AddScoped<IPharmacologicalCategoryService, PharmacologicalCategoryService>();
 builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+
+builder.Services.AddScoped<InitialReservationState>();
+builder.Services.AddScoped<DraftReservationState>();
+builder.Services.AddScoped<SubmittedReservationState>();
+builder.Services.AddScoped<ApprovedReservationState>();
+builder.Services.AddScoped<ReadyForPickupReservationState>();
+builder.Services.AddScoped<PickedUpReservationState>();
+builder.Services.AddScoped<CancelledReservationState>();
+builder.Services.AddScoped<RejectedReservationState>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=localhost;Database=220207;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
