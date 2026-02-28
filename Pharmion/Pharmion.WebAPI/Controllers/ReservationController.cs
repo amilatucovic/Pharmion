@@ -207,5 +207,100 @@ namespace Pharmion.WebAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("{id}/items")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> GetItems(int id)
+        {
+            try
+            {
+                var patientId = GetUserId();
+                var items = await _reservationService.GetItemsAsync(id, patientId);
+                return Ok(items);
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/items")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> AddItem(int id, [FromBody] ReservationItemInsertRequest request)
+        {
+            try
+            {
+                var patientId = GetUserId();
+                var result = await _reservationService.AddItemAsync(id, patientId, request);
+                return Ok(result);
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}/items/{itemId}")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> UpdateItem(int id, int itemId, [FromBody] ReservationItemUpdateRequest request)
+        {
+            try
+            {
+                var patientId = GetUserId();
+                var result = await _reservationService.UpdateItemAsync(id, itemId, patientId, request);
+                return Ok(result);
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}/items/{itemId}")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> DeleteItem(int id, int itemId)
+        {
+            try
+            {
+                var patientId = GetUserId();
+                await _reservationService.DeleteItemAsync(id, itemId, patientId);
+                return NoContent();
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("add-to-reservation")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> AddToReservation([FromBody] AddToReservationRequest request)
+        {
+            try
+            {
+                var patientId = GetUserId();
+                var result = await _reservationService.AddToReservationAsync(patientId, request);
+                return Ok(result);
+            }
+            catch (EarlyDispenseRequiredException ex)
+            {
+                // Frontend dobija poseban status kod i podatke
+                // na osnovu kojih prikazuje dropdown za razlog
+                return StatusCode(409, new
+                {
+                    requiresEarlyDispenseReason = true,
+                    message = ex.Message,
+                    nextEligibleDate = ex.NextEligibleDate,
+                    daysRemaining = ex.DaysRemaining
+                });
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        private int GetUserId() =>
+            int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     }
 }
