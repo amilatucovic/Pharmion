@@ -12,6 +12,7 @@ namespace Pharmion.Model.Responses
         public string PharmacyName { get; set; }
         public string ReservationState { get; set; }
         public string ReservationStateDisplay { get; set; } 
+        public string PatientEmail { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? SubmittedAt { get; set; }

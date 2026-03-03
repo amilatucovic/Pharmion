@@ -19,6 +19,7 @@ namespace Pharmion.Services.Database.Seed
             await new PatientSeed().SeedAsync(context);
             await new MedicationDetailSeed().SeedAsync(context);
             await new SupplementDetailSeed().SeedAsync(context);
+            await new InventoryItemSeed().SeedAsync(context);
         }
     }
 }

@@ -73,6 +73,8 @@ builder.Services.AddScoped<PickedUpReservationState>();
 builder.Services.AddScoped<CancelledReservationState>();
 builder.Services.AddScoped<RejectedReservationState>();
 
+builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Server=localhost;Database=220207;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 builder.Services.AddDatabaseServices(connectionString);

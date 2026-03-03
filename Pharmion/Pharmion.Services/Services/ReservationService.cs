@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
+using Pharmion.Model.Messages;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
@@ -21,14 +22,17 @@ namespace Pharmion.Services.Services
     {
         private readonly PharmionDbContext _context;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IRabbitMQPublisher _publisher;
 
         public ReservationService(
             PharmionDbContext context,
             IMapper mapper,
-            IServiceProvider serviceProvider) : base(context, mapper)
+            IServiceProvider serviceProvider,
+            IRabbitMQPublisher publisher) : base(context, mapper)
         {
             _context = context;
             _serviceProvider = serviceProvider;
+            _publisher = publisher;
         }
 
         public override async Task<PagedResult<ReservationResponse>> GetAsync(ReservationSearchObject search)
@@ -115,7 +119,18 @@ namespace Pharmion.Services.Services
             var currentState = GetCurrentState(reservation.ReservationState);
             await currentState.SubmitAsync(reservationId, patientId);
 
-            return await ReloadAndMapAsync(reservationId);
+            var result = await ReloadAndMapAsync(reservationId);
+
+            await _publisher.PublishAsync(new ReservationSubmittedMessage
+            {
+                ReservationId = result.Id,
+                PatientEmail = result.PatientEmail, 
+                PatientName = result.PatientName,
+                PharmacyName = result.PharmacyName,
+                CreatedAt = result.CreatedAt
+            }, "reservation.submitted");
+
+            return result;
 
         }
 
@@ -140,7 +155,18 @@ namespace Pharmion.Services.Services
             var currentState = GetCurrentState(reservation.ReservationState);
             await currentState.RejectAsync(reservationId, pharmacistId, reason);
 
-            return await ReloadAndMapAsync(reservationId);
+            var result = await ReloadAndMapAsync(reservationId);
+
+            await _publisher.PublishAsync(new ReservationRejectedMessage
+            {
+                ReservationId = result.Id,
+                PatientEmail = result.PatientEmail,
+                PatientName = result.PatientName,
+                PharmacyName = result.PharmacyName,
+                Reason = reason
+            }, "reservation.rejected");
+
+            return result;
 
         }
 
@@ -153,7 +179,18 @@ namespace Pharmion.Services.Services
             var currentState = GetCurrentState(reservation.ReservationState);
             await currentState.MarkAsReadyAsync(reservationId, pharmacistId);
 
-            return await ReloadAndMapAsync(reservationId);
+            var result = await ReloadAndMapAsync(reservationId);
+
+            await _publisher.PublishAsync(new ReservationReadyMessage
+            {
+                ReservationId = result.Id,
+                PatientEmail = result.PatientEmail,
+                PatientName = result.PatientName,
+                PharmacyName = result.PharmacyName,
+                PickupDeadline = result.PickupDeadline
+            }, "reservation.ready");
+
+            return result;
 
         }
 
@@ -638,6 +675,7 @@ namespace Pharmion.Services.Services
                 PharmacyName = r.Pharmacy?.Name ?? string.Empty,
                 ReservationState = r.ReservationState,
                 ReservationStateDisplay = r.ReservationState.Replace("ReservationState", string.Empty),
+                PatientEmail = r.Patient?.Email ?? string.Empty, 
                 CreatedAt = r.CreatedAt,
                 UpdatedAt = r.UpdatedAt,
                 SubmittedAt = r.SubmittedAt,

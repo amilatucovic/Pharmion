@@ -1,4 +1,5 @@
 ﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
@@ -34,7 +35,10 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
         public override async Task<ReservationResponse> SubmitAsync(int id, int patientId)
         {
-            var entity = await _context.Reservations.FindAsync(id);
+            var entity = await _context.Reservations
+                .Include(r => r.Items) 
+                .FirstOrDefaultAsync(r => r.Id == id);
+
             if (entity == null)
                 throw new UserException("Reservation not found");
 
@@ -46,13 +50,9 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             await ReserveInventoryAsync(entity);
 
-            // Promijeni state
             entity.ReservationState = nameof(SubmittedReservationState);
             entity.SubmittedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
-
-            // TODO: Send notification to pharmacist
 
             return _mapper.Map<ReservationResponse>(entity);
         }
