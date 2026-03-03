@@ -1,7 +1,10 @@
 ﻿using EasyNetQ;
 using Pharmion.Model.Messages;
 
-var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest");
+var rabbitConnection = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTIONSTRING")
+    ?? "host=localhost;username=guest;password=guest";
+
+var bus = RabbitHutch.CreateBus(rabbitConnection);
 Console.WriteLine("Pharmion Subscriber pokrenut...");
 
 await bus.PubSub.SubscribeAsync<ReservationSubmittedMessage>(
@@ -49,8 +52,13 @@ static async Task SendEmailAsync(string toEmail, string subject, string body)
 {
     try
     {
-        string fromMail = "pharmion211@gmail.com";
-        string appPassword = "rfoz swcs ikiv vpxg"; 
+        string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME")
+            ?? "pharmion211@gmail.com";
+        string appPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD")
+            ?? "rfoz swcs ikiv vpxg";
+        string smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST")
+            ?? "smtp.gmail.com";
+        int smtpPort = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
 
         var mailMessage = new System.Net.Mail.MailMessage();
         mailMessage.From = new System.Net.Mail.MailAddress(fromMail, "Pharmion");
@@ -60,13 +68,13 @@ static async Task SendEmailAsync(string toEmail, string subject, string body)
 
         var smtpClient = new System.Net.Mail.SmtpClient()
         {
-            Host = "smtp.gmail.com",
-            Port = 587,
+            Host = smtpHost,
+            Port = smtpPort,
             Credentials = new System.Net.NetworkCredential(fromMail, appPassword),
             EnableSsl = true
         };
 
-        smtpClient.Send(mailMessage); 
+        smtpClient.Send(mailMessage);
         Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Email poslan → {toEmail} | {subject}");
     }
     catch (Exception ex)
