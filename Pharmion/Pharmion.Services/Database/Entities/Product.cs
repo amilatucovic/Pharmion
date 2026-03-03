@@ -41,7 +41,7 @@ namespace Pharmion.Services.Database.Entities
         public DateTime? UpdatedAt { get; set; }
 
         public string SideEffects { get; set; } = string.Empty;
-
+        
         public string InstructionsForUse { get; set; } = string.Empty;
 
         public string Contraindications { get; set; } = string.Empty;

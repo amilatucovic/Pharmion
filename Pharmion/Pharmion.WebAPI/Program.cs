@@ -63,6 +63,7 @@ builder.Services.AddScoped<IPharmacologicalCategoryService, PharmacologicalCateg
 builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddSingleton<IRecommendationService, RecommendationService>();
 
 builder.Services.AddScoped<InitialReservationState>();
 builder.Services.AddScoped<DraftReservationState>();
