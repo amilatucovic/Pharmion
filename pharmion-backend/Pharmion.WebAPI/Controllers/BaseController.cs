@@ -17,6 +17,9 @@ namespace Pharmion.WebAPI.Controllers
             _service = service;
         }
 
+        protected bool IsAdmin =>
+        bool.Parse(User.FindFirst("IsAdministrator")?.Value ?? "false");
+
         [HttpGet("")]
         public virtual async Task<PagedResult<T>> Get([FromQuery] TSearch? search = null)
         {

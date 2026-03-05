@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
@@ -9,6 +10,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductController : BaseCRUDController<ProductResponse, ProductSearchObject, ProductInsertRequest, ProductUpdateRequest>
     {
         private readonly IProductService _productService;
@@ -21,24 +23,28 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Create([FromBody] ProductInsertRequest request)
         {
             return base.Create(request);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Update(int id, [FromBody] ProductUpdateRequest request)
         {
             return base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Delete(int id)
         {
             return base.Delete(id);
         }
 
         [HttpPost("{id}/image")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UploadProductImage(int id, IFormFile file)
         {
             try
@@ -70,6 +76,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpDelete("{id}/image")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteProductImage(int id)
         {
             try

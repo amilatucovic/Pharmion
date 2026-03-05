@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
@@ -9,6 +10,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Policy = "AdminOnly")]
     public class PharmacyController : BaseCRUDController<PharmacyResponse, PharmacySearchObject, PharmacyUpsertRequest, PharmacyUpsertRequest>
     {
         public PharmacyController(IPharmacyService pharmacyService) : base(pharmacyService)

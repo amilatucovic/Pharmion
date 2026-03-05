@@ -15,7 +15,7 @@ namespace Pharmion.Services.Services
 {
     public abstract class BaseService<T, TSearch, TEntity> : IService<T, TSearch> where T : class where TSearch : BaseSearchObject where TEntity : class
     {
-        private readonly PharmionDbContext _context;
+        protected readonly PharmionDbContext _context;
         protected readonly IMapper _mapper;
 
         public BaseService(PharmionDbContext context, IMapper mapper)

@@ -62,7 +62,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireClaim("IsAdministrator", "True"));
+});
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICityService, CityService>();
@@ -83,6 +87,7 @@ builder.Services.AddScoped<ReadyForPickupReservationState>();
 builder.Services.AddScoped<PickedUpReservationState>();
 builder.Services.AddScoped<CancelledReservationState>();
 builder.Services.AddScoped<RejectedReservationState>();
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 
@@ -91,9 +96,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDatabaseServices(connectionString);
 
 
-builder.Services.AddControllers(x=>
+builder.Services.AddControllers(x =>
 {
     x.Filters.Add<ExceptionFilter>();
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(
+        new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
 
 builder.Services.AddEndpointsApiExplorer();

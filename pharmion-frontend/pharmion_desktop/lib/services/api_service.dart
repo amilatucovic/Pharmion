@@ -3,7 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:5081';
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://localhost:5081',
+  );
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -17,7 +20,17 @@ class ApiService {
 
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
+    await prefs.clear();
+  }
+
+  static Future<bool> isAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isAdministrator') ?? false;
+  }
+
+  static Future<String> getRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('role') ?? '';
   }
 
   static Future<Map<String, String>> getHeaders() async {
@@ -41,10 +54,23 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      await saveToken(data['accessToken']);
+
+      if (data['role'] != 'Pharmacist') {
+        throw Exception('Access denied. Only pharmacists can access this application.');
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('jwt_token', data['accessToken']);
+      await prefs.setString('role', data['role']);
+      await prefs.setBool('isAdministrator', data['isAdministrator'] ?? false);
+      await prefs.setInt('userId', data['userId']);
+      await prefs.setInt('pharmacyId', data['pharmacyId'] ?? 0);
+      await prefs.setString('firstName', data['firstName'] ?? '');
+      await prefs.setString('lastName', data['lastName'] ?? '');
+
       return data;
     } else {
-      throw Exception('Pogrešno korisničko ime ili lozinka');
+      throw Exception('Invalid username or password.');
     }
   }
 
@@ -58,7 +84,7 @@ class ApiService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Greška: ${response.statusCode}');
+      throw Exception('Error: ${response.statusCode}');
     }
   }
 
@@ -74,7 +100,35 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       final error = jsonDecode(response.body);
-      throw Exception(error['message'] ?? 'Greška: ${response.statusCode}');
+      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+    }
+  }
+
+  static Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
+    final headers = await getHeaders();
+    final response = await http.put(
+      Uri.parse('$baseUrl/$endpoint'),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+    }
+  }
+
+  static Future<void> delete(String endpoint) async {
+    final headers = await getHeaders();
+    final response = await http.delete(
+      Uri.parse('$baseUrl/$endpoint'),
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error: ${response.statusCode}');
     }
   }
 }

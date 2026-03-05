@@ -186,6 +186,13 @@ namespace Pharmion.Services.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            bool isAdmin = false;
+            if (user.Role == Role.Pharmacist)
+            {
+                var pharmacist = _context.Pharmacists.Find(user.Id);
+                isAdmin = pharmacist?.IsAdministrator ?? false;
+            }
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -193,7 +200,8 @@ namespace Pharmion.Services.Services
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("IsAdministrator", isAdmin.ToString())
             };
 
             var token = new JwtSecurityToken(

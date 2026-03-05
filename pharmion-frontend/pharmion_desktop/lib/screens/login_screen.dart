@@ -14,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _error;
+  bool _obscurePassword = true;
 
   Future<void> _login() async {
     setState(() {
@@ -45,18 +46,18 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFF0F4F8),
       body: Center(
         child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(40),
+          width: 480,
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 48),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 24,
+                blurRadius: 32,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -64,25 +65,26 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Logo/ikona
               Image.asset(
                 'assets/images/pharmion_logo.png',
-                width: 620,
-                height: 110,
+                width: 260,
+                height: 90,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               const Text(
-                'Prijavite se na vaš račun',
-                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                'Sign in to your account',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 69, 80, 97),
+                ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 36),
 
-              // Username
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  labelText: 'Korisničko ime',
+                  labelText: 'Username',
                   prefixIcon: const Icon(Icons.person_outline),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -90,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(
-                      color: Color(0xFF00BFA5),
+                      color: Color(0xFF03989E),
                       width: 2,
                     ),
                   ),
@@ -98,20 +100,29 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Password
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword, 
                 decoration: InputDecoration(
-                  labelText: 'Lozinka',
+                  labelText: 'Password',
                   prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(
-                      color: Color(0xFF00BFA5),
+                      color: Color(0xFF03989E),
                       width: 2,
                     ),
                   ),
@@ -119,11 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 onSubmitted: (_) => _login(),
               ),
 
-              // Error poruka
               if (_error != null) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFEE2E2),
                     borderRadius: BorderRadius.circular(8),
@@ -150,16 +160,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
-              // Login button
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 50,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00BFA5),
+                    backgroundColor: const Color(0xFF03989E),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -175,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       : const Text(
-                          'Prijava',
+                          'Sign In',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
