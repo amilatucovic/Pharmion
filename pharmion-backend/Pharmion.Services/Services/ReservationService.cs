@@ -85,7 +85,6 @@ namespace Pharmion.Services.Services
 
             var created = await initialState.CreateAsync(request);
 
-            // Reload jer InitialState nema Patient/Pharmacy
             var full = await _context.Reservations
                 .Include(r => r.Patient)
                 .Include(r => r.Pharmacy)
@@ -121,14 +120,21 @@ namespace Pharmion.Services.Services
 
             var result = await ReloadAndMapAsync(reservationId);
 
-            await _publisher.PublishAsync(new ReservationSubmittedMessage
+            try
             {
-                ReservationId = result.Id,
-                PatientEmail = result.PatientEmail, 
-                PatientName = result.PatientName,
-                PharmacyName = result.PharmacyName,
-                CreatedAt = result.CreatedAt
-            }, "reservation.submitted");
+                await _publisher.PublishAsync(new ReservationSubmittedMessage
+                {
+                    ReservationId = result.Id,
+                    PatientEmail = result.PatientEmail,
+                    PatientName = result.PatientName,
+                    PharmacyName = result.PharmacyName,
+                    CreatedAt = result.CreatedAt
+                }, "reservation.submitted");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
+            }
 
             return result;
 
@@ -157,17 +163,23 @@ namespace Pharmion.Services.Services
 
             var result = await ReloadAndMapAsync(reservationId);
 
-            await _publisher.PublishAsync(new ReservationRejectedMessage
+            try  
             {
-                ReservationId = result.Id,
-                PatientEmail = result.PatientEmail,
-                PatientName = result.PatientName,
-                PharmacyName = result.PharmacyName,
-                Reason = reason
-            }, "reservation.rejected");
+                await _publisher.PublishAsync(new ReservationRejectedMessage
+                {
+                    ReservationId = result.Id,
+                    PatientEmail = result.PatientEmail,
+                    PatientName = result.PatientName,
+                    PharmacyName = result.PharmacyName,
+                    Reason = reason
+                }, "reservation.rejected");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
+            }
 
             return result;
-
         }
 
         public async Task<ReservationResponse> MarkAsReadyAsync(int reservationId, int pharmacistId)
@@ -181,15 +193,22 @@ namespace Pharmion.Services.Services
 
             var result = await ReloadAndMapAsync(reservationId);
 
-            await _publisher.PublishAsync(new ReservationReadyMessage
+            try
             {
-                ReservationId = result.Id,
-                PatientEmail = result.PatientEmail,
-                PatientName = result.PatientName,
-                PharmacyName = result.PharmacyName,
-                PickupDeadline = result.PickupDeadline
-            }, "reservation.ready");
-
+                await _publisher.PublishAsync(new ReservationReadyMessage
+                {
+                    ReservationId = result.Id,
+                    PatientEmail = result.PatientEmail,
+                    PatientName = result.PatientName,
+                    PharmacyName = result.PharmacyName,
+                    PickupDeadline = result.PickupDeadline
+                }, "reservation.ready");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
+            }
+  
             return result;
 
         }
@@ -312,6 +331,13 @@ namespace Pharmion.Services.Services
                 query = query.Where(r => r.CreatedAt <= search.CreatedTo.Value);
             }
 
+            if (!string.IsNullOrEmpty(search.PatientName))
+            {
+                query = query.Where(r =>
+                    (r.Patient.FirstName + " " + r.Patient.LastName)
+                        .Contains(search.PatientName));
+            }
+
             return query;
         }
 
@@ -403,7 +429,10 @@ namespace Pharmion.Services.Services
                     throw new UserException("Odabrani produkt ne odgovara stavci recepta");
             }
 
-            var (patientPart, insurancePart) = CalculateParticipation(product);
+            var patient = await _context.Patients.FindAsync(patientId)
+                       ?? throw new UserException("Pacijent nije pronađen");
+            var (patientPart, insurancePart) = CalculateParticipation(product, patient.IsInsured);
+
 
             var existingItem = reservation.Items
                 .FirstOrDefault(i => i.ProductId == request.ProductId);
@@ -551,7 +580,10 @@ namespace Pharmion.Services.Services
                 }
             }
 
-            var (patientPart, insurancePart) = CalculateParticipation(product);
+            var patient = await _context.Patients.FindAsync(patientId)
+                ?? throw new UserException("Pacijent nije pronađen");
+
+            var (patientPart, insurancePart) = CalculateParticipation(product, patient.IsInsured);
 
             var existingItem = reservation.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
 
@@ -617,11 +649,14 @@ namespace Pharmion.Services.Services
             return item;
         }
 
-        private (decimal patientPart, decimal insurancePart) CalculateParticipation(Product product)
+        private (decimal patientPart, decimal insurancePart) CalculateParticipation(Product product, bool isInsured)
         {
+            // Neosigurani pacijent plaća sve bez obzira na kategoriju
+            if (!isInsured)
+                return (product.Price, 0);
+
             // Suplementi ili produkti bez MedicationDetails → pacijent plaća sve
             var category = product.MedicationDetails?.MedicationCategory;
-
             if (category == null)
                 return (product.Price, 0);
 

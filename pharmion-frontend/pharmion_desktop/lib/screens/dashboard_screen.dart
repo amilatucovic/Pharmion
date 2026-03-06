@@ -4,6 +4,9 @@ import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/dashboard_service.dart';
 import '../theme/app_theme.dart';
+import 'reservations_screen.dart';
+import 'patients_screen.dart';
+import 'prescriptions_screen.dart';
 
 // ─── Placeholder screens ────────────────────────────────────────────────────
 class PlaceholderScreen extends StatelessWidget {
@@ -137,11 +140,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Dashboard':
         return _DashboardHome(isAdmin: _isAdmin);
       case 'Reservations':
-        return const PlaceholderScreen(title: 'Reservations');
+          return const ReservationsScreen();
       case 'Patients':
-        return const PlaceholderScreen(title: 'Patients');
+        return const PatientsScreen();
       case 'Prescriptions':
-        return const PlaceholderScreen(title: 'Prescriptions');
+        return const PrescriptionsScreen();
       case 'Products':
         return const PlaceholderScreen(title: 'Products');
       case 'Pharmacies':
@@ -590,7 +593,7 @@ class _DashboardHomeState extends State<_DashboardHome> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       'Product',
@@ -635,11 +638,11 @@ class _DashboardHomeState extends State<_DashboardHome> {
                                         height: 24,
                                         decoration: BoxDecoration(
                                           color: i == 0
-                                              ? const Color.fromARGB(255, 11, 70, 47)
+                                              ? const Color.fromARGB(255, 14, 146, 140)
                                               : i == 1
-                                              ? const Color.fromARGB(255, 134, 136, 24)
+                                              ? const Color.fromARGB(255, 195, 197, 58)
                                               : i == 2
-                                              ? const Color(0xFFCD7F32)
+                                              ? const Color.fromARGB(255, 223, 145, 68)
                                               : AppColors.kTealLight,
                                           borderRadius: BorderRadius.circular(
                                             6,

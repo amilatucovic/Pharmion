@@ -64,6 +64,7 @@ class ApiService {
       await prefs.setString('role', data['role']);
       await prefs.setBool('isAdministrator', data['isAdministrator'] ?? false);
       await prefs.setInt('userId', data['userId']);
+      await prefs.setString('refresh_token', data['refreshToken']);
       await prefs.setInt('pharmacyId', data['pharmacyId'] ?? 0);
       await prefs.setString('firstName', data['firstName'] ?? '');
       await prefs.setString('lastName', data['lastName'] ?? '');
@@ -75,60 +76,117 @@ class ApiService {
   }
 
   static Future<dynamic> get(String endpoint) async {
-    final headers = await getHeaders();
-    final response = await http.get(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: headers,
-    );
+  var headers = await getHeaders();
+  var response = await http.get(
+    Uri.parse('$baseUrl/$endpoint'),
+    headers: headers,
+  );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Error: ${response.statusCode}');
-    }
+  if (response.statusCode == 401) {
+    await _refreshToken();
+    headers = await getHeaders();
+    response = await http.get(Uri.parse('$baseUrl/$endpoint'), headers: headers);
   }
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Error: ${response.statusCode}');
+  }
+}
 
   static Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
-    final headers = await getHeaders();
-    final response = await http.post(
+  var headers = await getHeaders();
+  var response = await http.post(
+    Uri.parse('$baseUrl/$endpoint'),
+    headers: headers,
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode == 401) {
+    await _refreshToken();
+    headers = await getHeaders();
+    response = await http.post(
       Uri.parse('$baseUrl/$endpoint'),
       headers: headers,
       body: jsonEncode(body),
     );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
-    }
   }
 
-  static Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
-    final headers = await getHeaders();
-    final response = await http.put(
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    return jsonDecode(response.body);
+  } else {
+    final error = jsonDecode(response.body);
+    throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+  }
+}
+
+static Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
+  var headers = await getHeaders();
+  var response = await http.put(
+    Uri.parse('$baseUrl/$endpoint'),
+    headers: headers,
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode == 401) {
+    await _refreshToken();
+    headers = await getHeaders();
+    response = await http.put(
       Uri.parse('$baseUrl/$endpoint'),
       headers: headers,
       body: jsonEncode(body),
     );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
-    }
   }
 
-  static Future<void> delete(String endpoint) async {
-    final headers = await getHeaders();
-    final response = await http.delete(
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    final error = jsonDecode(response.body);
+    throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+  }
+}
+
+static Future<void> delete(String endpoint) async {
+  var headers = await getHeaders();
+  var response = await http.delete(
+    Uri.parse('$baseUrl/$endpoint'),
+    headers: headers,
+  );
+
+  if (response.statusCode == 401) {
+    await _refreshToken();
+    headers = await getHeaders();
+    response = await http.delete(
       Uri.parse('$baseUrl/$endpoint'),
       headers: headers,
     );
-
-    if (response.statusCode != 200) {
-      throw Exception('Error: ${response.statusCode}');
-    }
   }
+
+  if (response.statusCode != 200 && response.statusCode != 204) {
+    throw Exception('Error: ${response.statusCode}');
+  }
+}
+
+  static Future<void> _refreshToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  final refreshToken = prefs.getString('refresh_token');
+  if (refreshToken == null) throw Exception('No refresh token');
+
+  final response = await http.post(
+    Uri.parse('$baseUrl/Auth/refresh-token'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'refreshToken': refreshToken}),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    await prefs.setString('jwt_token', data['accessToken']);
+    await prefs.setString('refresh_token', data['refreshToken']);
+  } else {
+    // Refresh token i sam istekao — logout
+    await prefs.clear();
+    throw Exception('Session expired');
+  }
+}
 }

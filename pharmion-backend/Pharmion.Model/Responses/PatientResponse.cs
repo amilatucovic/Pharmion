@@ -1,5 +1,6 @@
 ﻿using Pharmion.Model.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace Pharmion.Model.Responses
 {
@@ -25,5 +26,6 @@ namespace Pharmion.Model.Responses
         public bool IsInsured { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<string> ChronicDiseases { get; set; } = new List<string>();
     }
 }

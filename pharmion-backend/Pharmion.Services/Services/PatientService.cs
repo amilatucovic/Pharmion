@@ -56,8 +56,10 @@ namespace Pharmion.Services.Services
         public override async Task<PatientResponse?> GetByIdAsync(int id)
         {
             var patient = await _context.Patients
-                .Include(p => p.City)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                                     .Include(p => p.City)
+                                     .Include(p => p.ChronicDiseases)
+                                     .ThenInclude(cd => cd.ChronicDisease)
+                                     .FirstOrDefaultAsync(p => p.Id == id);
 
             return patient == null ? null : MapToResponse(patient);
         }
@@ -80,7 +82,11 @@ namespace Pharmion.Services.Services
             EmergencyContact = p.EmergencyContact,
             IsInsured = p.IsInsured,
             IsActive = p.IsActive,
-            CreatedAt = p.CreatedAt
+            CreatedAt = p.CreatedAt,
+            ChronicDiseases = p.ChronicDiseases
+                                       .Select(cd => cd.ChronicDisease?.Name ?? string.Empty)
+                                       .Where(name => !string.IsNullOrEmpty(name))
+                                       .ToList(),
         };
     }
 }

@@ -77,7 +77,9 @@ builder.Services.AddScoped<IPharmacologicalCategoryService, PharmacologicalCateg
 builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddSingleton<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+
 
 builder.Services.AddScoped<InitialReservationState>();
 builder.Services.AddScoped<DraftReservationState>();
@@ -87,8 +89,8 @@ builder.Services.AddScoped<ReadyForPickupReservationState>();
 builder.Services.AddScoped<PickedUpReservationState>();
 builder.Services.AddScoped<CancelledReservationState>();
 builder.Services.AddScoped<RejectedReservationState>();
-builder.Services.AddScoped<IPatientService, PatientService>();
 
+builder.Services.AddSingleton<IRecommendationService, RecommendationService>();
 builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")

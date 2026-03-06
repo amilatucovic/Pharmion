@@ -10,7 +10,5 @@ namespace Pharmion.Model.Requests
         [Required]
         public int PharmacyId { get; set; }
 
-        // Items se dodaju zasebno ili kroz nested objekat
-        // public List<ReservationItemRequest> Items { get; set; }
     }
 }

@@ -25,15 +25,14 @@ namespace Pharmion.Services.Services
 
         public async Task PublishAsync<T>(T message, string topic) where T : class
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2)); 
             try
             {
-                await _bus.PubSub.PublishAsync(message, topic);
-                _logger.LogDebug("Message published to topic: {Topic}", topic);
+                await _bus.PubSub.PublishAsync(message, x => x.WithTopic(topic), cts.Token);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error publishing message to topic: {Topic}", topic);
-                throw;
             }
         }
 
