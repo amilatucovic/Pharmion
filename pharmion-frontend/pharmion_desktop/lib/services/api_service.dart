@@ -189,4 +189,17 @@ static Future<void> delete(String endpoint) async {
     throw Exception('Session expired');
   }
 }
+
+static Future<Map<String, dynamic>> uploadFile(
+    String endpoint, List<int> bytes, String filename) async {
+  final token = await getToken();
+  final uri = Uri.parse('$baseUrl/$endpoint');
+  final request = http.MultipartRequest('POST', uri);
+  if (token != null) request.headers['Authorization'] = 'Bearer $token';
+  request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+  final streamed = await request.send();
+  final response = await http.Response.fromStream(streamed);
+  if (response.statusCode == 200) return jsonDecode(response.body);
+  throw Exception('Upload failed: ${response.statusCode}');
+}
 }

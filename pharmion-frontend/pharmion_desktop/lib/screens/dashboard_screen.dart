@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmion_desktop/screens/products_screen.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -146,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Prescriptions':
         return const PrescriptionsScreen();
       case 'Products':
-        return const PlaceholderScreen(title: 'Products');
+        return const ProductsScreen();
       case 'Pharmacies':
         return const PlaceholderScreen(title: 'Pharmacies');
       case 'Cities':

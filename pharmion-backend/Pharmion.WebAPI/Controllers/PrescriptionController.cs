@@ -57,7 +57,7 @@ namespace Pharmion.WebAPI.Controllers
             try
             {
                 await _prescriptionService.CancelAsync(id);
-                return Ok();
+                return Ok(new { message = "Prescription cancelled successfully." });
             }
             catch (UserException ex)
             {
