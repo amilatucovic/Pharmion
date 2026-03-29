@@ -79,6 +79,9 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IInventoryItemService, InventoryItemService>();
+builder.Services.AddScoped<IStockMovementService, StockMovementService>();
+
 
 
 builder.Services.AddScoped<InitialReservationState>();

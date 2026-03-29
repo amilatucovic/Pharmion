@@ -185,7 +185,8 @@ class ReservationService {
   String? state,
   String? patientName,
   DateTime? dateFrom,  
-  DateTime? dateTo,    
+  DateTime? dateTo,
+  int? pharmacyId,    
 }) async {
   final params = StringBuffer('Reservation?includeTotalCount=true');
   params.write('&page=$page&pageSize=$pageSize');
@@ -197,7 +198,7 @@ class ReservationService {
   }
   if (dateFrom != null) params.write('&createdFrom=${dateFrom.toIso8601String()}');
   if (dateTo != null) params.write('&createdTo=${dateTo.toIso8601String()}');
-
+  if (pharmacyId != null) params.write('&pharmacyId=$pharmacyId');
   final data = await ApiService.get(params.toString()) as Map<String, dynamic>;
   final rawItems = (data['items'] as List?) ?? [];
 

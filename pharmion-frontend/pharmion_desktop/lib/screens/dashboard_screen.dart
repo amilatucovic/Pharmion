@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import 'reservations_screen.dart';
 import 'patients_screen.dart';
 import 'prescriptions_screen.dart';
+import 'inventory_screen.dart';
 
 // ─── Placeholder screens ────────────────────────────────────────────────────
 class PlaceholderScreen extends StatelessWidget {
@@ -157,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Reports':
         return const PlaceholderScreen(title: 'Reports');
       case 'Inventory':
-        return const PlaceholderScreen(title: 'Inventory');
+        return const InventoryScreen();
       case 'Exceptions':
         return const PlaceholderScreen(title: 'Exceptions');
       default:

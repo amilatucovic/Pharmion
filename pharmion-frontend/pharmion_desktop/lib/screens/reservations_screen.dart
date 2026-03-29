@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pharmion_desktop/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/reservation_service.dart';
 import '../theme/app_theme.dart';
 import 'reservation_detail_screen.dart';
@@ -17,6 +19,8 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
   static const int _pageSize = 10;
   DateTime? _dateFrom;
   DateTime? _dateTo;
+  bool _isAdmin = false;
+  int? _myPharmacyId;
 
   bool _loading = true;
   List<ReservationModel> _reservations = [];
@@ -25,6 +29,16 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUserAndData();
+  }
+
+  Future<void> _loadUserAndData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final admin = await ApiService.isAdmin();
+    setState(() {
+      _isAdmin = admin;
+      _myPharmacyId = prefs.getInt('pharmacyId');
+    });
     _loadData();
   }
 
@@ -44,6 +58,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
         patientName: _searchController.text.trim(),
         dateFrom: _dateFrom,
         dateTo: _dateTo,
+        pharmacyId: _isAdmin ? null : _myPharmacyId,
       );
       if (mounted) {
         setState(() {
