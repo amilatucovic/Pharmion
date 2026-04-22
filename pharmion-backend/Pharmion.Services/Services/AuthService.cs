@@ -162,8 +162,10 @@ namespace Pharmion.Services.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             var userTokens = await _context.RefreshTokens
-                .Where(rt => rt.UserId == userId && rt.IsActive)
-                .ToListAsync();
+                 .Where(rt => rt.UserId == userId
+                 && !rt.IsRevoked
+                 && rt.ExpiresAt > DateTime.UtcNow)
+                 .ToListAsync();
 
             foreach (var token in userTokens)
             {

@@ -1051,8 +1051,9 @@ class _StockMovementDialogState extends State<_StockMovementDialog> {
         );
       }
     } catch (e) {
-      if (mounted)
-        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+      if (mounted) {
+           setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -1544,8 +1545,9 @@ class _InventoryItemDialogState extends State<_InventoryItemDialog> {
         widget.onSaved();
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pharmion_desktop/screens/chronic_diseases_screen.dart';
+import 'package:pharmion_desktop/screens/cities_screen.dart';
+import 'package:pharmion_desktop/screens/pharmacies_screen.dart';
 import 'package:pharmion_desktop/screens/products_screen.dart';
+import 'package:pharmion_desktop/screens/reports_screen.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,8 +13,9 @@ import 'reservations_screen.dart';
 import 'patients_screen.dart';
 import 'prescriptions_screen.dart';
 import 'inventory_screen.dart';
+import 'my_account_screen.dart';
+import 'pharmacists_screen.dart';
 
-// ─── Placeholder screens ────────────────────────────────────────────────────
 class PlaceholderScreen extends StatelessWidget {
   final String title;
   const PlaceholderScreen({super.key, required this.title});
@@ -57,6 +62,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _NavItem('Cities', Icons.location_city_rounded, adminOnly: true),
     _NavItem('Chronic Diseases', Icons.healing_rounded, adminOnly: true),
     _NavItem('Reports', Icons.bar_chart_rounded, adminOnly: true),
+    _NavItem('My Account', Icons.account_circle_rounded),
+    _NavItem('Pharmacists', Icons.badge_rounded, adminOnly: true),
   ];
 
   final List<_NavItem> _pharmacistItems = const [
@@ -66,6 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _NavItem('Prescriptions', Icons.description_rounded),
     _NavItem('Inventory', Icons.inventory_2_rounded),
     _NavItem('Exceptions', Icons.warning_rounded),
+    _NavItem('My Account', Icons.account_circle_rounded),
   ];
 
   List<_NavItem> get _navItems => _isAdmin ? _adminItems : _pharmacistItems;
@@ -142,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Dashboard':
         return _DashboardHome(isAdmin: _isAdmin);
       case 'Reservations':
-          return const ReservationsScreen();
+        return const ReservationsScreen();
       case 'Patients':
         return const PatientsScreen();
       case 'Prescriptions':
@@ -150,15 +158,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Products':
         return const ProductsScreen();
       case 'Pharmacies':
-        return const PlaceholderScreen(title: 'Pharmacies');
+        return const PharmaciesScreen();
       case 'Cities':
-        return const PlaceholderScreen(title: 'Cities');
+        return const CitiesScreen();
       case 'Chronic Diseases':
-        return const PlaceholderScreen(title: 'Chronic Diseases');
+        return const ChronicDiseasesScreen();
       case 'Reports':
-        return const PlaceholderScreen(title: 'Reports');
+        return const ReportsScreen();
       case 'Inventory':
         return const InventoryScreen();
+      case 'My Account':
+        return const MyAccountScreen();
+      case 'Pharmacists':
+        return const PharmacistsScreen();
       case 'Exceptions':
         return const PlaceholderScreen(title: 'Exceptions');
       default:
@@ -273,14 +285,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
-                      _SidebarItem(
-                        item: const _NavItem(
-                          'My Account',
-                          Icons.account_circle_rounded,
-                        ),
-                        selected: false,
-                        onTap: () {},
-                      ),
                       const SizedBox(height: 4),
                       // User info
                       Container(
@@ -640,11 +644,26 @@ class _DashboardHomeState extends State<_DashboardHome> {
                                         height: 24,
                                         decoration: BoxDecoration(
                                           color: i == 0
-                                              ? const Color.fromARGB(255, 14, 146, 140)
+                                              ? const Color.fromARGB(
+                                                  255,
+                                                  14,
+                                                  146,
+                                                  140,
+                                                )
                                               : i == 1
-                                              ? const Color.fromARGB(255, 195, 197, 58)
+                                              ? const Color.fromARGB(
+                                                  255,
+                                                  195,
+                                                  197,
+                                                  58,
+                                                )
                                               : i == 2
-                                              ? const Color.fromARGB(255, 223, 145, 68)
+                                              ? const Color.fromARGB(
+                                                  255,
+                                                  223,
+                                                  145,
+                                                  68,
+                                                )
                                               : AppColors.kTealLight,
                                           borderRadius: BorderRadius.circular(
                                             6,

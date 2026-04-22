@@ -83,8 +83,9 @@ class InventoryService {
         'InventoryItem?includeTotalCount=true&retrieveAll=false');
     params.write('&page=$page&pageSize=$pageSize');
     if (pharmacyId != null) params.write('&pharmacyId=$pharmacyId');
-    if (productName != null && productName.isNotEmpty)
-      params.write('&productName=$productName');
+    if (productName != null && productName.isNotEmpty) {
+        params.write('&productName=$productName');
+    }
     if (lowStock == true) params.write('&lowStock=true');
     if (expiringSoon == true) params.write('&expiringSoon=true');
 
