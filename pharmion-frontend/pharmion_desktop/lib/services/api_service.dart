@@ -68,6 +68,9 @@ class ApiService {
       await prefs.setInt('pharmacyId', data['pharmacyId'] ?? 0);
       await prefs.setString('firstName', data['firstName'] ?? '');
       await prefs.setString('lastName', data['lastName'] ?? '');
+      if (data['cityId'] != null) {
+        await prefs.setInt('cityId', data['cityId'] as int);
+      }
 
       return data;
     } else {

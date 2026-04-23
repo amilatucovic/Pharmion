@@ -1,5 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
-
 
 class DashboardStats {
   final int reservationsToday;
@@ -21,12 +21,7 @@ class TopProduct {
   final int rank;
   final String name;
   final int count;
-
-  const TopProduct({
-    required this.rank,
-    required this.name,
-    required this.count,
-  });
+  const TopProduct({required this.rank, required this.name, required this.count});
 }
 
 class RecentReservation {
@@ -35,7 +30,6 @@ class RecentReservation {
   final String pharmacyName;
   final String status;
   final DateTime createdAt;
-
   const RecentReservation({
     required this.id,
     required this.patientName,
@@ -45,12 +39,37 @@ class RecentReservation {
   });
 }
 
-
 class DashboardService {
   static Future<DashboardStats> getStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isAdmin = prefs.getBool('isAdministrator') ?? false;
+    final pharmacyId = prefs.getInt('pharmacyId') ?? 0;
+
+    // Pharmacy filter — farmaceut vidi samo svoju apoteku
+    final pharmacyFilter =
+        (!isAdmin && pharmacyId > 0) ? '&pharmacyId=$pharmacyId' : '';
+
+    // cityId za pacijente — dohvati iz apoteke farmaceuta
+    int? cityId;
+    if (!isAdmin && pharmacyId > 0) {
+      try {
+        final pharmacy =
+            await ApiService.get('Pharmacy/$pharmacyId') as Map<String, dynamic>;
+        cityId = pharmacy['cityId'] as int?;
+      } catch (_) {}
+    }
+
+    // Paralelni upiti
+    final patientUrl = cityId != null
+        ? 'Patient?pageSize=1&includeTotalCount=true&cityId=$cityId'
+        : 'Patient?pageSize=1&includeTotalCount=true';
+
+    final reservationUrl =
+        'Reservation?pageSize=200&retrieveAll=false$pharmacyFilter';
+
     final results = await Future.wait([
-      ApiService.get('Reservation?pageSize=200&retrieveAll=false'),
-      ApiService.get('Patient?pageSize=1&includeTotalCount=true'),
+      ApiService.get(reservationUrl),
+      ApiService.get(patientUrl),
       ApiService.get('Product?pageSize=1&includeTotalCount=true'),
     ]);
 
@@ -62,19 +81,18 @@ class DashboardService {
 
     return DashboardStats(
       reservationsToday: _countToday(allReservations),
-      activePatients: patientsData['totalCount'] ?? 0,
-      totalProducts: productsData['totalCount'] ?? 0,
+      activePatients: patientsData['totalCount'] as int? ?? 0,
+      totalProducts: productsData['totalCount'] as int? ?? 0,
       topProducts: _buildTopProducts(allReservations),
       recentReservations: _buildRecentReservations(allReservations),
     );
   }
 
- 
-
   static int _countToday(List allReservations) {
     final today = DateTime.now();
     return allReservations.where((r) {
-      final created = DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000);
+      final created =
+          DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000);
       return created.year == today.year &&
           created.month == today.month &&
           created.day == today.day;
@@ -116,13 +134,13 @@ class DashboardService {
       final status = r['reservationStateDisplay'] as String? ??
           (r['reservationState'] as String? ?? 'Unknown')
               .replaceAll('ReservationState', '');
-
       return RecentReservation(
         id: r['id'] as int? ?? 0,
         patientName: r['patientName'] as String? ?? 'N/A',
         pharmacyName: r['pharmacyName'] as String? ?? 'N/A',
         status: status,
-        createdAt: DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000),
+        createdAt:
+            DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000),
       );
     }).toList();
   }

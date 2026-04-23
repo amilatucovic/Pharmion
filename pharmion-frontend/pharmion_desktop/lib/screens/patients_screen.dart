@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../services/prescription_service.dart';
 import 'prescription_detail_screen.dart';
 import 'prescription_form_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -17,6 +18,8 @@ class _PatientsScreenState extends State<PatientsScreen> {
   bool? _isInsuredFilter;
   int _currentPage = 0;
   static const int _pageSize = 10;
+  int? _cityFilter; // cityId apoteke farmaceuta
+  bool _isAdmin = false;
 
   bool _loading = true;
   List<PatientModel> _patients = [];
@@ -25,7 +28,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _initFilters();
   }
 
   @override
@@ -33,6 +36,16 @@ class _PatientsScreenState extends State<PatientsScreen> {
     _searchController.dispose();
     super.dispose();
   }
+
+  Future<void> _initFilters() async {
+  final prefs = await SharedPreferences.getInstance();
+  _isAdmin = prefs.getBool('isAdministrator') ?? false;
+  
+  if (!_isAdmin) {
+    _cityFilter = prefs.getInt('cityId'); 
+  }
+  _loadData();
+}
 
   Future<void> _loadData() async {
     setState(() => _loading = true);
@@ -42,6 +55,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
         pageSize: _pageSize,
         name: _searchController.text.trim(),
         isInsured: _isInsuredFilter,
+        cityId: _cityFilter,
       );
       if (mounted) {
         setState(() {

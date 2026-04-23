@@ -273,11 +273,14 @@ namespace Pharmion.Services.Services
 
             if (user.Role == Role.Pharmacist)
             {
-                var pharmacist = await _context.Pharmacists.FindAsync(user.Id);
+                var pharmacist = await _context.Pharmacists
+                       .Include(p => p.Pharmacy)  
+                       .FirstOrDefaultAsync(p => p.Id == user.Id);
                 if (pharmacist != null)
                 {
                     response.IsAdministrator = pharmacist.IsAdministrator;
                     response.PharmacyId = pharmacist.PharmacyId;
+                    response.CityId = pharmacist.Pharmacy?.CityId;
                 }
             }
             else if (user.Role == Role.Patient)

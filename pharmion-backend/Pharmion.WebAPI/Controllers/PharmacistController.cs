@@ -4,13 +4,14 @@ using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize]
     public class PharmacistController : ControllerBase
     {
         private readonly IPharmacistService _pharmacistService;
@@ -21,6 +22,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAll([FromQuery] PharmacistSearchObject search)
         {
             var result = await _pharmacistService.GetAsync(search);
@@ -28,7 +30,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize] 
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _pharmacistService.GetByIdAsync(id);
@@ -38,6 +40,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Create([FromBody] RegisterPharmacistRequest request)
         {
             try
@@ -52,13 +55,22 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] PharmacistUpdateRequest request)
+        [Authorize(Roles = "Pharmacist")]
+        public async Task<IActionResult> Update(int id, PharmacistUpdateRequest request)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            var isAdmin = User.FindFirst("IsAdministrator")?.Value == "True";
+
+            if (!isAdmin && userId != id)
+                return Forbid();
+
             try
             {
                 var result = await _pharmacistService.UpdateAsync(id, request);
                 if (result == null)
-                    return NotFound(new { message = "Pharmacist not found." });
+                    return NotFound();
+
                 return Ok(result);
             }
             catch (UserException ex)
@@ -68,6 +80,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost("{id}/toggle-active")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> ToggleActive(int id)
         {
             try
@@ -81,6 +94,16 @@ namespace Pharmion.WebAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("me")]
+        [Authorize(Roles = "Pharmacist")]
+        public async Task<IActionResult> GetMe()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var result = await _pharmacistService.GetByIdAsync(userId);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
     }
 }
