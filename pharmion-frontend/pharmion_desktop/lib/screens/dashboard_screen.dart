@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmion_desktop/screens/chronic_diseases_screen.dart';
 import 'package:pharmion_desktop/screens/cities_screen.dart';
+import 'package:pharmion_desktop/screens/exceptions_screen.dart';
 import 'package:pharmion_desktop/screens/pharmacies_screen.dart';
 import 'package:pharmion_desktop/screens/products_screen.dart';
 import 'package:pharmion_desktop/screens/reports_screen.dart';
@@ -64,6 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _NavItem('Reports', Icons.bar_chart_rounded, adminOnly: true),
     _NavItem('My Account', Icons.account_circle_rounded),
     _NavItem('Pharmacists', Icons.badge_rounded, adminOnly: true),
+    _NavItem('Exceptions', Icons.warning_rounded, adminOnly: true),
   ];
 
   final List<_NavItem> _pharmacistItems = const [
@@ -172,7 +174,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Pharmacists':
         return const PharmacistsScreen();
       case 'Exceptions':
-        return const PlaceholderScreen(title: 'Exceptions');
+        return const ExceptionsScreen();
       default:
         return const PlaceholderScreen(title: 'Coming soon');
     }
@@ -554,7 +556,7 @@ class _DashboardHomeState extends State<_DashboardHome> {
               ),
               const SizedBox(width: 16),
               _StatCard(
-                title: 'Total Products',
+                title: widget.isAdmin ? 'Total Products' : 'Items in Stock',
                 value: '${stats.totalProducts}',
                 icon: Icons.medication_rounded,
                 color: const Color(0xFFF59E0B),

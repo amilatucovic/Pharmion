@@ -42,36 +42,44 @@ class RecentReservation {
 class DashboardService {
   static Future<DashboardStats> getStats() async {
     final prefs = await SharedPreferences.getInstance();
-    final isAdmin = prefs.getBool('isAdministrator') ?? false;
-    final pharmacyId = prefs.getInt('pharmacyId') ?? 0;
+  final isAdmin = prefs.getBool('isAdministrator') ?? false;
+  final pharmacyId = prefs.getInt('pharmacyId') ?? 0;
 
-    // Pharmacy filter — farmaceut vidi samo svoju apoteku
-    final pharmacyFilter =
-        (!isAdmin && pharmacyId > 0) ? '&pharmacyId=$pharmacyId' : '';
+  // Pharmacy filter za rezervacije
+  final pharmacyFilter =
+      (!isAdmin && pharmacyId > 0) ? '&pharmacyId=$pharmacyId' : '';
 
-    // cityId za pacijente — dohvati iz apoteke farmaceuta
-    int? cityId;
-    if (!isAdmin && pharmacyId > 0) {
+  // CityId — prvo iz prefs (sačuvan pri loginu), fallback dohvat apoteke
+  int? cityId;
+  if (!isAdmin) {
+    cityId = prefs.getInt('cityId'); // iz login response
+
+    // Fallback: ako cityId nije u prefs, dohvati iz apoteke
+    if (cityId == null && pharmacyId > 0) {
       try {
-        final pharmacy =
-            await ApiService.get('Pharmacy/$pharmacyId') as Map<String, dynamic>;
+        final pharmacy = await ApiService.get('Pharmacy/$pharmacyId')
+            as Map<String, dynamic>;
         cityId = pharmacy['cityId'] as int?;
+        // Sačuvaj za buduće
+        if (cityId != null) await prefs.setInt('cityId', cityId);
       } catch (_) {}
     }
+  }
 
-    // Paralelni upiti
-    final patientUrl = cityId != null
-        ? 'Patient?pageSize=1&includeTotalCount=true&cityId=$cityId'
-        : 'Patient?pageSize=1&includeTotalCount=true';
+  final patientUrl = (!isAdmin && cityId != null)
+      ? 'Patient?pageSize=1&includeTotalCount=true&cityId=$cityId'
+      : 'Patient?pageSize=1&includeTotalCount=true';
 
-    final reservationUrl =
-        'Reservation?pageSize=200&retrieveAll=false$pharmacyFilter';
+  final reservationUrl =
+      'Reservation?pageSize=200&retrieveAll=false$pharmacyFilter';
 
-    final results = await Future.wait([
-      ApiService.get(reservationUrl),
-      ApiService.get(patientUrl),
-      ApiService.get('Product?pageSize=1&includeTotalCount=true'),
-    ]);
+  final results = await Future.wait([
+    ApiService.get(reservationUrl),
+    ApiService.get(patientUrl),
+    (!isAdmin && pharmacyId > 0)
+    ? ApiService.get('InventoryItem?pageSize=1&includeTotalCount=true&pharmacyId=$pharmacyId')
+    : ApiService.get('Product?pageSize=1&includeTotalCount=true'),
+  ]);
 
     final reservationsData = results[0] as Map<String, dynamic>;
     final patientsData = results[1] as Map<String, dynamic>;

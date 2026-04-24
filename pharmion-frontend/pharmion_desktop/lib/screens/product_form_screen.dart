@@ -36,6 +36,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   int? _selectedPharmacologicalCategoryId;
   final _atcCodeController = TextEditingController();
   bool _requiresColdChain = false;
+  String? _existingImageUrl;
 
   String? _targetGender;
   final _minAgeController = TextEditingController();
@@ -70,6 +71,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _selectedType = p.type;
     _isPrescriptionRequired = p.isPrescriptionRequired;
     _isActive = p.isActive;
+    _existingImageUrl = p.imageUrl;
   }
 
   Future<void> _loadCategories() async {
@@ -683,6 +685,21 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                                                   BorderRadius.circular(10),
                                               child: Image.memory(
                                                 _imageBytes!,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, __, ___) =>
+                                                    _imagePlaceholder(),
+                                              ),
+                                            )
+                                          : (_existingImageUrl != null &&
+                                                _existingImageUrl!.isNotEmpty &&
+                                                !_existingImageUrl!.contains(
+                                                  'default-product',
+                                                ))
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.network(
+                                                'http://localhost:5081${_existingImageUrl!}',
                                                 fit: BoxFit.cover,
                                                 errorBuilder: (_, __, ___) =>
                                                     _imagePlaceholder(),
