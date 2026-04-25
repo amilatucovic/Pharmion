@@ -12,5 +12,6 @@ namespace Pharmion.Model.Responses
         public int CityId { get; set; }
         public string CityName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public string? WorkingHours { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿// Pharmion.Services/Services/StateMachines/ReservationStateMachine/PickedUpReservationState.cs
-using MapsterMapper;
+﻿using MapsterMapper;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;

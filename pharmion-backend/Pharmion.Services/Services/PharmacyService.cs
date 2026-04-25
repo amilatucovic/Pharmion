@@ -154,7 +154,8 @@ namespace Pharmion.Services.Services
                 Address = p.Address,
                 CityId = p.CityId,
                 CityName = p.City?.Name ?? string.Empty,
-                IsActive = p.IsActive
+                IsActive = p.IsActive,
+                WorkingHours = p.WorkingHours
             }).ToList();
 
             if (!string.IsNullOrWhiteSpace(search.OrderBy))
@@ -196,6 +197,21 @@ namespace Pharmion.Services.Services
             {
                 Items = responseList,
                 TotalCount = totalCount
+            };
+        }
+
+        private PharmacyResponse MapToResponse(Pharmacy? p)
+        {
+            if (p == null) return null!;
+            return new PharmacyResponse
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Address = p.Address,
+                CityId = p.CityId,
+                CityName = p.City?.Name ?? string.Empty,
+                IsActive = p.IsActive,
+                WorkingHours = p.WorkingHours  
             };
         }
     }

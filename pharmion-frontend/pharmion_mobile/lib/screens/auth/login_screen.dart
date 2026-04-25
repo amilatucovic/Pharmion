@@ -55,27 +55,11 @@ class _LoginScreenState extends State<LoginScreen> {
               // ── Logo ──────────────────────────────────────────────────────
               Image.asset(
                 'assets/images/pharmion_logo.png',
-                width: 120,
-                height: 60,
+                width: 250,
+                height: 120,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'PHARMION',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.kTextDark,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Your pharmacy companion',
-                style: TextStyle(fontSize: 14, color: AppColors.kTextMid),
-              ),
-              const SizedBox(height: 48),
-
+              
               // ── Form card ─────────────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.all(24),

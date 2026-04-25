@@ -1,0 +1,491 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/theme/app_theme.dart';
+import '../../data/models/inventory_item_model.dart';
+import '../../data/models/pharmacy_model.dart';
+import '../../data/services/api_service.dart';
+
+class PharmacyDetailScreen extends StatefulWidget {
+  final PharmacyModel pharmacy;
+  const PharmacyDetailScreen({super.key, required this.pharmacy});
+
+  @override
+  State<PharmacyDetailScreen> createState() => _PharmacyDetailScreenState();
+}
+
+class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
+  bool _loadingProducts = false;
+  List<InventoryItemModel> _products = [];
+  bool _productsLoaded = false;
+  String _searchQuery = '';
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadProducts() async {
+    setState(() => _loadingProducts = true);
+    try {
+      final data = await ApiService.get(
+          'InventoryItem?pharmacyId=${widget.pharmacy.id}&pageSize=50&retrieveAll=true')
+          as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          _products = ((data['items'] as List?) ?? [])
+              .map((i) => InventoryItemModel.fromJson(
+                  i as Map<String, dynamic>))
+              .where((i) => !i.isExpired && i.availableQuantity > 0)
+              .toList();
+          _productsLoaded = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load products: $e'),
+            backgroundColor: AppColors.kError,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loadingProducts = false);
+    }
+  }
+
+  List<InventoryItemModel> get _filteredProducts {
+    if (_searchQuery.isEmpty) return _products;
+    return _products
+        .where((p) =>
+            p.productName.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  String _fmtDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+
+  @override
+  Widget build(BuildContext context) {
+    final pharmacy = widget.pharmacy;
+
+    return Scaffold(
+      backgroundColor: AppColors.kBg,
+      body: CustomScrollView(
+        slivers: [
+          // ── App Bar ─────────────────────────────────────────────────────
+          SliverAppBar(
+            expandedHeight: 180,
+            pinned: true,
+            backgroundColor: AppColors.kTeal,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  size: 18, color: Colors.white),
+              onPressed: () => context.pop(),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF04B2B8), Color(0xFF03989E)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 40),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(
+                              Icons.local_pharmacy_rounded,
+                              color: Colors.white,
+                              size: 26),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(pharmacy.name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        Text(pharmacy.cityName,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                // ── Info Card ──────────────────────────────────────────
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Pharmacy Info',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.kTextDark)),
+                      const SizedBox(height: 14),
+                      const Divider(height: 1, color: AppColors.kBorder),
+                      const SizedBox(height: 14),
+                      _InfoRow(
+                        icon: Icons.location_on_outlined,
+                        label: 'Address',
+                        value: pharmacy.address.isNotEmpty
+                            ? pharmacy.address
+                            : '—',
+                      ),
+                      const SizedBox(height: 12),
+                      _InfoRow(
+                        icon: Icons.location_city_outlined,
+                        label: 'City',
+                        value: pharmacy.cityName,
+                      ),
+                      if (pharmacy.phone != null) ...[
+                        const SizedBox(height: 12),
+                        _InfoRow(
+                          icon: Icons.phone_outlined,
+                          label: 'Phone',
+                          value: pharmacy.phone!,
+                        ),
+                      ],
+                      if (pharmacy.email != null) ...[
+                        const SizedBox(height: 12),
+                        _InfoRow(
+                          icon: Icons.email_outlined,
+                          label: 'Email',
+                          value: pharmacy.email!,
+                        ),
+                      ],
+                      if (pharmacy.workingHours != null) ...[
+                        const SizedBox(height: 12),
+                        _InfoRow(
+                          icon: Icons.schedule_outlined,
+                          label: 'Working Hours',
+                          value: pharmacy.workingHours!,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ── Available Products Button / List ───────────────────
+                if (!_productsLoaded)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _loadingProducts ? null : _loadProducts,
+                      icon: _loadingProducts
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white))
+                          : const Icon(
+                              Icons.medication_outlined,
+                              size: 18),
+                      label: Text(_loadingProducts
+                          ? 'Loading...'
+                          : 'See Available Products'),
+                    ),
+                  )
+                else ...[
+                  Row(children: [
+                    const Text('Available Products',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.kTextDark)),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.kTealLight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text('${_filteredProducts.length}',
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.kTeal)),
+                    ),
+                  ]),
+                  const SizedBox(height: 12),
+
+                  // Search
+                  TextField(
+                    controller: _searchCtrl,
+                    onChanged: (v) =>
+                        setState(() => _searchQuery = v),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.kTextDark),
+                    decoration: InputDecoration(
+                      hintText: 'Search products...',
+                      hintStyle: const TextStyle(
+                          color: AppColors.kTextLight,
+                          fontSize: 14),
+                      prefixIcon: const Icon(Icons.search,
+                          color: AppColors.kTextMid, size: 20),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear,
+                                  size: 16),
+                              onPressed: () => setState(() {
+                                _searchCtrl.clear();
+                                _searchQuery = '';
+                              }),
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: AppColors.kBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: AppColors.kBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                            color: AppColors.kTeal, width: 2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  if (_filteredProducts.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.kBorder),
+                      ),
+                      child: const Row(children: [
+                        Icon(Icons.medication_outlined,
+                            size: 20,
+                            color: AppColors.kTextLight),
+                        SizedBox(width: 12),
+                        Text('No products available',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.kTextMid)),
+                      ]),
+                    )
+                  else
+                    ..._filteredProducts.map((item) =>
+                        _ProductCard(
+                            item: item, fmtDate: _fmtDate)),
+                ],
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Info Row ─────────────────────────────────────────────────────────────────
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.kTealLight,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 16, color: AppColors.kTeal),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.kTextMid,
+                        fontWeight: FontWeight.w500)),
+                const SizedBox(height: 2),
+                Text(value,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.kTextDark,
+                        fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+        ],
+      );
+}
+
+// ─── Product Card ─────────────────────────────────────────────────────────────
+class _ProductCard extends StatelessWidget {
+  final InventoryItemModel item;
+  final String Function(DateTime) fmtDate;
+  const _ProductCard({required this.item, required this.fmtDate});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: item.isLowStock
+                ? AppColors.kWarning.withValues(alpha: 0.4)
+                : AppColors.kBorder,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(children: [
+          // Icon
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.kTealLight,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.medication_rounded,
+                color: AppColors.kTeal, size: 22),
+          ),
+          const SizedBox(width: 12),
+
+          // Info
+          Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+              Text(item.productName,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.kTextDark)),
+              if (item.productSku != null) ...[
+                const SizedBox(height: 2),
+                Text('SKU: ${item.productSku}',
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.kTextMid)),
+              ],
+              const SizedBox(height: 4),
+              Row(children: [
+                // Available quantity
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: item.isLowStock
+                        ? const Color(0xFFFEF3C7)
+                        : AppColors.kTealLight,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '${item.availableQuantity} available',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: item.isLowStock
+                          ? AppColors.kWarning
+                          : AppColors.kTeal,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Expiration
+                Text(
+                  'Exp: ${fmtDate(item.expirationDate)}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: item.isExpiringSoon
+                        ? AppColors.kWarning
+                        : AppColors.kTextLight,
+                  ),
+                ),
+              ]),
+            ]),
+          ),
+
+          // Low stock badge
+          if (item.isLowStock)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text('Low',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.kWarning)),
+            ),
+        ]),
+      );
+}

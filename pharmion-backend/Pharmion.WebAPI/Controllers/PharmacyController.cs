@@ -10,7 +10,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminOnly")]
+    
     public class PharmacyController : BaseCRUDController<PharmacyResponse, PharmacySearchObject, PharmacyUpsertRequest, PharmacyUpsertRequest>
     {
         public PharmacyController(IPharmacyService pharmacyService) : base(pharmacyService)
@@ -18,18 +18,21 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Create([FromBody] PharmacyUpsertRequest request)
         {
             return base.Create(request);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Update(int id, [FromBody] PharmacyUpsertRequest request)
         {
             return base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Delete(int id)
         {
             return base.Delete(id);

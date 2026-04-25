@@ -18,6 +18,9 @@ namespace Pharmion.Model.Requests
         [Required(ErrorMessage = "City is required.")]
         public int CityId { get; set; }
 
+        [MaxLength(100)]
+        public string? WorkingHours { get; set; }
+
         public bool IsActive { get; set; } = true;
     }
 }

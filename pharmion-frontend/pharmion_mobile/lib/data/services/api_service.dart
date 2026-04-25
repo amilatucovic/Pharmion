@@ -15,8 +15,8 @@ class ApiService {
     return headers;
   }
 
-  static Future<dynamic> get(String endpoint) async {
-    var headers = await _headers();
+  static Future<dynamic> get(String endpoint, {bool auth = true}) async {
+    var headers = await _headers(auth: auth);
     var response = await http.get(
       Uri.parse('${AppConstants.baseUrl}/$endpoint'),
       headers: headers,

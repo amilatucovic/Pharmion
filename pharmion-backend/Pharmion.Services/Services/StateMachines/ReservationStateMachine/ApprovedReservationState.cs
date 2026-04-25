@@ -37,7 +37,6 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
 
             await _context.SaveChangesAsync();
 
-            // TODO: Send notification to patient - "Your order is ready for pickup"
 
             return _mapper.Map<ReservationResponse>(entity);
         }

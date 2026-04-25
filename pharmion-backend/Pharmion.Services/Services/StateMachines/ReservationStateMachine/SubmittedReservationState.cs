@@ -33,7 +33,6 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             await _context.SaveChangesAsync();
 
-            // TODO: Send notification to patient
 
             return _mapper.Map<ReservationResponse>(entity);
         }
@@ -53,8 +52,6 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             entity.ReservationState = nameof(RejectedReservationState);
 
             await _context.SaveChangesAsync();
-
-            // TODO: Send notification to patient with reason
 
             return _mapper.Map<ReservationResponse>(entity);
         }

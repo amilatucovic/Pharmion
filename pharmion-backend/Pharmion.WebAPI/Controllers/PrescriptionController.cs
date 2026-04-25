@@ -11,7 +11,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Pharmacist,Administrator")]
+    [Authorize]
     public class PrescriptionController
         : BaseCRUDController<PrescriptionResponse, PrescriptionSearchObject,
                              PrescriptionUpsertRequest, PrescriptionUpsertRequest>
@@ -24,7 +24,23 @@ namespace Pharmion.WebAPI.Controllers
             _prescriptionService = prescriptionService;
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Pharmacist")]
+        public override Task<PagedResult<PrescriptionResponse>> Get(
+        [FromQuery] PrescriptionSearchObject? search = null)
+        {
+            return base.Get(search);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Pharmacist")]
+        public override Task<PrescriptionResponse?> GetById(int id)
+        {
+            return base.GetById(id);
+        }
+
         [HttpPost]
+        [Authorize(Roles = "Pharmacist")]
         public override async Task<IActionResult> Create([FromBody] PrescriptionUpsertRequest request)
         {
             try
@@ -40,18 +56,21 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Pharmacist")]
         public override Task<IActionResult> Update(int id, [FromBody] PrescriptionUpsertRequest request)
         {
             return base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Pharmacist")]
         public override Task<IActionResult> Delete(int id)
         {
             return base.Delete(id);
         }
 
         [HttpPost("{id}/cancel")]
+        [Authorize(Roles = "Pharmacist")]
         public async Task<IActionResult> Cancel(int id)
         {
             try
@@ -63,6 +82,16 @@ namespace Pharmion.WebAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("my")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> GetMyPrescriptions([FromQuery] PrescriptionSearchObject search)
+        {
+            var patientId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            search.PatientId = patientId; 
+            var result = await _prescriptionService.GetAsync(search);
+            return Ok(result);
         }
     }
 }

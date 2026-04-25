@@ -25,6 +25,9 @@ namespace Pharmion.Services.Database.Entities
 
         public bool IsActive { get; set; } = true;
 
+        [MaxLength(100)]
+        public string? WorkingHours { get; set; }
+
         public ICollection<InventoryItem> InventoryItems { get; set; } = new List<InventoryItem>();
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }
