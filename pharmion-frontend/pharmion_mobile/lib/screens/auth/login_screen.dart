@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.kErrorLight,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: AppColors.kError.withOpacity(0.3)),
+                                color: AppColors.kError.withValues(alpha: 0.3)),
                           ),
                           child: Row(children: [
                             const Icon(Icons.error_outline,

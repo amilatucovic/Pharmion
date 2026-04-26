@@ -72,6 +72,14 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _isPrescriptionRequired = p.isPrescriptionRequired;
     _isActive = p.isActive;
     _existingImageUrl = p.imageUrl;
+    _atcCodeController.text = p.atcCode ?? '';
+    _selectedMedicationCategoryId = p.medicationCategoryId;
+    _selectedPharmacologicalCategoryId = p.pharmacologicalCategoryId;
+    _requiresColdChain = p.requiresColdChain;
+    _targetGender = p.targetGender;
+    _minAgeController.text = p.minAge?.toString() ?? '';
+    _maxAgeController.text = p.maxAge?.toString() ?? '';
+    _tagsController.text = p.tags ?? '';
   }
 
   Future<void> _loadCategories() async {
@@ -279,6 +287,24 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         'sideEffects': _sideEffectsController.text.trim(),
         'instructionsForUse': _instructionsController.text.trim(),
         'contraindications': _contraindicationsController.text.trim(),
+        if (_selectedType == 1) ...{
+          if (_atcCodeController.text.trim().isNotEmpty)
+            'atcCode': _atcCodeController.text.trim(),
+          if (_selectedMedicationCategoryId != null)
+            'medicationCategoryId': _selectedMedicationCategoryId,
+          if (_selectedPharmacologicalCategoryId != null)
+            'pharmacologicalCategoryId': _selectedPharmacologicalCategoryId,
+          'requiresColdChain': _requiresColdChain,
+        },
+        if (_selectedType == 2) ...{
+          if (_targetGender != null) 'targetGender': _targetGender,
+          if (_minAgeController.text.trim().isNotEmpty)
+            'minAge': int.tryParse(_minAgeController.text.trim()),
+          if (_maxAgeController.text.trim().isNotEmpty)
+            'maxAge': int.tryParse(_maxAgeController.text.trim()),
+          if (_tagsController.text.trim().isNotEmpty)
+            'tags': _tagsController.text.trim(),
+        },
       };
 
       ProductModel saved;

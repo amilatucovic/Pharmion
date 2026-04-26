@@ -45,5 +45,15 @@ namespace Pharmion.Model.Requests
         [MaxLength(1000)]
         public string Contraindications { get; set; } = string.Empty;
 
+        public int? MedicationCategoryId { get; set; }
+        public int? PharmacologicalCategoryId { get; set; }
+        public string? AtcCode { get; set; }
+        public bool RequiresColdChain { get; set; }
+        
+        public string? TargetGender { get; set; }
+        public int? MinAge { get; set; }
+        public int? MaxAge { get; set; }
+        public string? Tags { get; set; }
+
     }
 }

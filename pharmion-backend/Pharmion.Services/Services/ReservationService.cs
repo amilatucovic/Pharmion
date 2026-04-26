@@ -492,9 +492,17 @@ namespace Pharmion.Services.Services
             var item = await GetAndValidateItemAsync(reservationId, itemId, patientId);
 
             _context.ReservationItems.Remove(item);
-            RecalculateTotals(item.Reservation!);
+            await _context.SaveChangesAsync(); 
 
-            await _context.SaveChangesAsync();
+           
+            var reservation = await _context.Reservations
+                .Include(r => r.Items)
+                 .AsTracking()
+                .FirstOrDefaultAsync(r => r.Id == reservationId)
+                ?? throw new UserException("Reservation not found");
+
+            RecalculateTotals(reservation);
+            await _context.SaveChangesAsync(); 
         }
 
         public async Task<ReservationResponse> AddToReservationAsync(int patientId, AddToReservationRequest request)
@@ -701,6 +709,9 @@ namespace Pharmion.Services.Services
 
         private ReservationResponse MapReservationToResponse(Reservation r)
         {
+            var payment = _context.Payments
+                 .FirstOrDefault(p => p.ReservationId == r.Id
+                 && p.Status == PaymentStatus.Completed);
             return new ReservationResponse
             {
                 Id = r.Id,
@@ -721,6 +732,8 @@ namespace Pharmion.Services.Services
                 PatientPaysAmount = r.PatientPaysAmount,
                 InsurancePaysAmount = r.InsurancePaysAmount,
                 PickupDeadline = r.PickupDeadline,
+                IsPaid = payment != null,
+                PaymentMethod = payment?.Method.ToString(),
                 Items = r.Items?.Select(MapItemToResponse).ToList() ?? new List<ReservationItemResponse>()
             };
         }

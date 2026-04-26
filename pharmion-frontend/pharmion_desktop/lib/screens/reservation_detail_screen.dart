@@ -47,13 +47,13 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   Future<void> _refreshReservation() async {
-  try {
-    final r = await ReservationService.getById(widget.reservationId);
-    if (mounted) setState(() => _reservation = r);
-  } catch (e) {
-    debugPrint('Refresh error: $e');
+    try {
+      final r = await ReservationService.getById(widget.reservationId);
+      if (mounted) setState(() => _reservation = r);
+    } catch (e) {
+      debugPrint('Refresh error: $e');
+    }
   }
-}
 
   Future<void> _approve() async {
     final confirmed = await _showConfirmDialog(
@@ -87,6 +87,12 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   Future<void> _markReady() async {
+    if (!_reservation!.isPaid && _reservation!.paymentMethod == null) {
+      _showError(
+        'Cannot mark as ready: patient has not selected a payment method yet.',
+      );
+      return;
+    }
     final confirmed = await _showConfirmDialog(
       title: 'Mark as Ready for Pickup',
       message:
@@ -96,13 +102,13 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     );
     if (!confirmed) return;
 
-   try {
-     await ReservationService.markReady(widget.reservationId);
-     await _refreshReservation();
-     if (mounted) _showSuccess('Reservation marked as ready for pickup.');
-   } catch (e) {
-     if (mounted) _showError(e.toString().replaceAll('Exception: ', ''));
-   }
+    try {
+      await ReservationService.markReady(widget.reservationId);
+      await _refreshReservation();
+      if (mounted) _showSuccess('Reservation marked as ready for pickup.');
+    } catch (e) {
+      if (mounted) _showError(e.toString().replaceAll('Exception: ', ''));
+    }
   }
 
   Future<void> _markPickedUp() async {
@@ -391,6 +397,18 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                         icon: Icons.local_pharmacy_outlined,
                         label: 'Pharmacy',
                         value: r.pharmacyName,
+                      ),
+                      // Nakon pharmacy info:
+                      const SizedBox(height: 8),
+                      _InfoRow(
+                        icon: Icons.payment_outlined,
+                        label: 'Payment',
+                        value: r.isPaid
+                            ? 'Paid (${r.paymentMethod ?? 'Stripe'})'
+                            : 'Not paid yet',
+                        valueColor: r.isPaid
+                            ? const Color(0xFF059669)
+                            : const Color(0xFFD97706),
                       ),
                       if (r.submittedAt != null) ...[
                         const SizedBox(height: 8),

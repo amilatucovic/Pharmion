@@ -23,5 +23,15 @@ namespace Pharmion.Model.Responses
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public int? MedicationCategoryId { get; set; }
+        public string? MedicationCategoryName { get; set; }
+        public int? PharmacologicalCategoryId { get; set; }
+        public string? PharmacologicalCategoryName { get; set; }
+        public string? AtcCode { get; set; }
+        public bool RequiresColdChain { get; set; }
+        public string? TargetGender { get; set; }
+        public int? MinAge { get; set; }
+        public int? MaxAge { get; set; }
+        public string? Tags { get; set; }
     }
 }

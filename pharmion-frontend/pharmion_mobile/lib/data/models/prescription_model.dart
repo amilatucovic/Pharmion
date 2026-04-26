@@ -56,6 +56,7 @@ class PrescriptionModel {
 
 class PrescriptionItemModel {
   final int id;
+  final int productId;
   final String productName;
   final String dosage;
   final int periodDays;
@@ -67,6 +68,7 @@ class PrescriptionItemModel {
 
   const PrescriptionItemModel({
     required this.id,
+    required this.productId,
     required this.productName,
     required this.dosage,
     required this.periodDays,
@@ -80,6 +82,7 @@ class PrescriptionItemModel {
   factory PrescriptionItemModel.fromJson(Map<String, dynamic> json) =>
       PrescriptionItemModel(
         id: json['id'] as int? ?? 0,
+        productId: json['productId'] as int? ?? 0,
         productName: json['productName'] as String? ?? '',
         dosage: json['dosage'] as String? ?? '',
         periodDays: json['periodDays'] as int? ?? 0,

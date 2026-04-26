@@ -102,6 +102,8 @@ class ReservationModel {
   final double insurancePaysAmount;
   final List<ReservationItemModel> items;
   final List<String> allowedActions;
+  final bool isPaid;
+  final String? paymentMethod;
 
   const ReservationModel({
     required this.id,
@@ -123,6 +125,8 @@ class ReservationModel {
     required this.insurancePaysAmount,
     required this.items,
     required this.allowedActions,
+    required this.isPaid,
+    this.paymentMethod,
   });
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) {
@@ -155,6 +159,8 @@ class ReservationModel {
       patientPaysAmount: (json['patientPaysAmount'] as num?)?.toDouble() ?? 0.0,
       insurancePaysAmount:
           (json['insurancePaysAmount'] as num?)?.toDouble() ?? 0.0,
+      isPaid: json['isPaid'] as bool? ?? false,
+      paymentMethod: json['paymentMethod'] as String?,
       items:
           (json['items'] as List<dynamic>?)
               ?.map(
@@ -247,6 +253,9 @@ class ReservationService {
       insurancePaysAmount: reservation.insurancePaysAmount,
       items: reservation.items,
       allowedActions: actions,
+      isPaid: reservation.isPaid,
+      paymentMethod: reservation.paymentMethod,
+
     );
   }
 
@@ -277,7 +286,6 @@ static Future<ReservationModel> markPickedUp(int id) async {
 }
 
   static List<String> get allStates => [
-    'DraftReservationState',
     'SubmittedReservationState',
     'ApprovedReservationState',
     'ReadyForPickupReservationState',

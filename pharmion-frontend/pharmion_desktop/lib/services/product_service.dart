@@ -14,6 +14,16 @@ class ProductModel {
   final String? imageUrl;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final int? medicationCategoryId;
+  final String? medicationCategoryName;
+  final int? pharmacologicalCategoryId;
+  final String? pharmacologicalCategoryName;
+  final String? atcCode;
+  final bool requiresColdChain;
+  final String? targetGender;
+  final int? minAge;
+  final int? maxAge;
+  final String? tags;
 
   ProductModel({
     required this.id,
@@ -34,6 +44,16 @@ class ProductModel {
     this.imageUrl,
     required this.createdAt,
     this.updatedAt,
+    this.medicationCategoryId,
+    this.medicationCategoryName,
+    this.pharmacologicalCategoryId,
+    this.pharmacologicalCategoryName,
+    this.atcCode,
+    this.requiresColdChain = false,
+    this.targetGender,
+    this.minAge,
+    this.maxAge,
+    this.tags,
   });
 
   // JEDINI fromJson konstruktor — konvertuje type iz stringa u int
@@ -76,6 +96,16 @@ class ProductModel {
       imageUrl: j['imageUrl'],
       createdAt: DateTime.parse(j['createdAt']),
       updatedAt: j['updatedAt'] != null ? DateTime.parse(j['updatedAt']) : null,
+      medicationCategoryId: j['medicationCategoryId'] as int?,
+      medicationCategoryName: j['medicationCategoryName'] as String?,
+      pharmacologicalCategoryId: j['pharmacologicalCategoryId'] as int?,
+      pharmacologicalCategoryName: j['pharmacologicalCategoryName'] as String?,
+      atcCode: j['atcCode'] as String?,
+      requiresColdChain: j['requiresColdChain'] as bool? ?? false,
+      targetGender: j['targetGender'] as String?,
+      minAge: j['minAge'] as int?,
+      maxAge: j['maxAge'] as int?,
+      tags: j['tags'] as String?,
     );
   }
 

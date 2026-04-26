@@ -24,6 +24,8 @@ namespace Pharmion.Model.Responses
         public decimal InsurancePaysAmount { get; set; }
         public DateTime? PickupDeadline { get; set; }
         public List<ReservationItemResponse> Items { get; set; }
+        public bool IsPaid { get; set; }
+        public string? PaymentMethod { get; set; }
         public List<string> AllowedActions { get; set; } 
     }
 }

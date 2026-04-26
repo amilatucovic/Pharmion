@@ -62,7 +62,9 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
       );
       if (mounted) {
         setState(() {
-          _reservations = result.items;
+          _reservations = result.items
+              .where((r) => r.reservationState != 'DraftReservationState')
+              .toList();
           _totalCount = result.totalCount;
         });
       }

@@ -13,7 +13,7 @@ using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -83,6 +83,7 @@ builder.Services.AddScoped<IInventoryItemService, InventoryItemService>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 builder.Services.AddScoped<IPharmacistService, PharmacistService>();
 builder.Services.AddScoped<IEarlyDispenseExceptionService, EarlyDispenseExceptionService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 builder.Services.AddScoped<InitialReservationState>();
@@ -151,6 +152,11 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddMapster();
 
 var app = builder.Build();
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
 
 using (var scope = app.Services.CreateScope())
 {

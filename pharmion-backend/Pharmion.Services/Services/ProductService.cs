@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
@@ -87,6 +88,17 @@ namespace Pharmion.Services.Services
 
             entity.ImageUrl = "/images/products/default-product.jpg";
             entity.CreatedAt = DateTime.UtcNow;
+            if (entity.Type == ProductType.Medication && request.MedicationCategoryId.HasValue)
+            {
+                entity.MedicationDetails = new MedicationDetail
+                {
+                    ATCCode = request.AtcCode,
+                    RequiresColdChain = request.RequiresColdChain,
+                    MedicationCategoryId = request.MedicationCategoryId.Value,
+                    PharmacologicalCategoryId = request.PharmacologicalCategoryId,
+                    CreatedAt = DateTime.UtcNow
+                };
+            }
         }
 
         protected override async Task BeforeUpdate(Product entity, ProductUpdateRequest request)
@@ -106,6 +118,33 @@ namespace Pharmion.Services.Services
             }
 
             entity.UpdatedAt = DateTime.UtcNow;
+            if (entity.Type == ProductType.Medication && request.MedicationCategoryId.HasValue)
+            {
+                await _context.Entry(entity)
+                    .Reference(p => p.MedicationDetails)
+                    .LoadAsync();
+
+                if (entity.MedicationDetails == null)
+                {
+                    entity.MedicationDetails = new MedicationDetail
+                    {
+                        ProductId = entity.Id,
+                        ATCCode = request.AtcCode,
+                        RequiresColdChain = request.RequiresColdChain,
+                        MedicationCategoryId = request.MedicationCategoryId.Value,
+                        PharmacologicalCategoryId = request.PharmacologicalCategoryId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                }
+                else
+                {
+                    entity.MedicationDetails.ATCCode = request.AtcCode;
+                    entity.MedicationDetails.RequiresColdChain = request.RequiresColdChain;
+                    entity.MedicationDetails.MedicationCategoryId = request.MedicationCategoryId.Value;
+                    entity.MedicationDetails.PharmacologicalCategoryId = request.PharmacologicalCategoryId;
+                    entity.MedicationDetails.UpdatedAt = DateTime.UtcNow;
+                }
+            }
         }
 
         protected override void MapUpdateToEntity(Product entity, ProductUpdateRequest request)
@@ -145,7 +184,13 @@ namespace Pharmion.Services.Services
 
         public override async Task<PagedResult<ProductResponse>> GetAsync(ProductSearchObject search)
         {
-            var baseQuery = _context.Set<Product>().AsQueryable();
+            var baseQuery = _context.Set<Product>()
+                        .Include(p => p.MedicationDetails)
+                        .ThenInclude(md => md.MedicationCategory)
+                        .Include(p => p.MedicationDetails)
+                        .ThenInclude(md => md.PharmacologicalCategory)
+                        .Include(p => p.SupplementDetails)
+                        .AsQueryable();
 
             baseQuery = ApplyFilter(baseQuery, search);
 
@@ -175,6 +220,12 @@ namespace Pharmion.Services.Services
                 InstructionsForUse = p.InstructionsForUse,
                 Contraindications = p.Contraindications,
                 ImageUrl = p.ImageUrl,
+                MedicationCategoryId = p.MedicationDetails?.MedicationCategoryId,
+                MedicationCategoryName = p.MedicationDetails?.MedicationCategory?.Name,
+                PharmacologicalCategoryId = p.MedicationDetails?.PharmacologicalCategoryId,
+                PharmacologicalCategoryName = p.MedicationDetails?.PharmacologicalCategory?.Name,
+                AtcCode = p.MedicationDetails?.ATCCode,
+                RequiresColdChain = p.MedicationDetails?.RequiresColdChain ?? false,
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             }).ToList();

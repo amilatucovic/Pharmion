@@ -31,6 +31,9 @@ namespace Pharmion.Services.Database.Entities
 
         [MaxLength(200)]
         public string? StripeSessionId { get; set; }
+        public int? ProcessedByPharmacistId { get; set; }  
+        public string? RefundReason { get; set; }
+        public DateTime? RefundedAt { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? PaidAt { get; set; }

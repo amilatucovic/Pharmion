@@ -300,6 +300,22 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
+        [HttpPost("{id}/cancel")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> Cancel(int id, [FromBody] CancelReservationRequest request)
+        {
+            try
+            {
+                var userId = GetUserId();
+                var result = await _reservationService.CancelAsync(id, userId, request.Reason ?? "Cancelled by patient");
+                return Ok(result);
+            }
+            catch (UserException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         private int GetUserId() =>
             int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     }

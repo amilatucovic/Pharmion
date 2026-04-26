@@ -335,7 +335,7 @@ class _QuickAction extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -405,12 +405,12 @@ class _PrescriptionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isExpiringSoon || isExpired
-              ? statusColor.withOpacity(0.3)
+              ? statusColor.withValues(alpha: 0.3)
               : AppColors.kBorder,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -486,7 +486,7 @@ class _ReservationCard extends StatelessWidget {
   const _ReservationCard({required this.reservation});
 
   Color get _statusColor {
-    switch (reservation.status.toLowerCase()) {
+    switch (reservation.reservationState.toLowerCase()) {
       case 'submitted':
         return AppColors.kWarning;
       case 'approved':
@@ -505,7 +505,7 @@ class _ReservationCard extends StatelessWidget {
   }
 
   Color get _statusBg {
-    switch (reservation.status.toLowerCase()) {
+    switch (reservation.reservationState.toLowerCase()) {
       case 'submitted':
         return const Color(0xFFFEF3C7);
       case 'approved':
@@ -533,7 +533,7 @@ class _ReservationCard extends StatelessWidget {
           border: Border.all(color: AppColors.kBorder),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -582,7 +582,7 @@ class _ReservationCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              reservation.statusDisplay,
+              reservation.reservationStateDisplay,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -614,7 +614,7 @@ class _PharmacyCard extends StatelessWidget {
             border: Border.all(color: AppColors.kBorder),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

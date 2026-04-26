@@ -5,15 +5,14 @@ import '../screens/auth/register_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/dashboard/dashboard_home_screen.dart';
 import '../screens/reservations/reservations_screen.dart';
-import '../screens/reservations/reservation_detail_screen.dart';
 import '../screens/prescriptions/prescriptions_screen.dart';
 import '../screens/prescriptions/prescription_detail_screen.dart';
-import '../screens/products/products_screen.dart';
 import '../screens/products/product_detail_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/pharmacies/pharmacy_detail_screen.dart';
 import '../data/models/pharmacy_model.dart';
+import '../data/models/inventory_item_model.dart';
 
 class AppRouter {
   static GoRouter router(AuthProvider auth) => GoRouter(
@@ -53,13 +52,6 @@ class AppRouter {
               GoRoute(
                 path: '/reservations',
                 builder: (_, __) => const ReservationsScreen(),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    builder: (_, state) => ReservationDetailScreen(
-                        id: int.parse(state.pathParameters['id']!)),
-                  ),
-                ],
               ),
               GoRoute(
                 path: '/prescriptions',
@@ -74,14 +66,10 @@ class AppRouter {
               ),
               GoRoute(
                 path: '/products',
-                builder: (_, __) => const ProductsScreen(),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    builder: (_, state) => ProductDetailScreen(
-                        id: int.parse(state.pathParameters['id']!)),
-                  ),
-                ],
+                builder: (_, state) {
+                  final item = state.extra as InventoryItemModel;
+                  return ProductDetailScreen(inventoryItem: item);
+                },
               ),
               GoRoute(
                 path: '/pharmacy',

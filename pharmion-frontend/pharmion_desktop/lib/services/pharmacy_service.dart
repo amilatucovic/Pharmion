@@ -7,6 +7,7 @@ class PharmacyModel {
   final int cityId;
   final String cityName;
   final bool isActive;
+  final String? workingHours;
 
   const PharmacyModel({
     required this.id,
@@ -15,6 +16,7 @@ class PharmacyModel {
     required this.cityId,
     required this.cityName,
     required this.isActive,
+    this.workingHours,
   });
 
   factory PharmacyModel.fromJson(Map<String, dynamic> json) => PharmacyModel(
@@ -24,6 +26,7 @@ class PharmacyModel {
         cityId: json['cityId'] as int? ?? 0,
         cityName: json['cityName'] as String? ?? '',
         isActive: json['isActive'] as bool? ?? true,
+        workingHours: json['workingHours'] as String?,
       );
 }
 
