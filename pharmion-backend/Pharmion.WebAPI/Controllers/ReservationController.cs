@@ -301,13 +301,13 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost("{id}/cancel")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = "Patient,Pharmacist")]
         public async Task<IActionResult> Cancel(int id, [FromBody] CancelReservationRequest request)
         {
             try
             {
                 var userId = GetUserId();
-                var result = await _reservationService.CancelAsync(id, userId, request.Reason ?? "Cancelled by patient");
+                var result = await _reservationService.CancelAsync(id, userId, request.Reason ?? "Cancelled");
                 return Ok(result);
             }
             catch (UserException ex)

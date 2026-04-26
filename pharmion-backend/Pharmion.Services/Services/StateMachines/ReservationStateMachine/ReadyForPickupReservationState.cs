@@ -49,8 +49,26 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
                 _context.DispenseEvents.Add(dispenseEvent);
             }
 
+            foreach (var item in entity.Items.Where(i => i.PrescriptionItemId.HasValue))
+            {
+                var prescriptionItem = await _context.PrescriptionItems
+                    .FindAsync(item.PrescriptionItemId!.Value);
+
+                if (prescriptionItem != null)
+                {
+                    prescriptionItem.RepeatsUsed += 1;
+                    prescriptionItem.LastDispensedAt = DateTime.UtcNow;
+
+                    // Postavi NextEligibleDispenseAt na osnovu PeriodDays
+                    prescriptionItem.NextEligibleDispenseAt =
+                        DateTime.UtcNow.AddDays(prescriptionItem.PeriodDays - 1);
+                    // -1 jer dozvoljava rezervaciju dan prije isteka
+                }
+            }
+
             entity.ReservationState = nameof(PickedUpReservationState);
             entity.PickedUpAt = DateTime.UtcNow;
+            entity.MarkedPickedUpByPharmacistId = pharmacistId;
 
             await _context.SaveChangesAsync();
             return _mapper.Map<ReservationResponse>(entity);
@@ -70,6 +88,9 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             await ReturnReservedInventoryAsync(entity);
 
             entity.ReservationState = nameof(CancelledReservationState);
+            entity.CancellationReason = reason;      
+            entity.CancelledAt = DateTime.UtcNow;   
+            entity.CancelledByUserId = userId;       
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);

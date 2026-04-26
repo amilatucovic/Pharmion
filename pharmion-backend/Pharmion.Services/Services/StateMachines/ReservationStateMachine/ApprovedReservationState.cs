@@ -33,7 +33,8 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
 
             entity.ReservationState = nameof(ReadyForPickupReservationState);
             entity.ReadyForPickupAt = DateTime.UtcNow;
-            entity.PickupDeadline = DateTime.UtcNow.AddHours(48); 
+            entity.PickupDeadline = DateTime.UtcNow.AddHours(48);
+            entity.MarkedReadyByPharmacistId = pharmacistId;
 
             await _context.SaveChangesAsync();
 
@@ -50,6 +51,9 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             await ReturnReservedInventoryAsync(entity);
 
             entity.ReservationState = nameof(CancelledReservationState);
+            entity.CancellationReason = reason;
+            entity.CancelledAt = DateTime.UtcNow;
+            entity.CancelledByUserId = userId;
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);

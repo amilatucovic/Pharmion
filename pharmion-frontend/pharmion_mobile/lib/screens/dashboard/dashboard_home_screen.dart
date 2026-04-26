@@ -8,6 +8,7 @@ import '../../data/models/prescription_model.dart';
 import '../../data/models/reservation_model.dart';
 import '../../data/services/dashboard_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../screens/reservations/reservation_detail_screen.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
   const DashboardHomeScreen({super.key});
@@ -204,8 +205,16 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                         message: 'No recent reservations',
                       )
                     else
-                      ..._data!.recentReservations
-                          .map((r) => _ReservationCard(reservation: r)),
+                      ..._data!.recentReservations.map((r) => GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ReservationDetailScreen(reservation: r),
+                              ),
+                            ),
+                            child: _ReservationCard(reservation: r),
+                          )),
                     const SizedBox(height: 24),
 
                     // ── Pharmacies in Your City ───────────────────────────

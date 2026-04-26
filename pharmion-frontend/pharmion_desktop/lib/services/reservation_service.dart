@@ -74,7 +74,8 @@ class PatientDetail {
       cityName: json['cityName'] as String? ?? '',
       age: json['age'] as int? ?? 0,
       isInsured: json['isInsured'] as bool? ?? false,
-      chronicDiseases: (json['chronicDiseases'] as List<dynamic>?)
+      chronicDiseases:
+          (json['chronicDiseases'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
@@ -104,6 +105,12 @@ class ReservationModel {
   final List<String> allowedActions;
   final bool isPaid;
   final String? paymentMethod;
+  final String? cancellationReason;
+  final DateTime? cancelledAt;
+  final String? rejectionReason;
+  final bool isRefunded;
+  final bool hasEarlyDispenseException;
+  final int? earlyDispenseExceptionStatus;
 
   const ReservationModel({
     required this.id,
@@ -127,6 +134,12 @@ class ReservationModel {
     required this.allowedActions,
     required this.isPaid,
     this.paymentMethod,
+    this.cancellationReason,
+    this.cancelledAt,
+    this.rejectionReason,
+    this.isRefunded = false,
+    this.hasEarlyDispenseException = false,
+    this.earlyDispenseExceptionStatus,
   });
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) {
@@ -161,6 +174,16 @@ class ReservationModel {
           (json['insurancePaysAmount'] as num?)?.toDouble() ?? 0.0,
       isPaid: json['isPaid'] as bool? ?? false,
       paymentMethod: json['paymentMethod'] as String?,
+      cancellationReason: json['cancellationReason'] as String?,
+      cancelledAt: json['cancelledAt'] != null
+          ? DateTime.tryParse(json['cancelledAt'])
+          : null,
+      rejectionReason: json['rejectionReason'] as String?,
+      isRefunded: json['isRefunded'] as bool? ?? false,
+      hasEarlyDispenseException:
+          json['hasEarlyDispenseException'] as bool? ?? false,
+      earlyDispenseExceptionStatus:
+          json['earlyDispenseExceptionStatus'] as int?,
       items:
           (json['items'] as List<dynamic>?)
               ?.map(
@@ -186,37 +209,39 @@ class PagedReservations {
 
 class ReservationService {
   static Future<PagedReservations> getReservations({
-  int page = 0,
-  int pageSize = 10,
-  String? state,
-  String? patientName,
-  DateTime? dateFrom,  
-  DateTime? dateTo,
-  int? pharmacyId,    
-}) async {
-  final params = StringBuffer('Reservation?includeTotalCount=true');
-  params.write('&page=$page&pageSize=$pageSize');
-  if (state != null && state.isNotEmpty) {
-    params.write('&reservationState=$state');
-  }
-  if (patientName != null && patientName.isNotEmpty) {
-    params.write('&patientName=$patientName');
-  }
-  if (dateFrom != null) params.write('&createdFrom=${dateFrom.toIso8601String()}');
-  if (dateTo != null) params.write('&createdTo=${dateTo.toIso8601String()}');
-  if (pharmacyId != null) params.write('&pharmacyId=$pharmacyId');
-  final data = await ApiService.get(params.toString()) as Map<String, dynamic>;
-  final rawItems = (data['items'] as List?) ?? [];
+    int page = 0,
+    int pageSize = 10,
+    String? state,
+    String? patientName,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    int? pharmacyId,
+  }) async {
+    final params = StringBuffer('Reservation?includeTotalCount=true');
+    params.write('&page=$page&pageSize=$pageSize');
+    if (state != null && state.isNotEmpty) {
+      params.write('&reservationState=$state');
+    }
+    if (patientName != null && patientName.isNotEmpty) {
+      params.write('&patientName=$patientName');
+    }
+    if (dateFrom != null)
+      params.write('&createdFrom=${dateFrom.toIso8601String()}');
+    if (dateTo != null) params.write('&createdTo=${dateTo.toIso8601String()}');
+    if (pharmacyId != null) params.write('&pharmacyId=$pharmacyId');
+    final data =
+        await ApiService.get(params.toString()) as Map<String, dynamic>;
+    final rawItems = (data['items'] as List?) ?? [];
 
-  final items = rawItems
-      .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
-      .toList();
+    final items = rawItems
+        .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
+        .toList();
 
-  return PagedReservations(
-    items: items,
-    totalCount: data['totalCount'] as int? ?? items.length,
-  );
-}
+    return PagedReservations(
+      items: items,
+      totalCount: data['totalCount'] as int? ?? items.length,
+    );
+  }
 
   static Future<ReservationModel> getById(int id) async {
     final data =
@@ -255,35 +280,49 @@ class ReservationService {
       allowedActions: actions,
       isPaid: reservation.isPaid,
       paymentMethod: reservation.paymentMethod,
-
+      cancellationReason: reservation.cancellationReason,
+      cancelledAt: reservation.cancelledAt,
+      rejectionReason: reservation.rejectionReason,
+      isRefunded: reservation.isRefunded,
+      hasEarlyDispenseException: reservation.hasEarlyDispenseException,
+      earlyDispenseExceptionStatus: reservation.earlyDispenseExceptionStatus,
     );
   }
 
   static Future<ReservationModel> markReady(int id) async {
-  await ApiService.post('Reservation/$id/mark-ready', {});
-  await Future.delayed(const Duration(milliseconds: 500));
-  return getById(id); 
-}
+    await ApiService.post('Reservation/$id/mark-ready', {});
+    await Future.delayed(const Duration(milliseconds: 500));
+    return getById(id);
+  }
 
-static Future<ReservationModel> approve(int id) async {
-  await ApiService.post('Reservation/$id/approve', {});
-  return getById(id);
-}
+  static Future<ReservationModel> approve(int id) async {
+    await ApiService.post('Reservation/$id/approve', {});
+    return getById(id);
+  }
 
-static Future<ReservationModel> reject(int id, String reason) async {
-  await ApiService.post('Reservation/$id/reject', {'reason': reason});
-  return getById(id);
-}
+  static Future<ReservationModel> reject(int id, String reason) async {
+    await ApiService.post('Reservation/$id/reject', {'reason': reason});
+    return getById(id);
+  }
 
-static Future<ReservationModel> markPickedUp(int id) async {
-  await ApiService.post('Reservation/$id/mark-picked-up', {});
-  return getById(id);
-}
+  static Future<ReservationModel> markPickedUp(int id) async {
+    await ApiService.post('Reservation/$id/mark-picked-up', {});
+    return getById(id);
+  }
 
   static Future<PatientDetail> getPatientDetail(int patientId) async {
-  final data = await ApiService.get('Patient/$patientId') as Map<String, dynamic>;
-  return PatientDetail.fromJson(data);
-}
+    final data =
+        await ApiService.get('Patient/$patientId') as Map<String, dynamic>;
+    return PatientDetail.fromJson(data);
+  }
+
+  static Future<void> refund(int reservationId) async {
+    await ApiService.post('Payment/refund/$reservationId', {});
+  }
+
+  static Future<void> cancel(int id, String reason) async {
+    await ApiService.post('Reservation/$id/cancel', {'reason': reason});
+  }
 
   static List<String> get allStates => [
     'SubmittedReservationState',

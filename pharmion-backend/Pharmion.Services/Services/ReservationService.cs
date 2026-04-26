@@ -53,13 +53,22 @@ namespace Pharmion.Services.Services
             if (!search.RetrieveAll && search.Page.HasValue && search.PageSize.HasValue)
                 query = query.Skip(search.Page.Value * search.PageSize.Value).Take(search.PageSize.Value);
 
-            var reservations = await query
-                .OrderByDescending(r => r.CreatedAt)
+
+            var reservations = await query.OrderByDescending(r => r.CreatedAt).ToListAsync();
+
+            var reservationIds = reservations.Select(r => r.Id).ToList();
+
+            var exceptions = await _context.EarlyDispenseExceptions
+                .Where(e => reservationIds.Contains(e.ReservationId))
+                .ToListAsync();
+
+            var payments = await _context.Payments
+                .Where(p => reservationIds.Contains(p.ReservationId))
                 .ToListAsync();
 
             return new PagedResult<ReservationResponse>
             {
-                Items = reservations.Select(MapReservationToResponse).ToList(),
+                Items = reservations.Select(r => MapReservationToResponse(r, exceptions, payments)).ToList(),
                 TotalCount = totalCount
             };
         }
@@ -69,12 +78,19 @@ namespace Pharmion.Services.Services
             var reservation = await _context.Reservations
                 .Include(r => r.Patient)
                 .Include(r => r.Pharmacy)
-                .Include(r => r.Items)
-                    .ThenInclude(i => i.Product)
+                .Include(r => r.Items).ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(r => r.Id == id)
                 ?? throw new UserException("Reservation not found");
 
-            return MapReservationToResponse(reservation);
+            var exceptions = await _context.EarlyDispenseExceptions
+                .Where(e => e.ReservationId == id)
+                .ToListAsync();
+
+            var payments = await _context.Payments
+                .Where(p => p.ReservationId == id)
+                .ToListAsync();
+
+            return MapReservationToResponse(reservation, exceptions, payments);
         }
 
         public override async Task<ReservationResponse> CreateAsync(ReservationInsertRequest request)
@@ -92,7 +108,15 @@ namespace Pharmion.Services.Services
                 .FirstOrDefaultAsync(r => r.Id == created.Id)
                 ?? throw new UserException("Greška pri kreiranju rezervacije");
 
-            return MapReservationToResponse(full);
+            var exceptions = await _context.EarlyDispenseExceptions
+    .Where(e => e.ReservationId == full.Id)
+    .ToListAsync();
+
+            var payments = await _context.Payments
+                .Where(p => p.ReservationId == full.Id)
+                .ToListAsync();
+
+            return MapReservationToResponse(full, exceptions, payments);
         }
 
         public override async Task<ReservationResponse> UpdateAsync(int id, ReservationUpdateRequest request)
@@ -163,7 +187,7 @@ namespace Pharmion.Services.Services
 
             var result = await ReloadAndMapAsync(reservationId);
 
-            try  
+            try
             {
                 await _publisher.PublishAsync(new ReservationRejectedMessage
                 {
@@ -208,7 +232,7 @@ namespace Pharmion.Services.Services
             {
                 Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
             }
-  
+
             return result;
 
         }
@@ -278,15 +302,24 @@ namespace Pharmion.Services.Services
         public async Task<List<ReservationResponse>> GetReservationsByPatientAsync(int patientId)
         {
             var reservations = await _context.Reservations
-                .Include(r => r.Items)
-                    .ThenInclude(ri => ri.Product)
-                .Include(r => r.Pharmacy)
-                .Include(r => r.Patient)
-                .Where(r => r.PatientId == patientId)
-                .OrderByDescending(r => r.CreatedAt)
+    .Include(r => r.Items).ThenInclude(ri => ri.Product)
+    .Include(r => r.Pharmacy)
+    .Include(r => r.Patient)
+    .Where(r => r.PatientId == patientId)
+    .OrderByDescending(r => r.CreatedAt)
+    .ToListAsync();
+
+            var reservationIds = reservations.Select(r => r.Id).ToList();
+
+            var exceptions = await _context.EarlyDispenseExceptions
+                .Where(e => reservationIds.Contains(e.ReservationId))
                 .ToListAsync();
 
-            return reservations.Select(MapReservationToResponse).ToList();
+            var payments = await _context.Payments
+                .Where(p => reservationIds.Contains(p.ReservationId))
+                .ToListAsync();
+
+            return reservations.Select(r => MapReservationToResponse(r, exceptions, payments)).ToList();
 
         }
 
@@ -301,7 +334,17 @@ namespace Pharmion.Services.Services
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
 
-            return reservations.Select(MapReservationToResponse).ToList();
+            var reservationIds = reservations.Select(r => r.Id).ToList();
+
+            var exceptions = await _context.EarlyDispenseExceptions
+                .Where(e => reservationIds.Contains(e.ReservationId))
+                .ToListAsync();
+
+            var payments = await _context.Payments
+                .Where(p => reservationIds.Contains(p.ReservationId))
+                .ToListAsync();
+
+            return reservations.Select(r => MapReservationToResponse(r, exceptions, payments)).ToList();
         }
 
         protected override IQueryable<Reservation> ApplyFilter(IQueryable<Reservation> query, ReservationSearchObject search)
@@ -492,9 +535,9 @@ namespace Pharmion.Services.Services
             var item = await GetAndValidateItemAsync(reservationId, itemId, patientId);
 
             _context.ReservationItems.Remove(item);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
 
-           
+
             var reservation = await _context.Reservations
                 .Include(r => r.Items)
                  .AsTracking()
@@ -502,7 +545,7 @@ namespace Pharmion.Services.Services
                 ?? throw new UserException("Reservation not found");
 
             RecalculateTotals(reservation);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ReservationResponse> AddToReservationAsync(int patientId, AddToReservationRequest request)
@@ -585,6 +628,7 @@ namespace Pharmion.Services.Services
                         OtherReason = request.EarlyDispenseReason,
                         Note = null
                     };
+                    _context.EarlyDispenseExceptions.Add(earlyDispenseRecord);
                 }
             }
 
@@ -635,7 +679,15 @@ namespace Pharmion.Services.Services
                 .FirstOrDefaultAsync(r => r.Id == reservationId)
                 ?? throw new UserException("Reservation not found");
 
-            return MapReservationToResponse(full);
+            var exceptions = await _context.EarlyDispenseExceptions
+                .Where(e => e.ReservationId == reservationId)
+                .ToListAsync();
+
+            var payments = await _context.Payments
+                .Where(p => p.ReservationId == reservationId)
+                .ToListAsync();
+
+            return MapReservationToResponse(full, exceptions, payments);
         }
 
 
@@ -707,11 +759,13 @@ namespace Pharmion.Services.Services
             };
         }
 
-        private ReservationResponse MapReservationToResponse(Reservation r)
+        private ReservationResponse MapReservationToResponse(Reservation r,
+    List<EarlyDispenseException>? exceptions = null,
+    List<Payment>? payments = null)
         {
-            var payment = _context.Payments
-                 .FirstOrDefault(p => p.ReservationId == r.Id
-                 && p.Status == PaymentStatus.Completed);
+            var payment = payments?.FirstOrDefault(p => p.ReservationId == r.Id
+        && p.Status == PaymentStatus.Completed);
+            var exception = exceptions?.FirstOrDefault(e => e.ReservationId == r.Id);
             return new ReservationResponse
             {
                 Id = r.Id,
@@ -721,7 +775,7 @@ namespace Pharmion.Services.Services
                 PharmacyName = r.Pharmacy?.Name ?? string.Empty,
                 ReservationState = r.ReservationState,
                 ReservationStateDisplay = r.ReservationState.Replace("ReservationState", string.Empty),
-                PatientEmail = r.Patient?.Email ?? string.Empty, 
+                PatientEmail = r.Patient?.Email ?? string.Empty,
                 CreatedAt = r.CreatedAt,
                 UpdatedAt = r.UpdatedAt,
                 SubmittedAt = r.SubmittedAt,
@@ -732,8 +786,23 @@ namespace Pharmion.Services.Services
                 PatientPaysAmount = r.PatientPaysAmount,
                 InsurancePaysAmount = r.InsurancePaysAmount,
                 PickupDeadline = r.PickupDeadline,
+                CancellationReason = r.CancellationReason,
+                CancelledAt = r.CancelledAt,
+                CancelledByUserId = r.CancelledByUserId,
+                RejectionReason = r.RejectionReason,
+                RejectedAt = r.RejectedAt,
+                RejectedByPharmacistId = r.RejectedByPharmacistId,
+                ApprovedByPharmacistId = r.ApprovedByPharmacistId,
+                MarkedReadyByPharmacistId = r.MarkedReadyByPharmacistId,
+                MarkedPickedUpByPharmacistId = r.MarkedPickedUpByPharmacistId,
                 IsPaid = payment != null,
                 PaymentMethod = payment?.Method.ToString(),
+                IsRefunded = payments?.Any(p => p.ReservationId == r.Id
+                    && p.Status == PaymentStatus.Refunded) ?? false,
+                HasEarlyDispenseException = exception != null,
+                EarlyDispenseExceptionStatus = exception != null ? (int?)exception.Status : null,
+
+
                 Items = r.Items?.Select(MapItemToResponse).ToList() ?? new List<ReservationItemResponse>()
             };
         }

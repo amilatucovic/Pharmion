@@ -18,6 +18,12 @@ class ReservationModel {
   final List<String> allowedActions;
   final bool isPaid;
   final String? paymentMethod;
+  final String? cancellationReason;
+  final DateTime? cancelledAt;
+  final String? rejectionReason;
+  final bool isRefunded;
+  final bool hasEarlyDispenseException;
+  final int? earlyDispenseExceptionStatus;
 
   const ReservationModel({
     required this.id,
@@ -38,7 +44,13 @@ class ReservationModel {
     required this.items,
     required this.allowedActions,
     required this.isPaid,
-    required this.paymentMethod,
+    this.paymentMethod,
+    this.cancellationReason,
+    this.cancelledAt,
+    this.rejectionReason,
+    this.isRefunded = false,
+    this.hasEarlyDispenseException = false,
+    this.earlyDispenseExceptionStatus,
   });
 
   bool get isDraft => reservationState.contains('Draft');
@@ -48,8 +60,7 @@ class ReservationModel {
   bool get isPickedUp => reservationState.contains('PickedUp');
   bool get isCancelled => reservationState.contains('Cancelled');
   bool get isRejected => reservationState.contains('Rejected');
-  bool get isActive =>
-      isDraft || isSubmitted || isApproved || isReadyForPickup;
+  bool get isActive => isDraft || isSubmitted || isApproved || isReadyForPickup;
   bool get isHistory => isPickedUp || isCancelled || isRejected;
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) =>
@@ -66,22 +77,31 @@ class ReservationModel {
         approvedAt: _parseDate(json['approvedAt']),
         readyForPickupAt: _parseDate(json['readyForPickupAt']),
         pickedUpAt: _parseDate(json['pickedUpAt']),
-        totalAmount:
-            (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+        totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
         patientPaysAmount:
             (json['patientPaysAmount'] as num?)?.toDouble() ?? 0.0,
         insurancePaysAmount:
             (json['insurancePaysAmount'] as num?)?.toDouble() ?? 0.0,
         pickupDeadline: _parseDate(json['pickupDeadline']),
         items: ((json['items'] as List?) ?? [])
-            .map((i) => ReservationItemModel.fromJson(
-                i as Map<String, dynamic>))
+            .map(
+                (i) => ReservationItemModel.fromJson(i as Map<String, dynamic>))
             .toList(),
+        cancellationReason: json['cancellationReason'] as String?,
+        cancelledAt: json['cancelledAt'] != null
+            ? DateTime.tryParse(json['cancelledAt'])
+            : null,
+        rejectionReason: json['rejectionReason'] as String?,
+        isRefunded: json['isRefunded'] as bool? ?? false,
         allowedActions: ((json['allowedActions'] as List?) ?? [])
             .map((a) => a.toString())
             .toList(),
-            isPaid: json['isPaid'] as bool? ?? false,
-            paymentMethod: json['paymentMethod'] as String?,
+        isPaid: json['isPaid'] as bool? ?? false,
+        paymentMethod: json['paymentMethod'] as String?,
+        hasEarlyDispenseException:
+            json['hasEarlyDispenseException'] as bool? ?? false,
+        earlyDispenseExceptionStatus:
+            json['earlyDispenseExceptionStatus'] as int?,
       );
 
   static DateTime? _parseDate(dynamic raw) {
@@ -134,12 +154,9 @@ class ReservationItemModel {
         unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
         lineTotal: (json['lineTotal'] as num?)?.toDouble() ?? 0.0,
         patientPart: (json['patientPart'] as num?)?.toDouble() ?? 0.0,
-        insurancePart:
-            (json['insurancePart'] as num?)?.toDouble() ?? 0.0,
+        insurancePart: (json['insurancePart'] as num?)?.toDouble() ?? 0.0,
         prescriptionItemId: json['prescriptionItemId'] as int?,
-        isSubstitutionAllowed:
-            json['isSubstitutionAllowed'] as bool? ?? false,
-        requiresPrescription:
-            json['requiresPrescription'] as bool? ?? false,
+        isSubstitutionAllowed: json['isSubstitutionAllowed'] as bool? ?? false,
+        requiresPrescription: json['requiresPrescription'] as bool? ?? false,
       );
 }

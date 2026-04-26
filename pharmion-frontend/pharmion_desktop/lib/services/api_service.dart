@@ -117,8 +117,12 @@ class ApiService {
   }
 
   if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.body.isEmpty) return null;  
     return jsonDecode(response.body);
+  } else if (response.statusCode == 204) {  
+    return null;
   } else {
+    if (response.body.isEmpty) throw Exception('Error: ${response.statusCode}');
     final error = jsonDecode(response.body);
     throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
   }

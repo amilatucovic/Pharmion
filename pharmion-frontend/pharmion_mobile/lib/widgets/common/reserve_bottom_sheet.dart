@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/inventory_item_model.dart';
 import '../../data/services/reservation_service.dart';
+import '../../data/services/api_service.dart';
 
 class ReserveBottomSheet extends StatefulWidget {
   final InventoryItemModel inventoryItem;
@@ -48,6 +49,27 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
   List<PrescriptionItemWithPrescription> _prescriptionItems = [];
   PrescriptionItemWithPrescription? _selectedPrescriptionItem;
   int _quantity = 1;
+  bool _earlyDispenseRequired = false;
+  DateTime? _nextEligibleDate;
+  int? _daysRemaining;
+  int? _selectedReasonType;
+  final _earlyReasonController = TextEditingController();
+  String _getReasonLabel(int type) {
+    switch (type) {
+      case 1:
+        return 'Urgent medical need';
+      case 2:
+        return 'Doctor recommendation';
+      case 3:
+        return 'Lost medication';
+      case 4:
+        return 'Travel';
+      case 5:
+        return 'Dose change';
+      default:
+        return 'Other';
+    }
+  }
 
   @override
   void initState() {
@@ -76,8 +98,10 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _reserve() async {
-    // Validacija
+  Future<void> _reserve({
+    String? earlyDispenseReason,
+    int? earlyDispenseReasonType,
+  }) async {
     if (widget.isPrescriptionRequired && _selectedPrescriptionItem == null) {
       setState(() => _error = 'Please select a prescription item to continue.');
       return;
@@ -94,6 +118,8 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
         productId: widget.inventoryItem.productId,
         quantity: _quantity,
         prescriptionItemId: _selectedPrescriptionItem?.item.id,
+        earlyDispenseReason: earlyDispenseReason,
+        earlyDispenseReasonType: earlyDispenseReasonType,
       );
 
       if (mounted) {
@@ -109,6 +135,16 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ));
+      }
+    } on EarlyDispenseRequiredException catch (e) {
+      // Backend vratio 409 — prikaži early dispense dialog
+      if (mounted) {
+        setState(() {
+          _earlyDispenseRequired = true;
+          _nextEligibleDate = e.nextEligibleDate;
+          _daysRemaining = e.daysRemaining;
+          _reserving = false;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -268,7 +304,7 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                   decoration: BoxDecoration(
                     color: AppColors.kTealLight,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.kTeal), 
+                    border: Border.all(color: AppColors.kTeal),
                   ),
                   child: const Center(
                     child: Text('Close',
@@ -279,6 +315,149 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                   ),
                 ),
               ),
+            ],
+            if (_earlyDispenseRequired) ...[
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: AppColors.kWarning.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      const Icon(Icons.schedule_outlined,
+                          size: 18, color: AppColors.kWarning),
+                      const SizedBox(width: 8),
+                      const Text('Early Dispense Request',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.kWarning)),
+                    ]),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your therapy is scheduled until ${_nextEligibleDate != null ? '${_nextEligibleDate!.day}.${_nextEligibleDate!.month}.${_nextEligibleDate!.year}' : ''}. '
+                      'You have $_daysRemaining day(s) remaining. Please select a reason for early pickup.',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.kTextMid, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Reason type dropdown
+              const Text('Reason for early pickup',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.kTextMid)),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<int>(
+                value: _selectedReasonType,
+                hint: const Text('Select reason',
+                    style: TextStyle(fontSize: 13, color: AppColors.kTextMid)),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: AppColors.kBorder)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: AppColors.kBorder)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                          const BorderSide(color: AppColors.kTeal, width: 2)),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                      value: 1, child: Text('Urgent medical need')),
+                  DropdownMenuItem(
+                      value: 2, child: Text('Doctor recommendation')),
+                  DropdownMenuItem(value: 3, child: Text('Lost medication')),
+                  DropdownMenuItem(value: 4, child: Text('Travel')),
+                  DropdownMenuItem(value: 5, child: Text('Dose change')),
+                  DropdownMenuItem(value: 99, child: Text('Other')),
+                ],
+                onChanged: (v) => setState(() => _selectedReasonType = v),
+              ),
+              const SizedBox(height: 12),
+
+              // Other reason text field
+              if (_selectedReasonType == 99) ...[
+                TextField(
+                  controller: _earlyReasonController,
+                  maxLines: 2,
+                  style: const TextStyle(fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: 'Please describe your reason...',
+                    hintStyle: const TextStyle(
+                        fontSize: 13, color: AppColors.kTextMid),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: AppColors.kBorder)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: AppColors.kBorder)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: AppColors.kTeal, width: 2)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _reserving || _selectedReasonType == null
+                      ? null
+                      : () => _reserve(
+                            earlyDispenseReason: _selectedReasonType == 99
+                                ? _earlyReasonController.text.trim()
+                                : _getReasonLabel(_selectedReasonType!),
+                            earlyDispenseReasonType: _selectedReasonType,
+                          ),
+                  child: _reserving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : const Text('Submit Early Request'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => setState(() {
+                    _earlyDispenseRequired = false;
+                    _selectedReasonType = null;
+                  }),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.kTextMid,
+                    side: const BorderSide(color: AppColors.kBorder),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(height: 8),
             ] else ...[
               // Prescription selector
               if (widget.isPrescriptionRequired) ...[

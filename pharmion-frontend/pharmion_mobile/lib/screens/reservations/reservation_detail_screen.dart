@@ -335,12 +335,50 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 message:
                     'This reservation is a draft. Review items and submit when ready.',
               ),
+            if (r.hasEarlyDispenseException)
+              _Banner(
+                color: r.earlyDispenseExceptionStatus == 2
+                    ? AppColors.kSuccess
+                    : r.earlyDispenseExceptionStatus == 3
+                        ? AppColors.kError
+                        : const Color(0xFFD97706),
+                bg: r.earlyDispenseExceptionStatus == 2
+                    ? const Color(0xFFD1FAE5)
+                    : r.earlyDispenseExceptionStatus == 3
+                        ? AppColors.kErrorLight
+                        : const Color(0xFFFEF3C7),
+                icon: Icons.schedule_outlined,
+                message: r.earlyDispenseExceptionStatus == 2
+                    ? 'Early dispense request approved by pharmacist.'
+                    : r.earlyDispenseExceptionStatus == 3
+                        ? 'Early dispense request was rejected by pharmacist.'
+                        : 'Early dispense request is pending pharmacist approval.',
+              ),
             if (r.isRejected)
               _Banner(
                 color: AppColors.kError,
                 bg: AppColors.kErrorLight,
                 icon: Icons.cancel_outlined,
-                message: 'This reservation was rejected by the pharmacy.',
+                message: r.rejectionReason != null
+                    ? 'Reservation rejected: ${r.rejectionReason}'
+                    : 'This reservation was rejected by the pharmacy.',
+              ),
+            if (r.isCancelled)
+              _Banner(
+                color: AppColors.kTextMid,
+                bg: const Color(0xFFF1F5F9),
+                icon: Icons.block_outlined,
+                message: r.cancellationReason != null
+                    ? 'Reservation cancelled: ${r.cancellationReason}'
+                    : 'This reservation has been cancelled.',
+              ),
+            if (r.isCancelled && r.isRefunded)
+              _Banner(
+                color: const Color(0xFF7C3AED),
+                bg: const Color(0xFFEDE9FE),
+                icon: Icons.undo_outlined,
+                message:
+                    'Your payment has been refunded. Please allow 5-10 business days for the funds to appear.',
               ),
             if (r.isPaid && !r.isReadyForPickup && !r.isPickedUp)
               _Banner(

@@ -39,12 +39,12 @@ class DashboardService {
   static Future<List<ReservationModel>> _getRecentReservations(
       int userId) async {
     try {
-      final data =
-          await ApiService.get('Reservation?pageSize=5&patientId=$userId')
-              as Map<String, dynamic>;
-      return ((data['items'] as List?) ?? [])
+      final data = await ApiService.get('Reservation/by-patient/$userId')
+          as List<dynamic>;
+      final all = data
           .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
           .toList();
+      return all.take(3).toList();
     } catch (_) {
       return [];
     }
@@ -53,8 +53,7 @@ class DashboardService {
   static Future<List<PrescriptionModel>> _getActivePrescriptions(
       int userId) async {
     try {
-      final data = await ApiService.get(
-              'Prescription/my?pageSize=5&status=1')
+      final data = await ApiService.get('Prescription/my?pageSize=5&status=1')
           as Map<String, dynamic>;
       return ((data['items'] as List?) ?? [])
           .map((p) => PrescriptionModel.fromJson(p as Map<String, dynamic>))

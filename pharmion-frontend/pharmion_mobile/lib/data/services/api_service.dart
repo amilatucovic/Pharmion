@@ -34,7 +34,8 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  static Future<dynamic> post(String endpoint, Map<String, dynamic> body, {bool auth = true}) async {
+  static Future<dynamic> post(String endpoint, Map<String, dynamic> body,
+      {bool auth = true}) async {
     var headers = await _headers(auth: auth);
     var response = await http.post(
       Uri.parse('${AppConstants.baseUrl}/$endpoint'),
@@ -50,6 +51,16 @@ class ApiService {
         headers: headers,
         body: jsonEncode(body),
       );
+    } else if (response.statusCode == 409) {
+      final data = jsonDecode(response.body);
+      if (data['requiresEarlyDispenseReason'] == true) {
+        throw EarlyDispenseRequiredException(
+          message: data['message'] ?? '',
+          nextEligibleDate: DateTime.parse(data['nextEligibleDate']),
+          daysRemaining: data['daysRemaining'] ?? 0,
+        );
+      }
+      throw Exception(data['message'] ?? 'Conflict');
     }
 
     return _handleResponse(response);
@@ -93,7 +104,8 @@ class ApiService {
     }
 
     if (response.statusCode != 200 && response.statusCode != 204) {
-      throw AppException('Error: ${response.statusCode}', statusCode: response.statusCode);
+      throw AppException('Error: ${response.statusCode}',
+          statusCode: response.statusCode);
     }
   }
 
@@ -112,7 +124,8 @@ class ApiService {
       );
     } catch (e) {
       if (e is AppException) rethrow;
-      throw AppException('Error ${response.statusCode}', statusCode: response.statusCode);
+      throw AppException('Error ${response.statusCode}',
+          statusCode: response.statusCode);
     }
   }
 
@@ -141,4 +154,15 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
+}
+
+class EarlyDispenseRequiredException implements Exception {
+  final String message;
+  final DateTime nextEligibleDate;
+  final int daysRemaining;
+  EarlyDispenseRequiredException({
+    required this.message,
+    required this.nextEligibleDate,
+    required this.daysRemaining,
+  });
 }

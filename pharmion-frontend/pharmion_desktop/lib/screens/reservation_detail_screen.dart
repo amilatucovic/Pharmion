@@ -129,6 +129,25 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     }
   }
 
+  Future<void> _refund() async {
+    final confirmed = await _showConfirmDialog(
+      title: 'Refund Payment',
+      message:
+          'Are you sure you want to refund the payment for this reservation? This action cannot be undone.',
+      confirmLabel: 'Refund',
+      confirmColor: const Color(0xFFDC2626),
+    );
+    if (!confirmed) return;
+
+    try {
+      await ReservationService.refund(widget.reservationId);
+      await _refreshReservation();
+      if (mounted) _showSuccess('Payment refunded successfully.');
+    } catch (e) {
+      if (mounted) _showError(e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
   // ─── Dialogs ───────────────────────────────────────────────────────────────
 
   Future<bool> _showConfirmDialog({
@@ -361,6 +380,9 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
 
   Widget _buildContent() {
     final r = _reservation!;
+    debugPrint(
+      'isPaid: ${r.isPaid}, paymentMethod: ${r.paymentMethod}, state: ${r.reservationState}',
+    );
     return SingleChildScrollView(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -410,6 +432,41 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                             ? const Color(0xFF059669)
                             : const Color(0xFFD97706),
                       ),
+                      if (r.hasEarlyDispenseException) ...[
+                        const SizedBox(height: 8),
+                        _InfoRow(
+                          icon: Icons.schedule_outlined,
+                          label: 'Early dispense',
+                          value: r.earlyDispenseExceptionStatus == 2
+                              ? 'Approved'
+                              : r.earlyDispenseExceptionStatus == 3
+                              ? 'Rejected'
+                              : 'Pending approval',
+                          valueColor: r.earlyDispenseExceptionStatus == 2
+                              ? const Color(0xFF059669)
+                              : r.earlyDispenseExceptionStatus == 3
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFFD97706),
+                        ),
+                      ],
+                      if (r.cancellationReason != null) ...[
+                        const SizedBox(height: 8),
+                        _InfoRow(
+                          icon: Icons.info_outline,
+                          label: 'Cancel reason',
+                          value: r.cancellationReason!,
+                          valueColor: const Color(0xFFDC2626),
+                        ),
+                      ],
+                      if (r.rejectionReason != null) ...[
+                        const SizedBox(height: 8),
+                        _InfoRow(
+                          icon: Icons.info_outline,
+                          label: 'Reject reason',
+                          value: r.rejectionReason!,
+                          valueColor: const Color(0xFFDC2626),
+                        ),
+                      ],
                       if (r.submittedAt != null) ...[
                         const SizedBox(height: 8),
                         _InfoRow(
@@ -720,9 +777,108 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 ],
               ),
             ),
+          // ── Refund ────────────────────────────────────────────────
+          if (r.isPaid &&
+              r.paymentMethod == 'Stripe' &&
+              (r.reservationState == 'CancelledReservationState' ||
+                  r.reservationState == 'RejectedReservationState'))
+            Container(
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.undo_outlined,
+                      size: 18,
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Refund Available',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.kTextDark,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Patient paid ${r.patientPaysAmount.toStringAsFixed(2)} KM via Stripe. You can refund this payment.',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.kTextMid,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: _refund,
+                    icon: const Icon(Icons.undo_outlined, size: 15),
+                    label: const Text('Refund', style: TextStyle(fontSize: 13)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC2626),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  Future<void> _cancel() async {
+    final confirmed = await _showConfirmDialog(
+      title: 'Cancel Reservation',
+      message: 'Are you sure you want to cancel this reservation?',
+      confirmLabel: 'Cancel Reservation',
+      confirmColor: const Color(0xFFDC2626),
+    );
+    if (!confirmed) return;
+
+    try {
+      await ReservationService.cancel(
+        widget.reservationId,
+        'Cancelled by pharmacist',
+      );
+      await _refreshReservation();
+      if (mounted) _showSuccess('Reservation cancelled.');
+    } catch (e) {
+      if (mounted) _showError(e.toString().replaceAll('Exception: ', ''));
+    }
   }
 
   void _handleAction(String action) {
@@ -738,6 +894,9 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
         break;
       case 'MarkAsPickedUp':
         _markPickedUp();
+        break;
+      case 'Cancel':
+        _cancel();
         break;
     }
   }
@@ -854,6 +1013,7 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // ← dodaj
       children: [
         Icon(icon, size: 14, color: AppColors.kTextMid),
         const SizedBox(width: 8),
@@ -861,12 +1021,15 @@ class _InfoRow extends StatelessWidget {
           '$label: ',
           style: const TextStyle(fontSize: 13, color: AppColors.kTextMid),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: valueColor ?? AppColors.kTextDark,
+        Expanded(
+          // ← wrap u Expanded
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: valueColor ?? AppColors.kTextDark,
+            ),
           ),
         ),
       ],

@@ -30,6 +30,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             entity.ReservationState = nameof(ApprovedReservationState);
             entity.ApprovedAt = DateTime.UtcNow;
+            entity.ApprovedByPharmacistId = pharmacistId;
 
             await _context.SaveChangesAsync();
 
@@ -50,6 +51,9 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             await ReturnReservedInventoryAsync(entity);
 
             entity.ReservationState = nameof(RejectedReservationState);
+            entity.RejectionReason = reason;
+            entity.RejectedAt = DateTime.UtcNow;
+            entity.RejectedByPharmacistId = pharmacistId;
 
             await _context.SaveChangesAsync();
 
@@ -62,6 +66,9 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             await ReturnReservedInventoryAsync(entity);
 
             entity.ReservationState = nameof(CancelledReservationState);
+            entity.CancellationReason = reason;
+            entity.CancelledAt = DateTime.UtcNow;
+            entity.CancelledByUserId = userId;
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);

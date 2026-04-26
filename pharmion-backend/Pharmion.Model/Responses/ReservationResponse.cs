@@ -26,6 +26,18 @@ namespace Pharmion.Model.Responses
         public List<ReservationItemResponse> Items { get; set; }
         public bool IsPaid { get; set; }
         public string? PaymentMethod { get; set; }
-        public List<string> AllowedActions { get; set; } 
+        public List<string> AllowedActions { get; set; }
+        public string? CancellationReason { get; set; }
+        public DateTime? CancelledAt { get; set; }
+        public int? CancelledByUserId { get; set; }
+        public string? RejectionReason { get; set; }
+        public DateTime? RejectedAt { get; set; }
+        public int? RejectedByPharmacistId { get; set; }
+        public int? ApprovedByPharmacistId { get; set; }
+        public int? MarkedReadyByPharmacistId { get; set; }
+        public int? MarkedPickedUpByPharmacistId { get; set; }
+        public bool IsRefunded { get; set; }
+        public bool HasEarlyDispenseException { get; set; }
+        public int? EarlyDispenseExceptionStatus { get; set; }
     }
 }

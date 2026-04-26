@@ -64,6 +64,9 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 throw new UserException("Reservation not found");
 
             entity.ReservationState = nameof(CancelledReservationState);
+            entity.CancellationReason = reason;
+            entity.CancelledAt = DateTime.UtcNow;
+            entity.CancelledByUserId = userId;
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);
