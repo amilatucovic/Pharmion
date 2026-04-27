@@ -8,7 +8,6 @@ import '../../data/models/prescription_model.dart';
 import '../../data/models/reservation_model.dart';
 import '../../data/services/dashboard_service.dart';
 import '../../providers/auth_provider.dart';
-import '../../screens/reservations/reservation_detail_screen.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
   const DashboardHomeScreen({super.key});
@@ -171,7 +170,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                           label: 'Find Pharmacy',
                           color: const Color(0xFF059669),
                           bg: const Color(0xFFD1FAE5),
-                          onTap: () {},
+                          onTap: () => context.go('/pharmacies'),
                         ),
                       ],
                     ),
@@ -206,13 +205,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                       )
                     else
                       ..._data!.recentReservations.map((r) => GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ReservationDetailScreen(reservation: r),
-                              ),
-                            ),
+                            onTap: () =>
+                                context.go('/reservations/${r.id}', extra: r),
                             child: _ReservationCard(reservation: r),
                           )),
                     const SizedBox(height: 24),
@@ -406,85 +400,92 @@ class _PrescriptionCard extends StatelessWidget {
       statusText = 'Active';
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isExpiringSoon || isExpired
-              ? statusColor.withValues(alpha: 0.3)
-              : AppColors.kBorder,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(children: [
-        Container(
-          width: 40,
-          height: 40,
+    return GestureDetector(
+        onTap: () => context.go(
+              '/prescriptions/${prescription.id}',
+              extra: prescription,
+            ),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEDE9FE),
-            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isExpiringSoon || isExpired
+                  ? statusColor.withValues(alpha: 0.3)
+                  : AppColors.kBorder,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: const Icon(Icons.description_outlined,
-              color: Color(0xFF6366F1), size: 20),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              prescription.doctorName,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.kTextDark,
+          child: Row(children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEDE9FE),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.description_outlined,
+                  color: Color(0xFF6366F1), size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      prescription.doctorName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.kTextDark,
+                      ),
+                    ),
+                    if (prescription.facility != null) ...[
+                      const SizedBox(height: 2),
+                      Text(prescription.facility!,
+                          style: const TextStyle(
+                              fontSize: 12, color: AppColors.kTextMid)),
+                    ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${prescription.items.length} medication${prescription.items.length != 1 ? 's' : ''}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.kTextMid),
+                    ),
+                    if (prescription.validTo != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Valid until: ${AppDateUtils.formatDate(prescription.validTo)}',
+                        style: TextStyle(fontSize: 11, color: statusColor),
+                      ),
+                    ],
+                  ]),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusBg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                statusText,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: statusColor,
+                ),
               ),
             ),
-            if (prescription.facility != null) ...[
-              const SizedBox(height: 2),
-              Text(prescription.facility!,
-                  style:
-                      const TextStyle(fontSize: 12, color: AppColors.kTextMid)),
-            ],
-            const SizedBox(height: 4),
-            Text(
-              '${prescription.items.length} medication${prescription.items.length != 1 ? 's' : ''}',
-              style: const TextStyle(fontSize: 12, color: AppColors.kTextMid),
-            ),
-            if (prescription.validTo != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                'Valid until: ${AppDateUtils.formatDate(prescription.validTo)}',
-                style: TextStyle(fontSize: 11, color: statusColor),
-              ),
-            ],
           ]),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: statusBg,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            statusText,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: statusColor,
-            ),
-          ),
-        ),
-      ]),
-    );
+        ));
   }
 }
 
@@ -611,9 +612,7 @@ class _PharmacyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: () {
-          context.push('/pharmacy', extra: pharmacy);
-        },
+        onTap: () => context.go('/pharmacy', extra: pharmacy),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(16),

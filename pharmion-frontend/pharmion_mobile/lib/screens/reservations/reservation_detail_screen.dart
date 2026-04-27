@@ -266,7 +266,16 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                             ),
                           );
                           if (paid == true && mounted) {
-                            Navigator.pop(context, true);
+                            try {
+                              final data = await ApiService.get(
+                                      'Reservation/${_reservation.id}')
+                                  as Map<String, dynamic>;
+                              if (mounted)
+                                setState(() => _reservation =
+                                    ReservationModel.fromJson(data));
+                            } catch (_) {
+                              Navigator.pop(context, true);
+                            }
                           }
                         },
                         icon: const Icon(Icons.payment_outlined, size: 18),

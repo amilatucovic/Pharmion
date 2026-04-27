@@ -425,9 +425,11 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                       _InfoRow(
                         icon: Icons.payment_outlined,
                         label: 'Payment',
-                        value: r.isPaid
-                            ? 'Paid (${r.paymentMethod ?? 'Stripe'})'
-                            : 'Not paid yet',
+                        value: !r.isPaid
+                            ? 'Not paid yet'
+                            : r.paymentMethod == 'PayOnPickup'
+                            ? 'Pay on Pickup selected'
+                            : 'Paid via Stripe',
                         valueColor: r.isPaid
                             ? const Color(0xFF059669)
                             : const Color(0xFFD97706),

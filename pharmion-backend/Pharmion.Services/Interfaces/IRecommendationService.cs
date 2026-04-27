@@ -6,6 +6,6 @@ namespace Pharmion.Services.Interfaces
 {
     public interface IRecommendationService
     {
-        Task<List<ProductResponse>> GetRecommendationsAsync(int patientId);
+        Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId);
     }
 }

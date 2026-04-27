@@ -185,89 +185,80 @@ namespace Pharmion.Services.Services
         public override async Task<PagedResult<ProductResponse>> GetAsync(ProductSearchObject search)
         {
             var baseQuery = _context.Set<Product>()
-                        .Include(p => p.MedicationDetails)
-                        .ThenInclude(md => md.MedicationCategory)
-                        .Include(p => p.MedicationDetails)
-                        .ThenInclude(md => md.PharmacologicalCategory)
-                        .Include(p => p.SupplementDetails)
-                        .AsQueryable();
+                .Include(p => p.MedicationDetails)
+                    .ThenInclude(md => md.MedicationCategory)
+                .Include(p => p.MedicationDetails)
+                    .ThenInclude(md => md.PharmacologicalCategory)
+                .Include(p => p.SupplementDetails)
+                .AsQueryable();
 
             baseQuery = ApplyFilter(baseQuery, search);
-
-            int? totalCount = null;
-            if (search.IncludeTotalCount)
-            {
-                totalCount = await baseQuery.CountAsync();
-            }
-
-            var entities = await baseQuery.ToListAsync();
-
-            var responseList = entities.Select(p => new ProductResponse
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Type = p.Type,
-                TypeName = p.Type.ToString(),
-                IsPrescriptionRequired = p.IsPrescriptionRequired,
-                IsActive = p.IsActive,
-                SKU = p.SKU,
-                Barcode = p.Barcode,
-                Manufacturer = p.Manufacturer,
-                Unit = p.Unit,
-                PackageSize = p.PackageSize,
-                Price = p.Price,
-                SideEffects = p.SideEffects,
-                InstructionsForUse = p.InstructionsForUse,
-                Contraindications = p.Contraindications,
-                ImageUrl = p.ImageUrl,
-                MedicationCategoryId = p.MedicationDetails?.MedicationCategoryId,
-                MedicationCategoryName = p.MedicationDetails?.MedicationCategory?.Name,
-                PharmacologicalCategoryId = p.MedicationDetails?.PharmacologicalCategoryId,
-                PharmacologicalCategoryName = p.MedicationDetails?.PharmacologicalCategory?.Name,
-                AtcCode = p.MedicationDetails?.ATCCode,
-                RequiresColdChain = p.MedicationDetails?.RequiresColdChain ?? false,
-                CreatedAt = p.CreatedAt,
-                UpdatedAt = p.UpdatedAt
-            }).ToList();
 
             if (!string.IsNullOrWhiteSpace(search.OrderBy))
             {
                 var orderBy = search.OrderBy.ToLower();
                 var descending = orderBy.StartsWith("-");
-                if (descending)
-                {
-                    orderBy = orderBy.Substring(1);
-                }
+                if (descending) orderBy = orderBy.Substring(1);
 
-                responseList = orderBy switch
+                baseQuery = orderBy switch
                 {
                     "name" => descending
-                        ? responseList.OrderByDescending(x => x.Name).ToList()
-                        : responseList.OrderBy(x => x.Name).ToList(),
+                        ? baseQuery.OrderByDescending(x => x.Name)
+                        : baseQuery.OrderBy(x => x.Name),
                     "price" => descending
-                        ? responseList.OrderByDescending(x => x.Price).ToList()
-                        : responseList.OrderBy(x => x.Price).ToList(),
-                    "manufacturer" => descending
-                        ? responseList.OrderByDescending(x => x.Manufacturer).ToList()
-                        : responseList.OrderBy(x => x.Manufacturer).ToList(),
+                        ? baseQuery.OrderByDescending(x => x.Price)
+                        : baseQuery.OrderBy(x => x.Price),
                     "createdat" => descending
-                        ? responseList.OrderByDescending(x => x.CreatedAt).ToList()
-                        : responseList.OrderBy(x => x.CreatedAt).ToList(),
-                    _ => responseList
+                        ? baseQuery.OrderByDescending(x => x.CreatedAt)
+                        : baseQuery.OrderBy(x => x.CreatedAt),
+                    _ => baseQuery
                 };
             }
+            else
+            {
+                baseQuery = baseQuery.OrderBy(x => x.Name); 
+            }
+
+            int? totalCount = null;
+            if (search.IncludeTotalCount)
+                totalCount = await baseQuery.CountAsync();
 
             if (!search.RetrieveAll && search.Page.HasValue && search.PageSize.HasValue)
-            {
-                responseList = responseList
+                baseQuery = baseQuery
                     .Skip(search.Page.Value * search.PageSize.Value)
-                    .Take(search.PageSize.Value)
-                    .ToList();
-            }
+                    .Take(search.PageSize.Value);
+
+            var entities = await baseQuery.ToListAsync();
 
             return new PagedResult<ProductResponse>
             {
-                Items = responseList,
+                Items = entities.Select(p => new ProductResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Type = p.Type,
+                    TypeName = p.Type.ToString(),
+                    IsPrescriptionRequired = p.IsPrescriptionRequired,
+                    IsActive = p.IsActive,
+                    SKU = p.SKU,
+                    Barcode = p.Barcode,
+                    Manufacturer = p.Manufacturer,
+                    Unit = p.Unit,
+                    PackageSize = p.PackageSize,
+                    Price = p.Price,
+                    SideEffects = p.SideEffects,
+                    InstructionsForUse = p.InstructionsForUse,
+                    Contraindications = p.Contraindications,
+                    ImageUrl = p.ImageUrl,
+                    MedicationCategoryId = p.MedicationDetails?.MedicationCategoryId,
+                    MedicationCategoryName = p.MedicationDetails?.MedicationCategory?.Name,
+                    PharmacologicalCategoryId = p.MedicationDetails?.PharmacologicalCategoryId,
+                    PharmacologicalCategoryName = p.MedicationDetails?.PharmacologicalCategory?.Name,
+                    AtcCode = p.MedicationDetails?.ATCCode,
+                    RequiresColdChain = p.MedicationDetails?.RequiresColdChain ?? false,
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt
+                }).ToList(),
                 TotalCount = totalCount
             };
         }

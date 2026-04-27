@@ -40,7 +40,7 @@ namespace Pharmion.Services.Services
             if (!reservation.ReservationState.Contains("Approved"))
                 throw new UserException("Reservation must be approved before payment");
 
-            // Sprječavanje duplikata
+            
             var existing = await _context.Payments
                 .FirstOrDefaultAsync(p => p.ReservationId == request.ReservationId
                 && p.Method == request.Method
@@ -51,7 +51,7 @@ namespace Pharmion.Services.Services
             {
                 if (existing.Status == PaymentStatus.Completed)
                     throw new UserException("This reservation is already paid");
-                // Vrati postojeći pending payment intent
+               
                 return MapToResponse(existing);
             }
 
@@ -67,11 +67,13 @@ namespace Pharmion.Services.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 _context.Payments.Add(payOnPickupPayment);
+              
+
                 await _context.SaveChangesAsync();
                 return MapToResponse(payOnPickupPayment);
             }
 
-            // Stripe PaymentIntent
+            
             var amountInEur = Math.Round(reservation.PatientPaysAmount / 1.955m, 2);
             var amountInCents = (long)(amountInEur * 100);
 
@@ -138,14 +140,14 @@ namespace Pharmion.Services.Services
 
                 if (payment == null) throw new UserException("Payment not found");
 
-                // Idempotentnost — ako je već completed, ne radi ništa
+                
                 if (payment.Status == PaymentStatus.Completed)
                     return MapToResponse(payment);
 
                 payment.Status = PaymentStatus.Completed;
                 payment.PaidAt = DateTime.UtcNow;
 
-                // Premjesti rezervaciju u ReadyForPickup
+               
                 var reservation = await _context.Reservations
                     .FirstOrDefaultAsync(r => r.Id == payment.ReservationId)
                     ?? throw new UserException("Reservation not found");
@@ -207,7 +209,7 @@ namespace Pharmion.Services.Services
             if (string.IsNullOrEmpty(payment.StripePaymentIntentId))
                 throw new UserException("No Stripe payment intent found");
 
-            // Dohvati PaymentIntent da dobijemo charge ID
+            
             var intentService = new PaymentIntentService();
             var intent = await intentService.GetAsync(payment.StripePaymentIntentId);
 
@@ -215,7 +217,7 @@ namespace Pharmion.Services.Services
             if (string.IsNullOrEmpty(chargeId))
                 throw new UserException("No charge found for this payment");
 
-            // Refund na osnovu stvarno naplaćenog iznosa
+            
             var refundOptions = new RefundCreateOptions
             {
                 Charge = chargeId,

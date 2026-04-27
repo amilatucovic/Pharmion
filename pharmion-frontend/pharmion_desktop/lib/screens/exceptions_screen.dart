@@ -401,7 +401,7 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
                           child: Text('Reason', style: _headerStyle),
                         ),
                         Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Text(
                             'Status',
                             textAlign: TextAlign.center,
@@ -678,6 +678,7 @@ class _ExceptionRowState extends State<_ExceptionRow> {
             ),
 
             // Reason
+            // Reason
             Expanded(
               flex: 2,
               child: Column(
@@ -691,7 +692,12 @@ class _ExceptionRowState extends State<_ExceptionRow> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (ex.otherReason != null && ex.otherReason!.isNotEmpty)
+                  if (ex.otherReason != null &&
+                      ex.otherReason!.isNotEmpty &&
+                      ex.otherReason!.toLowerCase() !=
+                          ExceptionService.reasonTypeLabel(
+                            ex.reasonType,
+                          ).toLowerCase())
                     Text(
                       ex.otherReason!,
                       style: const TextStyle(
@@ -706,11 +712,11 @@ class _ExceptionRowState extends State<_ExceptionRow> {
 
             // Status
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: 6,
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(

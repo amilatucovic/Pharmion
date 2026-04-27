@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
@@ -30,6 +31,13 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
             if (pharmacist == null || pharmacist.PharmacyId != entity.PharmacyId)
                 throw new UserException("You can only mark reservations from your pharmacy as ready");
+
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.ReservationId == id
+                && (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Completed));
+
+            if (payment == null)
+                throw new UserException("Patient hasn't selected a payment method yet");
 
             entity.ReservationState = nameof(ReadyForPickupReservationState);
             entity.ReadyForPickupAt = DateTime.UtcNow;

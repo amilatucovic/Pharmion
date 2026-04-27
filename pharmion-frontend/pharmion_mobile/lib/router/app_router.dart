@@ -12,7 +12,12 @@ import '../screens/profile/profile_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/pharmacies/pharmacy_detail_screen.dart';
 import '../data/models/pharmacy_model.dart';
+import '../data/models/prescription_model.dart';
 import '../data/models/inventory_item_model.dart';
+import '../data/models/reservation_model.dart';
+import '../screens/reservations/reservation_detail_screen.dart';
+import '../screens/pharmacies/pharmacies_screen.dart';
+import '../screens/products/products_screen.dart';
 
 class AppRouter {
   static GoRouter router(AuthProvider auth) => GoRouter(
@@ -52,6 +57,15 @@ class AppRouter {
               GoRoute(
                 path: '/reservations',
                 builder: (_, __) => const ReservationsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) {
+                      final reservation = state.extra as ReservationModel;
+                      return ReservationDetailScreen(reservation: reservation);
+                    },
+                  ),
+                ],
               ),
               GoRoute(
                 path: '/prescriptions',
@@ -59,13 +73,20 @@ class AppRouter {
                 routes: [
                   GoRoute(
                     path: ':id',
-                    builder: (_, state) => PrescriptionDetailScreen(
-                        id: int.parse(state.pathParameters['id']!)),
+                    builder: (_, state) {
+                      final prescription = state.extra as PrescriptionModel;
+                      return PrescriptionDetailScreen(
+                          prescription: prescription);
+                    },
                   ),
                 ],
               ),
               GoRoute(
                 path: '/products',
+                builder: (_, __) => const ProductsScreen(), 
+              ),
+              GoRoute(
+                path: '/product-detail',
                 builder: (_, state) {
                   final item = state.extra as InventoryItemModel;
                   return ProductDetailScreen(inventoryItem: item);
@@ -81,6 +102,10 @@ class AppRouter {
               GoRoute(
                 path: '/profile',
                 builder: (_, __) => const ProfileScreen(),
+              ),
+              GoRoute(
+                path: '/pharmacies',
+                builder: (_, __) => const PharmaciesScreen(),
               ),
             ],
           ),

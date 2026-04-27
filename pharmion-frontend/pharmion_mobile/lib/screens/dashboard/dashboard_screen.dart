@@ -11,6 +11,8 @@ class DashboardScreen extends StatelessWidget {
     if (location.startsWith('/prescriptions')) return 1;
     if (location.startsWith('/products')) return 3;
     if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/pharmacies')) return 5;
+    if (location.startsWith('/pharmacy')) return 5;
     return 0;
   }
 
@@ -30,6 +32,9 @@ class DashboardScreen extends StatelessWidget {
         break;
       case 4:
         context.go('/profile');
+        break;
+      case 5:
+        context.go('/pharmacies');
         break;
     }
   }
@@ -79,6 +84,13 @@ class DashboardScreen extends StatelessWidget {
                   label: 'Reservations',
                   isActive: currentIndex == 2,
                   onTap: () => _onTabTapped(context, 2),
+                ),
+                _NavItem(
+                  icon: Icons.local_pharmacy_outlined,
+                  activeIcon: Icons.local_pharmacy_rounded,
+                  label: 'Pharmacies',
+                  isActive: currentIndex == 5,
+                  onTap: () => _onTabTapped(context, 5),
                 ),
                 _NavItem(
                   icon: Icons.medication_outlined,
@@ -132,9 +144,7 @@ class _NavItem extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: isActive
-                    ? AppColors.kTealLight
-                    : Colors.transparent,
+                color: isActive ? AppColors.kTealLight : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
@@ -148,8 +158,7 @@ class _NavItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight:
-                    isActive ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 color: isActive ? AppColors.kTeal : AppColors.kTextLight,
               ),
             ),

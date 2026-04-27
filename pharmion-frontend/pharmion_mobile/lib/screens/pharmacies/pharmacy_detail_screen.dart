@@ -395,7 +395,7 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => context.push('/products', extra: item),
+    onTap: () => context.push('/product-detail', extra: item),
     child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),

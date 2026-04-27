@@ -17,6 +17,14 @@ namespace Pharmion.WebAPI.Controllers
         {
         }
 
+        [HttpGet]
+        [AllowAnonymous] 
+        public override Task<PagedResult<ChronicDiseaseResponse>> Get(
+        [FromQuery] ChronicDiseaseSearchObject? search = null)
+        {
+            return base.Get(search);
+        }
+
         [HttpPost]
         public override Task<IActionResult> Create([FromBody] ChronicDiseaseUpsertRequest request)
         {

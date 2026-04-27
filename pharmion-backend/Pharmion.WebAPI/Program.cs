@@ -84,6 +84,7 @@ builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 builder.Services.AddScoped<IPharmacistService, PharmacistService>();
 builder.Services.AddScoped<IEarlyDispenseExceptionService, EarlyDispenseExceptionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPatientChronicDiseaseService, PatientChronicDiseaseService>();
 
 
 builder.Services.AddScoped<InitialReservationState>();

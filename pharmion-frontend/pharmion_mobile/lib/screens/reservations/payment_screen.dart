@@ -3,6 +3,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/reservation_model.dart';
 import '../../data/services/payment_service.dart';
+import '../../data/services/api_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final ReservationModel reservation;
@@ -33,8 +34,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(
-            () => _error = e.toString().replaceAll('Exception: ', ''));
+        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -48,7 +48,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
 
     final clientSecret = data['clientSecret'] as String?;
-    if (clientSecret == null) throw Exception('Failed to create payment intent');
+    if (clientSecret == null)
+      throw Exception('Failed to create payment intent');
 
     await Stripe.instance.initPaymentSheet(
       paymentSheetParameters: SetupPaymentSheetParameters(
@@ -65,7 +66,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     await Stripe.instance.presentPaymentSheet();
 
-    if (mounted) setState(() => _isPaid = true);
+    await Future.delayed(const Duration(seconds: 2));
+
+    try {
+      final paymentData = await ApiService.get(
+              'Payment/by-reservation/${widget.reservation.id}')
+          as Map<String, dynamic>;
+      final isPaid = paymentData['isPaid'] as bool? ?? false;
+      if (mounted) setState(() => _isPaid = isPaid);
+    } catch (_) {
+      if (mounted) setState(() => _isPaid = true);
+    }
   }
 
   Future<void> _payOnPickup() async {
@@ -111,8 +122,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     color: AppColors.kSuccess,
                     shape: BoxShape.circle,
                   ),
-                  child:
-                      const Icon(Icons.check, color: Colors.white, size: 40),
+                  child: const Icon(Icons.check, color: Colors.white, size: 40),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -131,9 +141,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       : 'Please pay when you collect your medications from the pharmacy.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.kTextMid,
-                      height: 1.5),
+                      fontSize: 14, color: AppColors.kTextMid, height: 1.5),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -391,26 +399,25 @@ class _MethodCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon,
-                  size: 20,
-                  color: selected ? Colors.white : AppColors.kTeal),
+                  size: 20, color: selected ? Colors.white : AppColors.kTeal),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Text(title,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: selected
-                            ? AppColors.kTeal
-                            : AppColors.kTextDark)),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.kTextMid)),
-              ]),
+                    Text(title,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: selected
+                                ? AppColors.kTeal
+                                : AppColors.kTextDark)),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.kTextMid)),
+                  ]),
             ),
             Icon(
               selected

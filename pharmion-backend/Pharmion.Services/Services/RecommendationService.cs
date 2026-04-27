@@ -1,171 +1,194 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ML;
+using Microsoft.ML.Trainers;
 using Pharmion.Model.Enums;
 using Pharmion.Model.MLModels;
 using Pharmion.Model.Responses;
-using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Database;
+using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Pharmion.Model.Exceptions;
 
 public class RecommendationService : IRecommendationService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly MLContext _mlContext;
-    private ITransformer? _cachedModel;
-    private DateTime _lastTrainedAt = DateTime.MinValue;
-    private static readonly TimeSpan _retrainInterval = TimeSpan.FromHours(24);
+    private ITransformer? _model;
+    private PredictionEngine<SupplementEntry, SupplementPrediction>? _predictionEngine;
+    private readonly string _modelFilePath = "supplement_model.zip";
+    private readonly ILogger<RecommendationService> _logger;
 
-    public RecommendationService(IServiceScopeFactory scopeFactory)
+    public RecommendationService(IServiceScopeFactory scopeFactory, ILogger<RecommendationService> logger)
     {
         _scopeFactory = scopeFactory;
         _mlContext = new MLContext(seed: 42);
+        _logger = logger;
     }
 
-    public async Task<List<ProductResponse>> GetRecommendationsAsync(int patientId)
+   
+    private async Task LoadOrTrainModelAsync()
     {
+        if (File.Exists(_modelFilePath))
+        {
+            using var stream = new FileStream(_modelFilePath, FileMode.Open,
+                FileAccess.Read, FileShare.Read);
+            _model = _mlContext.Model.Load(stream, out _);
+            _predictionEngine = _mlContext.Model
+                .CreatePredictionEngine<SupplementEntry, SupplementPrediction>(_model);
+            _logger.LogInformation("ML model loaded from file");
+        }
+        else
+        {
+            await TrainAndSaveModelAsync();
+        }
+    }
+
+    private async Task TrainAndSaveModelAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<PharmionDbContext>();
+
+        var reservationsByPatient = await context.ReservationItems
+            .Where(ri => ri.Product.Type == ProductType.Supplement)
+            .GroupBy(ri => ri.Reservation.PatientId)
+            .Select(g => new
+            {
+                PatientId = g.Key,
+                SupplementIds = g.Select(ri => ri.ProductId).Distinct().ToList()
+            })
+            .ToListAsync();
+
+        var data = new List<SupplementEntry>();
+
+        foreach (var patient in reservationsByPatient)
+        {
+            var ids = patient.SupplementIds;
+            foreach (var s1 in ids)
+            {
+                foreach (var s2 in ids)
+                {
+                    if (s1 != s2)
+                    {
+                        data.Add(new SupplementEntry
+                        {
+                            SupplementId = (uint)s1,
+                            CoReservedSupplementId = (uint)s2,
+                            Label = 1
+                        });
+                    }
+                }
+            }
+        }
+
+        if (!data.Any())
+        {
+            _logger.LogWarning("There is not enough data to train the model.");
+            return;
+        }
+
+        var trainData = _mlContext.Data.LoadFromEnumerable(data);
+
+        var options = new MatrixFactorizationTrainer.Options
+        {
+            MatrixColumnIndexColumnName = nameof(SupplementEntry.SupplementId),
+            MatrixRowIndexColumnName = nameof(SupplementEntry.CoReservedSupplementId),
+            LabelColumnName = nameof(SupplementEntry.Label),
+            NumberOfIterations = 100,
+            ApproximationRank = 32,
+            Alpha = 0.01,
+            Lambda = 0.025,
+            LossFunction = MatrixFactorizationTrainer.LossFunctionType.SquareLossOneClass,
+            C = 0.00001
+        };
+
+        var estimator = _mlContext.Recommendation().Trainers.MatrixFactorization(options);
+        _model = estimator.Fit(trainData);
+
+        using var fs = new FileStream(_modelFilePath, FileMode.Create,
+            FileAccess.Write, FileShare.Write);
+        _mlContext.Model.Save(_model, trainData.Schema, fs);
+
+        _predictionEngine = _mlContext.Model
+            .CreatePredictionEngine<SupplementEntry, SupplementPrediction>(_model);
+
+        _logger.LogInformation("ML model trained with {Count} records and saved", data.Count);
+    }
+
+    public async Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId)
+    {
+        if (_model == null || _predictionEngine == null)
+            await LoadOrTrainModelAsync();
+
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<PharmionDbContext>();
 
         var patient = await context.Patients
             .FirstOrDefaultAsync(p => p.Id == patientId)
-            ?? throw new Exception("Pacijent nije pronađen");
+            ?? throw new UserException("Patient not found");
 
         int age = DateTime.Now.Year - patient.DateOfBirth.Year;
-        float genderFloat = patient.Gender == Gender.Female ? 1f : 0f;
 
-        var supplements = await context.Products
-            .Include(p => p.SupplementDetails)
-            .Where(p => p.Type == ProductType.Supplement && p.IsActive)
-            .ToListAsync();
-
-        var reservedSupplementIds = await context.ReservationItems
+        var reservedIds = await context.ReservationItems
             .Where(ri => ri.Reservation.PatientId == patientId
                       && ri.Product.Type == ProductType.Supplement)
             .Select(ri => ri.ProductId)
             .Distinct()
             .ToListAsync();
 
-        // Treniraj samo ako nije cachiran ili stariji od 24h
-        if (_cachedModel == null || DateTime.UtcNow - _lastTrainedAt > _retrainInterval)
-        {
-            var trainingData = await BuildTrainingDataAsync(context, supplements);
+        var allSupplements = await context.Products
+            .Include(p => p.SupplementDetails)
+            .Where(p => p.Type == ProductType.Supplement && p.IsActive)
+            .ToListAsync();
 
-            if (trainingData.Count < 5)
-                return await GetFallbackRecommendationsAsync(context, supplements, reservedSupplementIds);
+        if (!reservedIds.Any())
+            return await GetFallbackRecommendationsAsync(context, allSupplements, reservedIds);
 
-            _cachedModel = TrainModel(trainingData);
-            _lastTrainedAt = DateTime.UtcNow;
-            Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ML model treniran sa {trainingData.Count} zapisa");
-        }
-
-        var candidates = supplements
-            .Where(s => !reservedSupplementIds.Contains(s.Id))
+        var candidates = allSupplements
+            .Where(s => !reservedIds.Contains(s.Id))
             .ToList();
 
         if (!candidates.Any())
-            return await GetFallbackRecommendationsAsync(context, supplements, reservedSupplementIds);
+            return await GetFallbackRecommendationsAsync(context, allSupplements, reservedIds);
 
-        // Kreiraj prediction engine jednom za sve kandidate
-        var predictionEngine = _mlContext.Model
-            .CreatePredictionEngine<SupplementRatingData, SupplementPrediction>(_cachedModel);
-
-        var predictions = candidates.Select(supplement =>
+        var scores = new Dictionary<int, float>();
+        foreach (var reservedId in reservedIds)
         {
-            var details = supplement.SupplementDetails;
-            var input = new SupplementRatingData
+            foreach (var candidate in candidates)
             {
-                PatientAge = age,
-                PatientGender = genderFloat,
-                GenderMatch = CalculateGenderMatch(patient.Gender, details?.TargetGender),
-                AgeMatch = CalculateAgeMatch(age, details?.MinAge, details?.MaxAge),
-                ProductPrice = (float)supplement.Price,
-                Label = 0
-            };
-            return new { Supplement = supplement, Score = predictionEngine.Predict(input).Score };
-        })
-        .OrderByDescending(x => x.Score)
-        .Take(5)
-        .ToList();
-
-        return predictions.Select(p => new ProductResponse
-        {
-            Id = p.Supplement.Id,
-            Name = p.Supplement.Name,
-            Type = p.Supplement.Type,
-            TypeName = p.Supplement.Type.ToString(),
-            IsPrescriptionRequired = p.Supplement.IsPrescriptionRequired,
-            IsActive = p.Supplement.IsActive,
-            SKU = p.Supplement.SKU,
-            Barcode = p.Supplement.Barcode,
-            Manufacturer = p.Supplement.Manufacturer,
-            Unit = p.Supplement.Unit,
-            PackageSize = p.Supplement.PackageSize,
-            Price = p.Supplement.Price,
-            SideEffects = p.Supplement.SideEffects,
-            InstructionsForUse = p.Supplement.InstructionsForUse,
-            Contraindications = p.Supplement.Contraindications,
-            ImageUrl = p.Supplement.ImageUrl,
-            CreatedAt = p.Supplement.CreatedAt,
-            UpdatedAt = p.Supplement.UpdatedAt
-        }).ToList();
-    }
-
-    private async Task<List<SupplementRatingData>> BuildTrainingDataAsync(
-        PharmionDbContext context, List<Product> supplements)
-    {
-        var trainingData = new List<SupplementRatingData>();
-        var patients = await context.Patients.ToListAsync();
-
-        foreach (var patient in patients)
-        {
-            int age = DateTime.Now.Year - patient.DateOfBirth.Year;
-            float genderFloat = patient.Gender == Gender.Female ? 1f : 0f;
-
-            var reservedIds = await context.ReservationItems
-                .Where(ri => ri.Reservation.PatientId == patient.Id
-                          && ri.Product.Type == ProductType.Supplement)
-                .Select(ri => ri.ProductId)
-                .Distinct()
-                .ToListAsync();
-
-            foreach (var supplement in supplements)
-            {
-                var details = supplement.SupplementDetails;
-                trainingData.Add(new SupplementRatingData
+                var prediction = _predictionEngine!.Predict(new SupplementEntry
                 {
-                    PatientAge = age,
-                    PatientGender = genderFloat,
-                    GenderMatch = CalculateGenderMatch(patient.Gender, details?.TargetGender),
-                    AgeMatch = CalculateAgeMatch(age, details?.MinAge, details?.MaxAge),
-                    ProductPrice = (float)supplement.Price,
-                    Label = reservedIds.Contains(supplement.Id) ? 1.0f : 0.0f
+                    SupplementId = (uint)reservedId,
+                    CoReservedSupplementId = (uint)candidate.Id
                 });
+
+                if (scores.ContainsKey(candidate.Id))
+                    scores[candidate.Id] += prediction.Score;
+                else
+                    scores[candidate.Id] = prediction.Score;
             }
         }
 
-        return trainingData;
+        var topIds = scores.OrderByDescending(x => x.Value)
+            .Take(5)
+            .Select(x => x.Key)
+            .ToList();
+
+        var topSupplements = candidates
+            .Where(s => topIds.Contains(s.Id))
+            .OrderBy(s => topIds.IndexOf(s.Id))
+            .ToList();
+
+        return topSupplements.Select(s => new RecommendationResponse
+        {
+            Product = MapToProductResponse(s),
+            Score = scores[s.Id],
+            Reason = BuildReason(patient, s.SupplementDetails, age)
+        }).ToList();
     }
 
-    private ITransformer TrainModel(List<SupplementRatingData> trainingData)
-    {
-        var dataView = _mlContext.Data.LoadFromEnumerable(trainingData);
-
-        var pipeline = _mlContext.Transforms
-            .Concatenate("Features",
-                nameof(SupplementRatingData.PatientAge),
-                nameof(SupplementRatingData.PatientGender),
-                nameof(SupplementRatingData.GenderMatch),
-                nameof(SupplementRatingData.AgeMatch),
-                nameof(SupplementRatingData.ProductPrice))
-            .Append(_mlContext.Regression.Trainers.Sdca(
-                labelColumnName: "Label",
-                featureColumnName: "Features"));
-
-        return pipeline.Fit(dataView);
-    }
-
-    private async Task<List<ProductResponse>> GetFallbackRecommendationsAsync(
+    private async Task<List<RecommendationResponse>> GetFallbackRecommendationsAsync(
         PharmionDbContext context, List<Product> supplements, List<int> reservedIds)
     {
         var popular = await context.ReservationItems
@@ -178,44 +201,42 @@ public class RecommendationService : IRecommendationService
             .ToListAsync();
 
         var candidates = supplements.Where(s => popular.Contains(s.Id)).ToList();
-
         if (!candidates.Any())
             candidates = supplements.Take(5).ToList();
 
-        return candidates.Select(s => new ProductResponse
+        return candidates.Select(s => new RecommendationResponse
         {
-            Id = s.Id,
-            Name = s.Name,
-            Type = s.Type,
-            TypeName = s.Type.ToString(),
-            IsPrescriptionRequired = s.IsPrescriptionRequired,
-            IsActive = s.IsActive,
-            SKU = s.SKU,
-            Barcode = s.Barcode,
-            Manufacturer = s.Manufacturer,
-            Unit = s.Unit,
-            PackageSize = s.PackageSize,
-            Price = s.Price,
-            SideEffects = s.SideEffects,
-            InstructionsForUse = s.InstructionsForUse,
-            Contraindications = s.Contraindications,
-            ImageUrl = s.ImageUrl,
-            CreatedAt = s.CreatedAt,
-            UpdatedAt = s.UpdatedAt
+            Product = MapToProductResponse(s),
+            Score = 0,
+            Reason = "Popular supplement among our users"
         }).ToList();
     }
 
-    private float CalculateGenderMatch(Gender patientGender, Gender? targetGender)
+    private ProductResponse MapToProductResponse(Product s) => new()
     {
-        if (targetGender == null) return 0.5f;
-        return patientGender == targetGender ? 1.0f : 0.0f;
+        Id = s.Id,
+        Name = s.Name,
+        Type = s.Type,
+        TypeName = s.Type.ToString(),
+        IsPrescriptionRequired = s.IsPrescriptionRequired,
+        IsActive = s.IsActive,
+        SKU = s.SKU,
+        Barcode = s.Barcode,
+        Manufacturer = s.Manufacturer,
+        Unit = s.Unit,
+        PackageSize = s.PackageSize,
+        Price = s.Price,
+        SideEffects = s.SideEffects,
+        InstructionsForUse = s.InstructionsForUse,
+        Contraindications = s.Contraindications,
+        ImageUrl = s.ImageUrl,
+        CreatedAt = s.CreatedAt,
+        UpdatedAt = s.UpdatedAt
+    };
+
+    private string BuildReason(Patient patient, SupplementDetail? details, int age)
+    {
+        return "Recommended because it is frequently reserved together with similar users";
     }
 
-    private float CalculateAgeMatch(int age, int? minAge, int? maxAge)
-    {
-        if (minAge == null && maxAge == null) return 0.5f;
-        if (minAge.HasValue && age < minAge.Value) return 0.0f;
-        if (maxAge.HasValue && age > maxAge.Value) return 0.0f;
-        return 1.0f;
-    }
 }

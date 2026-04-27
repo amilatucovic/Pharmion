@@ -760,11 +760,16 @@ namespace Pharmion.Services.Services
         }
 
         private ReservationResponse MapReservationToResponse(Reservation r,
-    List<EarlyDispenseException>? exceptions = null,
-    List<Payment>? payments = null)
+                                    List<EarlyDispenseException>? exceptions = null,
+                                    List<Payment>? payments = null)
         {
             var payment = payments?.FirstOrDefault(p => p.ReservationId == r.Id
-        && p.Status == PaymentStatus.Completed);
+                && (p.Status == PaymentStatus.Completed
+                || p.Status == PaymentStatus.Pending));
+
+            var completedPayment = payments?.FirstOrDefault(p => p.ReservationId == r.Id
+                && p.Status == PaymentStatus.Completed);
+
             var exception = exceptions?.FirstOrDefault(e => e.ReservationId == r.Id);
             return new ReservationResponse
             {
@@ -795,7 +800,11 @@ namespace Pharmion.Services.Services
                 ApprovedByPharmacistId = r.ApprovedByPharmacistId,
                 MarkedReadyByPharmacistId = r.MarkedReadyByPharmacistId,
                 MarkedPickedUpByPharmacistId = r.MarkedPickedUpByPharmacistId,
-                IsPaid = payment != null,
+                IsPaid = payment != null && (
+                        payment.Method == PaymentMethod.Stripe
+                        ? payment.Status == PaymentStatus.Completed
+                        : true  
+                       ),
                 PaymentMethod = payment?.Method.ToString(),
                 IsRefunded = payments?.Any(p => p.ReservationId == r.Id
                     && p.Status == PaymentStatus.Refunded) ?? false,
