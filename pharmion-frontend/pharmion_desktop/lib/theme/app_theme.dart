@@ -9,4 +9,5 @@ class AppColors {
   static const kBg = Color(0xFFF4F7FA);
   static const kTextDark = Color(0xFF1E293B);
   static const kTextMid = Color(0xFF64748B);
+  static const kTextLight = Color(0xFFCBD5E1);
 }

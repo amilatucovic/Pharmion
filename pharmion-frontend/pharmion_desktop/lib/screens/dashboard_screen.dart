@@ -16,6 +16,9 @@ import 'prescriptions_screen.dart';
 import 'inventory_screen.dart';
 import 'my_account_screen.dart';
 import 'pharmacists_screen.dart';
+import '../widgets/notification_bell.dart';
+import 'medication_categories_screen.dart';
+import 'pharmacological_categories_screen.dart';
 
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -66,6 +69,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _NavItem('My Account', Icons.account_circle_rounded),
     _NavItem('Pharmacists', Icons.badge_rounded, adminOnly: true),
     _NavItem('Exceptions', Icons.warning_rounded, adminOnly: true),
+    _NavItem('Medication Categories', Icons.category_rounded, adminOnly: true),
+    _NavItem('Pharmacol. Categories', Icons.science_rounded, adminOnly: true),
   ];
 
   final List<_NavItem> _pharmacistItems = const [
@@ -175,6 +180,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return const PharmacistsScreen();
       case 'Exceptions':
         return const ExceptionsScreen();
+      case 'Medication Categories':
+        return const MedicationCategoriesScreen();
+      case 'Pharmacol. Categories':
+        return const PharmacologicalCategoriesScreen();
       default:
         return const PlaceholderScreen(title: 'Coming soon');
     }
@@ -380,13 +389,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const Spacer(),
                       // Notification bell
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.notifications_outlined,
-                          color: AppColors.kTextMid,
-                        ),
-                      ),
+                      const NotificationBell(),
                       const SizedBox(width: 8),
                       CircleAvatar(
                         radius: 18,

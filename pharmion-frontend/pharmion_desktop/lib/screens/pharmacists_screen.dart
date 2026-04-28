@@ -818,7 +818,7 @@ class _PharmacistDialogState extends State<_PharmacistDialog> {
           'licenseNumber': _licenseCtrl.text.trim(),
           'pharmacyId': _selectedPharmacyId,
           'isAdministrator': _isAdministrator,
-          'gender': _selectedGender == 'Male' ? 0 : 1,
+          'gender': _selectedGender == 'Male' ? 1 : 2,
         });
       }
       if (mounted) {

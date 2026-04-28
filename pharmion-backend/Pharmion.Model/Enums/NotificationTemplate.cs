@@ -7,7 +7,10 @@ namespace Pharmion.Model.Enums
     public enum NotificationTemplate
     {
         ReservationSubmitted = 1,
-        ReservationReadyForPickup = 2,
-        ReservationCancelled = 3
+        ReservationApproved = 2,
+        ReservationRejected = 3,
+        ReservationReadyForPickup = 4,
+        ReservationCancelled = 5,
+        NewReservationForPharmacist = 6
     }
 }

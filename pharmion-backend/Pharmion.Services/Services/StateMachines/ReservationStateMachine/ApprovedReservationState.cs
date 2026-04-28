@@ -44,6 +44,12 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             entity.PickupDeadline = DateTime.UtcNow.AddHours(48);
             entity.MarkedReadyByPharmacistId = pharmacistId;
 
+            AddNotification(
+                             entity.PatientId,
+                             "Rezervacija spremna za preuzimanje",
+                             $"Vaša rezervacija RES-{entity.Id} je spremna. Preuzmite je do {entity.PickupDeadline:dd.MM.yyyy HH:mm}.",
+                             NotificationTemplate.ReservationReadyForPickup, entity.Id);
+
             await _context.SaveChangesAsync();
 
 
@@ -62,6 +68,12 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             entity.CancellationReason = reason;
             entity.CancelledAt = DateTime.UtcNow;
             entity.CancelledByUserId = userId;
+
+            AddNotification(entity.PatientId,
+                  "Rezervacija otkazana",
+                  $"Vaša rezervacija RES-{entity.Id} je otkazana.",
+                  NotificationTemplate.ReservationCancelled, entity.Id);
+
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);

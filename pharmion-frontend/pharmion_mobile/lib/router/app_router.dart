@@ -18,6 +18,7 @@ import '../data/models/reservation_model.dart';
 import '../screens/reservations/reservation_detail_screen.dart';
 import '../screens/pharmacies/pharmacies_screen.dart';
 import '../screens/products/products_screen.dart';
+import '../screens/dashboard/notifications_screen.dart';
 
 class AppRouter {
   static GoRouter router(AuthProvider auth) => GoRouter(
@@ -83,7 +84,7 @@ class AppRouter {
               ),
               GoRoute(
                 path: '/products',
-                builder: (_, __) => const ProductsScreen(), 
+                builder: (_, __) => const ProductsScreen(),
               ),
               GoRoute(
                 path: '/product-detail',
@@ -106,6 +107,10 @@ class AppRouter {
               GoRoute(
                 path: '/pharmacies',
                 builder: (_, __) => const PharmaciesScreen(),
+              ),
+              GoRoute(
+                path: '/notifications',
+                builder: (_, __) => const NotificationsScreen(),
               ),
             ],
           ),

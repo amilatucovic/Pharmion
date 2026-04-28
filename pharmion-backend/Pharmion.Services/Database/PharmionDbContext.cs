@@ -31,9 +31,6 @@ namespace Pharmion.Services.Database
         public DbSet<ReservationItem> ReservationItems { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<SupplementDetail> SupplementDetails { get; set; }
-        public DbSet<TherapyReminder> TherapyReminders { get; set; }
-        public DbSet<TherapySchedule> TherapySchedules { get; set; }
-        public DbSet<TherapyScheduleTime> TherapyScheduleTimes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<PharmacologicalCategory> PharmacologicalCategories { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -217,39 +214,7 @@ namespace Pharmion.Services.Database
                 .HasForeignKey(d => d.DispensedByPharmacistId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<TherapySchedule>()
-               .HasOne(ts => ts.Patient)
-               .WithMany(p => p.TherapySchedules)
-               .HasForeignKey(ts => ts.PatientId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<TherapySchedule>()
-                .HasOne(ts => ts.Product)
-                .WithMany() 
-                .HasForeignKey(ts => ts.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<TherapySchedule>()
-                .HasOne(ts => ts.PrescriptionItem)
-                .WithMany() 
-                .HasForeignKey(ts => ts.PrescriptionItemId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<TherapySchedule>()
-                .HasMany(ts => ts.Times)
-                .WithOne(t => t.TherapySchedule)
-                .HasForeignKey(t => t.TherapyScheduleId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<TherapySchedule>()
-                .HasMany(ts => ts.Reminders)
-                .WithOne(r => r.TherapySchedule)
-                .HasForeignKey(r => r.TherapyScheduleId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<TherapyReminder>()
-                .HasIndex(r => new { r.TherapyScheduleId, r.ScheduledFor });
-
+           
             modelBuilder.Entity<Notification>()
                 .HasOne(n => n.User)
                 .WithMany() 

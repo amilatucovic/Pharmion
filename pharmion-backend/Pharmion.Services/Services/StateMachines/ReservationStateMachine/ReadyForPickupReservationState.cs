@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
@@ -58,11 +59,7 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
                 {
                     prescriptionItem.RepeatsUsed += 1;
                     prescriptionItem.LastDispensedAt = DateTime.UtcNow;
-
-                    // Postavi NextEligibleDispenseAt na osnovu PeriodDays
-                    prescriptionItem.NextEligibleDispenseAt =
-                        DateTime.UtcNow.AddDays(prescriptionItem.PeriodDays - 1);
-                    // -1 jer dozvoljava rezervaciju dan prije isteka
+                    prescriptionItem.NextEligibleDispenseAt = DateTime.UtcNow.AddDays(prescriptionItem.PeriodDays - 1);
                 }
             }
 
@@ -90,7 +87,12 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             entity.ReservationState = nameof(CancelledReservationState);
             entity.CancellationReason = reason;      
             entity.CancelledAt = DateTime.UtcNow;   
-            entity.CancelledByUserId = userId;       
+            entity.CancelledByUserId = userId;
+            AddNotification(entity.PatientId,
+                     "Rezervacija otkazana",
+                     $"Vaša rezervacija RES-{entity.Id} je otkazana.",
+                     NotificationTemplate.ReservationCancelled,entity.Id);
+
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);

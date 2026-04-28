@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
@@ -21,15 +22,14 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
         public override async Task<ReservationResponse> ApproveAsync(int id, int pharmacistId)
         {
             var entity = await _context.Reservations
-               .Include(r => r.Items) 
-               .FirstOrDefaultAsync(r => r.Id == id);
+                .Include(r => r.Items)
+                .FirstOrDefaultAsync(r => r.Id == id);
             if (entity == null)
                 throw new UserException("Reservation not found");
 
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
             if (pharmacist == null || pharmacist.PharmacyId != entity.PharmacyId)
                 throw new UserException("You can only approve reservations from your pharmacy");
-
             if (!entity.Items.Any())
                 throw new UserException("Cannot approve reservation with no items");
 
@@ -37,9 +37,14 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             entity.ApprovedAt = DateTime.UtcNow;
             entity.ApprovedByPharmacistId = pharmacistId;
 
+            AddNotification(
+                entity.PatientId,
+                "Rezervacija odobrena",
+                $"Vaša rezervacija RES-{entity.Id} je odobrena. Odaberite metodu plaćanja.",
+                NotificationTemplate.ReservationApproved,
+                entity.Id);
+
             await _context.SaveChangesAsync();
-
-
             return _mapper.Map<ReservationResponse>(entity);
         }
 
@@ -60,8 +65,14 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             entity.RejectedAt = DateTime.UtcNow;
             entity.RejectedByPharmacistId = pharmacistId;
 
-            await _context.SaveChangesAsync();
+            AddNotification(
+                entity.PatientId,
+                "Rezervacija odbijena",
+                $"Vaša rezervacija RES-{entity.Id} je odbijena. Razlog: {reason}",
+                NotificationTemplate.ReservationRejected,
+                entity.Id);
 
+            await _context.SaveChangesAsync();
             return _mapper.Map<ReservationResponse>(entity);
         }
 
@@ -74,9 +85,16 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             entity.CancellationReason = reason;
             entity.CancelledAt = DateTime.UtcNow;
             entity.CancelledByUserId = userId;
-            await _context.SaveChangesAsync();
 
+            AddNotification(
+                entity.PatientId,
+                "Rezervacija otkazana",
+                $"Vaša rezervacija RES-{entity.Id} je otkazana.",
+                NotificationTemplate.ReservationCancelled,
+                entity.Id);
+
+            await _context.SaveChangesAsync();
             return _mapper.Map<ReservationResponse>(entity);
         }
     }
-}
+ }

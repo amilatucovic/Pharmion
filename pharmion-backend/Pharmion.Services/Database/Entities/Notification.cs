@@ -17,23 +17,20 @@ namespace Pharmion.Services.Database.Entities
         public User? User { get; set; }
 
         public NotificationType Type { get; set; }
-        
         public NotificationTemplate Template { get; set; }
-       
+
         [MaxLength(200)]
         public string Title { get; set; } = string.Empty;
 
         [MaxLength(1000)]
         public string Message { get; set; } = string.Empty;
 
-        public NotificationStatus Status { get; set; } = NotificationStatus.Pending;
-        
+        public bool IsRead { get; set; } = false;
+        public DateTime? ReadAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? SentAt { get; set; }
 
         [ForeignKey(nameof(Reservation))]
         public int? ReservationId { get; set; }
         public Reservation? Reservation { get; set; }
-
     }
 }

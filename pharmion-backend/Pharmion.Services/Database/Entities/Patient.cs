@@ -30,7 +30,6 @@ namespace Pharmion.Services.Database.Entities
         public ICollection<PatientChronicDisease> ChronicDiseases { get; set; } = new List<PatientChronicDisease>();
         public ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
-        public ICollection<TherapySchedule> TherapySchedules { get; set; } = new List<TherapySchedule>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     }

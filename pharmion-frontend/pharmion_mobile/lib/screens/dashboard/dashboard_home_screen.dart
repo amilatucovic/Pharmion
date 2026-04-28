@@ -8,6 +8,7 @@ import '../../data/models/prescription_model.dart';
 import '../../data/models/reservation_model.dart';
 import '../../data/services/dashboard_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/common/mobile_notification_bell.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
   const DashboardHomeScreen({super.key});
@@ -88,12 +89,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                                 fit: BoxFit.contain,
                               ),
                               const Spacer(),
-                              IconButton(
-                                onPressed: () {},
-                                icon: const Icon(Icons.notifications_outlined,
-                                    color: Colors.white, size: 20),
-                                padding: EdgeInsets.zero,
-                              ),
+                              const MobileNotificationBell(),
                             ],
                           ),
                           const SizedBox(height: 8),

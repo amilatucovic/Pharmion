@@ -1,11 +1,13 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
+using Pharmion.Services.Interfaces;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 
 using System;
@@ -20,6 +22,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
         protected readonly IServiceProvider _serviceProvider;
         protected readonly PharmionDbContext _context;
         protected readonly IMapper _mapper;
+        
 
         public BaseReservationState(
             IServiceProvider serviceProvider,
@@ -29,6 +32,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             _serviceProvider = serviceProvider;
             _context = context;
             _mapper = mapper;
+           
         }
 
 
@@ -149,7 +153,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 inventoryItem.ReservedQuantity += item.Quantity;
             }
 
-            await _context.SaveChangesAsync();
+            
         }
 
         protected async Task ReturnReservedInventoryAsync(Reservation reservation)
@@ -168,7 +172,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 }
             }
 
-            await _context.SaveChangesAsync();
+           
         }
 
         protected async Task DispenseInventoryAsync(Reservation reservation)
@@ -195,7 +199,23 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 }
             }
 
-            await _context.SaveChangesAsync();
+            
+        }
+
+        protected void AddNotification(int userId, string title, string message,
+    NotificationTemplate template, int? reservationId = null)
+        {
+            _context.Notifications.Add(new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                Template = template,
+                Type = NotificationType.InApp,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow,
+                ReservationId = reservationId
+            });
         }
     }
 }

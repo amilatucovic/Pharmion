@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pharmion.Services.Database;
 
@@ -11,9 +12,11 @@ using Pharmion.Services.Database;
 namespace Pharmion.Services.Migrations
 {
     [DbContext(typeof(PharmionDbContext))]
-    partial class PharmionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260427223344_NotificationsAdded")]
+    partial class NotificationsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,7 +61,7 @@ namespace Pharmion.Services.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("ChronicDiseases", (string)null);
+                    b.ToTable("ChronicDiseases");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.City", b =>
@@ -81,7 +84,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.DispenseEvent", b =>
@@ -115,7 +118,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("DispenseEvents", (string)null);
+                    b.ToTable("DispenseEvents");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.EarlyDispenseException", b =>
@@ -163,7 +166,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("EarlyDispenseExceptions", (string)null);
+                    b.ToTable("EarlyDispenseExceptions");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.InventoryItem", b =>
@@ -202,7 +205,7 @@ namespace Pharmion.Services.Migrations
                     b.HasIndex("PharmacyId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("InventoryItems", (string)null);
+                    b.ToTable("InventoryItems");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.MedicationCategory", b =>
@@ -244,7 +247,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MedicationCategories", (string)null);
+                    b.ToTable("MedicationCategories");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.MedicationDetail", b =>
@@ -277,7 +280,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("PharmacologicalCategoryId");
 
-                    b.ToTable("MedicationDetails", (string)null);
+                    b.ToTable("MedicationDetails");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Notification", b =>
@@ -330,7 +333,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("UserId", "CreatedAt");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.PatientChronicDisease", b =>
@@ -367,7 +370,7 @@ namespace Pharmion.Services.Migrations
                     b.HasIndex("PatientId", "ChronicDiseaseId")
                         .IsUnique();
 
-                    b.ToTable("PatientChronicDiseases", (string)null);
+                    b.ToTable("PatientChronicDiseases");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Payment", b =>
@@ -424,7 +427,7 @@ namespace Pharmion.Services.Migrations
                     b.HasIndex("ReservationId")
                         .IsUnique();
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.PharmacologicalCategory", b =>
@@ -461,7 +464,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PharmacologicalCategories", (string)null);
+                    b.ToTable("PharmacologicalCategories");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Pharmacy", b =>
@@ -494,7 +497,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("Pharmacies", (string)null);
+                    b.ToTable("Pharmacies");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Prescription", b =>
@@ -542,7 +545,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Prescriptions", (string)null);
+                    b.ToTable("Prescriptions");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.PrescriptionItem", b =>
@@ -591,7 +594,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("PrescriptionItems", (string)null);
+                    b.ToTable("PrescriptionItems");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Product", b =>
@@ -662,7 +665,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.RefreshToken", b =>
@@ -712,7 +715,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("UserId", "CreatedAt");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.Reservation", b =>
@@ -800,7 +803,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("PharmacyId");
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.ReservationItem", b =>
@@ -850,7 +853,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("ReservationItems", (string)null);
+                    b.ToTable("ReservationItems");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.StockMovement", b =>
@@ -886,7 +889,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasIndex("InventoryItemId");
 
-                    b.ToTable("StockMovements", (string)null);
+                    b.ToTable("StockMovements");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.SupplementDetail", b =>
@@ -909,7 +912,7 @@ namespace Pharmion.Services.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.ToTable("SupplementDetails", (string)null);
+                    b.ToTable("SupplementDetails");
                 });
 
             modelBuilder.Entity("Pharmion.Services.Database.Entities.User", b =>

@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
@@ -36,15 +37,13 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
         public override async Task<ReservationResponse> SubmitAsync(int id, int patientId)
         {
             var entity = await _context.Reservations
-                .Include(r => r.Items) 
+                .Include(r => r.Items)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (entity == null)
                 throw new UserException("Reservation not found");
-
             if (entity.PatientId != patientId)
                 throw new UserException("You can only submit your own reservations");
-
             if (!entity.Items.Any())
                 throw new UserException("Cannot submit empty reservation");
 
@@ -52,8 +51,22 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             entity.ReservationState = nameof(SubmittedReservationState);
             entity.SubmittedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
 
+            var pharmacists = await _context.Pharmacists
+                .Where(p => p.PharmacyId == entity.PharmacyId)
+                .ToListAsync();
+
+            foreach (var pharmacist in pharmacists)
+            {
+                AddNotification(
+                    pharmacist.Id,
+                    "Nova rezervacija",
+                    $"Pacijent je kreirao rezervaciju RES-{entity.Id}.",
+                    NotificationTemplate.NewReservationForPharmacist,
+                    entity.Id);
+            }
+
+            await _context.SaveChangesAsync(); 
             return _mapper.Map<ReservationResponse>(entity);
         }
 
@@ -67,6 +80,9 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             entity.CancellationReason = reason;
             entity.CancelledAt = DateTime.UtcNow;
             entity.CancelledByUserId = userId;
+            AddNotification(entity.PatientId, "Rezervacija otkazana",
+              $"Vaša rezervacija RES-{entity.Id} je otkazana.",
+              NotificationTemplate.ReservationCancelled,entity.Id);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ReservationResponse>(entity);
