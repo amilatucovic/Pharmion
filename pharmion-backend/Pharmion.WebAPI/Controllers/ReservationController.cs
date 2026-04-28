@@ -5,10 +5,7 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharmion.WebAPI.Controllers
 {
@@ -176,7 +173,7 @@ namespace Pharmion.WebAPI.Controllers
         {
             try
             {
-                // Patient može vidjeti samo svoje
+                
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -284,8 +281,7 @@ namespace Pharmion.WebAPI.Controllers
             }
             catch (EarlyDispenseRequiredException ex)
             {
-                // Frontend dobija poseban status kod i podatke
-                // na osnovu kojih prikazuje dropdown za razlog
+               
                 return StatusCode(409, new
                 {
                     requiresEarlyDispenseReason = true,

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pharmion.Model.SearchObjects
+﻿namespace Pharmion.Model.SearchObjects
 {
     public class PharmacySearchObject : BaseSearchObject
     {

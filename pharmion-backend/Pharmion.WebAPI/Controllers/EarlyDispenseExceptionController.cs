@@ -5,7 +5,6 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharmion.WebAPI.Controllers
 {
@@ -24,8 +23,7 @@ namespace Pharmion.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] EarlyDispenseExceptionSearchObject search)
         {
-            // Farmaceut koji nije admin vidi samo svoju apoteku
-            // (pharmacyId se šalje s frontenda iz SharedPreferences)
+            
             var result = await _service.GetAsync(search);
             return Ok(result);
         }

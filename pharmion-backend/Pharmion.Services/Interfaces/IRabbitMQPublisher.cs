@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Pharmion.Services.Interfaces
+﻿namespace Pharmion.Services.Interfaces
 {
     public interface IRabbitMQPublisher : IDisposable
     {

@@ -1,7 +1,4 @@
 ﻿using Pharmion.Model.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pharmion.Model.SearchObjects
 {

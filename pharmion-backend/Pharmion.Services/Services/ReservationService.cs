@@ -12,10 +12,7 @@ using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Pharmion.Services.Services
 {
@@ -529,7 +526,7 @@ namespace Pharmion.Services.Services
             RecalculateTotals(reservation);
             await _context.SaveChangesAsync();
 
-            // Reload sa produktom za response
+            
             await _context.Entry(item).Reference(i => i.Product).LoadAsync();
 
             return MapItemToResponse(item);
@@ -570,7 +567,7 @@ namespace Pharmion.Services.Services
 
         public async Task<ReservationResponse> AddToReservationAsync(int patientId, AddToReservationRequest request)
         {
-            // 1. Pronađi postojeću Draft rezervaciju ili kreiraj novu
+            
             var reservation = await _context.Reservations
                 .Include(r => r.Items)
                 .FirstOrDefaultAsync(r =>
@@ -590,13 +587,13 @@ namespace Pharmion.Services.Services
                 _context.Reservations.Add(reservation);
                 await _context.SaveChangesAsync();
 
-                // Reload sa Items kolekcijom
+               
                 reservation = await _context.Reservations
                     .Include(r => r.Items)
                     .FirstAsync(r => r.Id == reservation.Id);
             }
 
-            // 2. Validacija i dodavanje itema (ista logika kao AddItemAsync)
+            
             var product = await _context.Products
                 .Include(p => p.MedicationDetails)
                     .ThenInclude(md => md.MedicationCategory)
@@ -613,14 +610,14 @@ namespace Pharmion.Services.Services
                     .FirstOrDefaultAsync(pi => pi.Id == request.PrescriptionItemId.Value)
                     ?? throw new UserException("Stavka recepta nije pronađena");
 
-                // Validacije recepta...
+                
                 if (prescriptionItem.Prescription!.PatientId != patientId)
                     throw new UserException("Recept ne pripada ovom pacijentu");
 
                 if (prescriptionItem.RepeatsUsed >= prescriptionItem.Repeats)
                     throw new UserException("Iskoristili ste sva ponavljanja za ovaj lijek");
 
-                // Early dispense provjera
+                
                 if (prescriptionItem.NextEligibleDispenseAt.HasValue &&
                     prescriptionItem.NextEligibleDispenseAt.Value > DateTime.UtcNow)
                 {
@@ -688,7 +685,7 @@ namespace Pharmion.Services.Services
             return await ReloadAndMapAsync(reservation.Id);
         }
 
-        // Helperi
+       
 
         private async Task<ReservationResponse> ReloadAndMapAsync(int reservationId)
         {
@@ -731,20 +728,20 @@ namespace Pharmion.Services.Services
 
         private (decimal patientPart, decimal insurancePart) CalculateParticipation(Product product, bool isInsured)
         {
-            // Neosigurani pacijent plaća sve bez obzira na kategoriju
+            
             if (!isInsured)
                 return (product.Price, 0);
 
-            // Suplementi ili produkti bez MedicationDetails → pacijent plaća sve
+            
             var category = product.MedicationDetails?.MedicationCategory;
             if (category == null)
                 return (product.Price, 0);
 
-            // Kategorija A → FlatFee (1 KM), osiguranje ostatak
+            
             if (category.FlatFee.HasValue)
                 return (category.FlatFee.Value, product.Price - category.FlatFee.Value);
 
-            // Kategorija B ili C → prema postocima iz baze
+           
             var patientPart = product.Price * (category.PatientPaymentPercentage / 100);
             var insurancePart = product.Price * (category.InsurancePaymentPercentage / 100);
 

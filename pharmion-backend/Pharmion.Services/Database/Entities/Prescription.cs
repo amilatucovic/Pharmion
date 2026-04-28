@@ -1,9 +1,6 @@
 ﻿using Pharmion.Model.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Pharmion.Services.Database.Entities
 {
@@ -24,7 +21,7 @@ namespace Pharmion.Services.Database.Entities
         public string DoctorName { get; set; } = string.Empty;
 
         [MaxLength(100)]
-        public string? Facility { get; set; } // Dom zdravlja Mostar ili KB "Dr. Safet Mujić" Mostar
+        public string? Facility { get; set; } 
 
         public DateTime IssuedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ValidFrom { get; set; }

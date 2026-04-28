@@ -10,7 +10,6 @@ namespace Pharmion.Model.Requests
         [Required, Range(1, 999)]
         public int Quantity { get; set; }
 
-        // Null za suplemente i OTC, obavezno za lijekove na recept
         public int? PrescriptionItemId { get; set; }
     }
 }

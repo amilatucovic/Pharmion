@@ -1,6 +1,4 @@
-﻿using Microsoft.ML.Data;
-
-namespace Pharmion.Model.MLModels
+﻿namespace Pharmion.Model.MLModels
 {
     public class SupplementRatingData
     {

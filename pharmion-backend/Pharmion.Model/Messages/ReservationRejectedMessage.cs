@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pharmion.Model.Messages
+﻿namespace Pharmion.Model.Messages
 {
     public class ReservationRejectedMessage
     {

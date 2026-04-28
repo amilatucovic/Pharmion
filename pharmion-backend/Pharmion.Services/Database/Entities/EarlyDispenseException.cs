@@ -1,9 +1,6 @@
 ﻿using Pharmion.Model.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Pharmion.Services.Database.Entities
 {
@@ -26,7 +23,7 @@ namespace Pharmion.Services.Database.Entities
 
         public EarlyDispenseReasonType ReasonType { get; set; }
 
-        // Ako je ReasonType == Other
+        
         [MaxLength(500)]
         public string? OtherReason { get; set; }
 

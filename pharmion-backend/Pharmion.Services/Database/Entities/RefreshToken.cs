@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pharmion.Services.Database.Entities
@@ -28,7 +27,7 @@ namespace Pharmion.Services.Database.Entities
         public DateTime? RevokedAt { get; set; }
 
         [MaxLength(200)]
-        public string? ReplacedByToken { get; set; } // Za rotation
+        public string? ReplacedByToken { get; set; } 
 
         [MaxLength(100)]
         public string? CreatedByIp { get; set; }

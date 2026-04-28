@@ -8,13 +8,10 @@ using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Services
 {

@@ -1,7 +1,5 @@
 ﻿using Pharmion.Model.Enums;
 using Pharmion.Model.Responses;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Interfaces
 {
@@ -11,9 +9,7 @@ namespace Pharmion.Services.Interfaces
         Task<int> GetUnreadCountAsync(int userId);
         Task MarkAsReadAsync(int notificationId, int userId);
         Task MarkAllAsReadAsync(int userId);
-        Task CreateAsync(int userId, string title, string message,
-            NotificationTemplate template, int? reservationId = null);
-        void AddNotification(int userId, string title, string message,
-    NotificationTemplate template, int? reservationId = null);
+        Task CreateAsync(int userId, string title, string message, NotificationTemplate template, int? reservationId = null);
+        void AddNotification(int userId, string title, string message, NotificationTemplate template, int? reservationId = null);
     }
 }

@@ -1,10 +1,5 @@
-﻿using Pharmion.Model.Enums;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
-using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 
 namespace Pharmion.Services.Database.Entities
 {
@@ -34,23 +29,24 @@ namespace Pharmion.Services.Database.Entities
         public decimal TotalAmount { get; set; }
         public decimal PatientPaysAmount { get; set; }
         public decimal InsurancePaysAmount { get; set; }
-        // Cancel
+
+
         public string? CancellationReason { get; set; }
         public DateTime? CancelledAt { get; set; }
         public int? CancelledByUserId { get; set; }
 
-        // Reject  
+          
         public string? RejectionReason { get; set; }
         public DateTime? RejectedAt { get; set; }
         public int? RejectedByPharmacistId { get; set; }
 
-        // Approve
+        
         public int? ApprovedByPharmacistId { get; set; }
 
-        // MarkAsReady
+       
         public int? MarkedReadyByPharmacistId { get; set; }
 
-        // MarkAsPickedUp
+        
         public int? MarkedPickedUpByPharmacistId { get; set; }
 
         public DateTime? PickupDeadline { get; set; }

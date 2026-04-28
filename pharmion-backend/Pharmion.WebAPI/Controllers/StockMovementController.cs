@@ -4,7 +4,6 @@ using Pharmion.Model.Requests;
 using Pharmion.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharmion.WebAPI.Controllers
 {

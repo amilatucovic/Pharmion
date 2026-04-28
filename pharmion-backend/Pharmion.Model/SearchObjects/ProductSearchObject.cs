@@ -1,5 +1,4 @@
 ﻿using Pharmion.Model.Enums;
-using System;
 
 namespace Pharmion.Model.SearchObjects
 {

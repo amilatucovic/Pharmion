@@ -7,9 +7,7 @@ using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Pharmion.Services.Services
 {
@@ -59,7 +57,7 @@ namespace Pharmion.Services.Services
             if (!productExists)
                 throw new UserException("Product not found.");
 
-            // Jedan proizvod može biti samo jednom u inventaru jedne apoteke
+           
             var alreadyExists = await _context.InventoryItems
                 .AnyAsync(i => i.PharmacyId == request.PharmacyId && i.ProductId == request.ProductId);
             if (alreadyExists)

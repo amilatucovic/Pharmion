@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Extensions
 {
@@ -14,7 +9,7 @@ namespace Pharmion.Services.Extensions
             if (string.IsNullOrEmpty(propertyName))
                 return source;
 
-            // Remove any prefix like "-" for descending order
+           
             var cleanPropertyName = propertyName.TrimStart('-');
 
             try
@@ -32,7 +27,7 @@ namespace Pharmion.Services.Extensions
             if (string.IsNullOrEmpty(propertyName))
                 return source;
 
-            // Remove any prefix like "-" for descending order
+            
             var cleanPropertyName = propertyName.TrimStart('-');
 
             try

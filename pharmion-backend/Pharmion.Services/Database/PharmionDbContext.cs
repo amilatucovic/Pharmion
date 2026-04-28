@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Services.Database.Entities;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace Pharmion.Services.Database
 {

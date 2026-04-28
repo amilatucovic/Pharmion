@@ -5,7 +5,6 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharmion.WebAPI.Controllers
 {

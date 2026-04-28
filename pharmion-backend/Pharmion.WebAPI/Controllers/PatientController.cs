@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
-using Pharmion.Services.Services;
 using System.Security.Claims;
 
 namespace Pharmion.WebAPI.Controllers

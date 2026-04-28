@@ -13,5 +13,5 @@ public class AddToReservationRequest
     public bool IsSubstitutionAllowed { get; set; } = false;
 
     public EarlyDispenseReasonType? EarlyDispenseReasonType { get; set; }
-    public string? EarlyDispenseReason { get; set; } // za "Other" tip
+    public string? EarlyDispenseReason { get; set; } 
 }

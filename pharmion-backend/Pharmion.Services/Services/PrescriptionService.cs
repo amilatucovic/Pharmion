@@ -90,7 +90,7 @@ namespace Pharmion.Services.Services
             var patient = await _context.Patients.FindAsync(request.PatientId)
                 ?? throw new UserException("Pacijent nije pronađen.");
 
-            // CreatedByPharmacistId se postavlja iz tokena u controlleru
+           
             entity.IssuedAt = DateTime.UtcNow;
             entity.Status = PrescriptionStatus.Active;
 
@@ -103,7 +103,7 @@ namespace Pharmion.Services.Services
                 Repeats = i.Repeats,
                 RepeatsUsed = 0,
                 TherapyType = i.TherapyType,
-                NextEligibleDispenseAt = DateTime.UtcNow // odmah dostupno
+                NextEligibleDispenseAt = DateTime.UtcNow 
             }).ToList();
         }
 
@@ -112,7 +112,7 @@ namespace Pharmion.Services.Services
             if (entity.Status != PrescriptionStatus.Active)
                 throw new UserException("Nije moguće izmijeniti recept koji nije aktivan.");
 
-            // Ukloni stare stavke i dodaj nove
+            
             var oldItems = _context.PrescriptionItems.Where(i => i.PrescriptionId == entity.Id);
             _context.PrescriptionItems.RemoveRange(oldItems);
 

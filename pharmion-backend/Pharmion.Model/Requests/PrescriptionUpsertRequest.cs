@@ -1,5 +1,4 @@
-﻿using Pharmion.Model.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 
 namespace Pharmion.Model.Requests

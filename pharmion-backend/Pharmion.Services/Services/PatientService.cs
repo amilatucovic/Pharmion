@@ -1,12 +1,10 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.ML;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System.Linq;
 
 namespace Pharmion.Services.Services
 {

@@ -4,8 +4,6 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
-using System;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
 {

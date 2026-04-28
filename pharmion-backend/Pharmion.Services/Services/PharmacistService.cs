@@ -7,12 +7,8 @@ using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Services
 {
@@ -32,7 +28,7 @@ namespace Pharmion.Services.Services
                     .ThenInclude(ph => ph.City)
                 .AsQueryable();
 
-            // Filters
+
             if (!string.IsNullOrEmpty(search.Name))
             {
                 query = query.Where(p =>
@@ -80,7 +76,7 @@ namespace Pharmion.Services.Services
 
         public async Task<PharmacistResponse> CreateAsync(RegisterPharmacistRequest request)
         {
-            // Validacije
+            
             if (await _context.Users.AnyAsync(u => u.Username == request.Username))
                 throw new UserException("Username already exists.");
 
@@ -116,7 +112,7 @@ namespace Pharmion.Services.Services
             await _context.Pharmacists.AddAsync(pharmacist);
             await _context.SaveChangesAsync();
 
-            // Reload sa relacijama
+            
             var created = await _context.Pharmacists
                 .Include(p => p.Pharmacy)
                     .ThenInclude(ph => ph.City)
@@ -131,11 +127,11 @@ namespace Pharmion.Services.Services
             if (pharmacist == null)
                 return null;
 
-            // Provjeri jedinstvenost emaila (isključi trenutnog korisnika)
+            
             if (await _context.Users.AnyAsync(u => u.Email == request.Email && u.Id != id))
                 throw new UserException("Email already in use by another user.");
 
-            // Provjeri jedinstvenost licence (isključi trenutnog)
+           
             if (await _context.Pharmacists.AnyAsync(p => p.LicenseNumber == request.LicenseNumber && p.Id != id))
                 throw new UserException("License number already in use.");
 

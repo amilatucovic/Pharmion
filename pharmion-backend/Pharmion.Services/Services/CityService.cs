@@ -7,12 +7,6 @@ using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Services
 {

@@ -11,8 +11,8 @@ namespace Pharmion.Model.Responses
         public string MethodDisplay { get; set; } = string.Empty;
         public PaymentStatus Status { get; set; }
         public string StatusDisplay { get; set; } = string.Empty;
-        public decimal Amount { get; set; }          // u KM
-        public decimal AmountInEur { get; set; }     // u EUR za Stripe
+        public decimal Amount { get; set; }          
+        public decimal AmountInEur { get; set; }     
         public string Currency { get; set; } = "EUR";
         public string? ClientSecret { get; set; }
         public string? StripePaymentIntentId { get; set; }

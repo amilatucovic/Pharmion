@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Pharmion.Model.Exceptions;
 using Pharmion.Services.Interfaces;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharmion.WebAPI.Controllers
 {

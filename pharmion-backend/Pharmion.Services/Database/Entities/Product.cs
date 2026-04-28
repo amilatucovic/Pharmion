@@ -1,8 +1,5 @@
 ﻿using Pharmion.Model.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Pharmion.Services.Database.Entities
 {
@@ -33,9 +30,9 @@ namespace Pharmion.Services.Database.Entities
         public string? Manufacturer { get; set; }
 
         [MaxLength(50)]
-        public string? Unit { get; set; }   // tbl, ml, amp...
+        public string? Unit { get; set; }   
 
-        public int? PackageSize { get; set; } // npr 30 tbl.
+        public int? PackageSize { get; set; } 
 
         [Required]
         public decimal Price { get; set; }  

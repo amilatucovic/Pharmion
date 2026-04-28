@@ -7,13 +7,7 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
-using Pharmion.Services.Interfaces;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.StateMachines.ReservationStateMachine
 {

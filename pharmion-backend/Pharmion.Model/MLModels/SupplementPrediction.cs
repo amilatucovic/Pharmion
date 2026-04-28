@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pharmion.Model.MLModels
+﻿namespace Pharmion.Model.MLModels
 {
     public class SupplementPrediction
     {

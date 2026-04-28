@@ -1,6 +1,5 @@
 ﻿using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Interfaces
 {

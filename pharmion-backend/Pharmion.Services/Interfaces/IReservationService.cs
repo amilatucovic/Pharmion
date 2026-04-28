@@ -1,14 +1,11 @@
 ﻿using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Interfaces
 {
     public interface IReservationService : ICRUDService<ReservationResponse, ReservationSearchObject, ReservationInsertRequest, ReservationUpdateRequest>
     {
-        // State Machine akcije
         Task<ReservationResponse> SubmitAsync(int reservationId, int patientId);
         Task<ReservationResponse> ApproveAsync(int reservationId, int pharmacistId);
         Task<ReservationResponse> RejectAsync(int reservationId, int pharmacistId, string reason);
@@ -17,7 +14,6 @@ namespace Pharmion.Services.Interfaces
         Task<ReservationResponse> CancelAsync(int reservationId, int userId, string reason);
         Task<ReservationResponse> AddToReservationAsync(int patientId, AddToReservationRequest request);
 
-        // Helper metode
         Task<List<string>> GetAllowedActionsAsync(int reservationId);
         Task<List<ReservationResponse>> GetReservationsByPatientAsync(int patientId);
         Task<List<ReservationResponse>> GetReservationsByPharmacyAsync(int pharmacyId);

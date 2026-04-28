@@ -2,8 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Pharmion.Services.Interfaces;
-using System;
-using System.Threading.Tasks;
+
 
 namespace Pharmion.Services.Services
 {

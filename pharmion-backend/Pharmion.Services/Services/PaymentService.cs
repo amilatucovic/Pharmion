@@ -8,9 +8,7 @@ using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
 using Stripe;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Pharmion.Services.Services
 {

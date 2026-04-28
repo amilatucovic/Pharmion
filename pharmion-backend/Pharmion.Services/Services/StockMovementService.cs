@@ -6,8 +6,7 @@ using Pharmion.Model.Responses;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System;
-using System.Threading.Tasks;
+
 
 namespace Pharmion.Services.Services
 {
@@ -29,12 +28,12 @@ namespace Pharmion.Services.Services
             if (item == null)
                 throw new UserException("Inventory item not found.");
 
-            // Reason obavezan za Out i Adjustment
+            
             if ((request.Type == StockMovementType.Out || request.Type == StockMovementType.Adjustment)
                 && string.IsNullOrWhiteSpace(request.Reason))
                 throw new UserException("Reason is required for Out and Adjustment movements.");
 
-            // Validacija količine
+            
             switch (request.Type)
             {
                 case StockMovementType.In:

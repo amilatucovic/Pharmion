@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Pharmion.Services.Database.Entities
 {
@@ -25,7 +22,7 @@ namespace Pharmion.Services.Database.Entities
         public int? PharmacologicalCategoryId { get; set; }
         public PharmacologicalCategory? PharmacologicalCategory { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }
 }
