@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/notification_model.dart';
 import '../../data/services/api_service.dart';
+import 'package:go_router/go_router.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -35,13 +36,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _loadNotifications() async {
     try {
-      final data =
-          await ApiService.get('Notification/my') as List<dynamic>;
+      final data = await ApiService.get('Notification/my') as List<dynamic>;
       if (mounted) {
         setState(() {
           _notifications = data
-              .map((n) =>
-                  NotificationModel.fromJson(n as Map<String, dynamic>))
+              .map((n) => NotificationModel.fromJson(n as Map<String, dynamic>))
               .toList();
           _loading = false;
           _error = null;
@@ -97,6 +96,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          onPressed: () => context.go('/'),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              size: 18, color: AppColors.kTextDark),
+        ),
         title: Row(
           children: [
             const Text(
@@ -110,8 +114,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             if (_unreadCount > 0) ...[
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEE2E2),
                   borderRadius: BorderRadius.circular(10),
@@ -240,9 +243,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             return _NotificationCard(
                               notification: n,
                               formattedDate: _formatDate(n.createdAt),
-                              onMarkAsRead: n.isRead
-                                  ? null
-                                  : () => _markAsRead(n.id),
+                              onMarkAsRead:
+                                  n.isRead ? null : () => _markAsRead(n.id),
                             );
                           },
                         ),

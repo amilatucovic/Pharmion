@@ -18,6 +18,19 @@ class ApiService {
     await prefs.setString('jwt_token', token);
   }
 
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString('refresh_token');
+
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      try {
+        await post('Auth/revoke-token', {'refreshToken': refreshToken});
+      } catch (_) {}
+    }
+
+    await clearToken();
+  }
+
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -42,21 +55,22 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> login(
-      String username, String password) async {
+    String username,
+    String password,
+  ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Auth/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-      }),
+      body: jsonEncode({'username': username, 'password': password}),
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
       if (data['role'] != 'Pharmacist') {
-        throw Exception('Access denied. Only pharmacists can access this application.');
+        throw Exception(
+          'Access denied. Only pharmacists can access this application.',
+        );
       }
 
       final prefs = await SharedPreferences.getInstance();
@@ -79,134 +93,146 @@ class ApiService {
   }
 
   static Future<dynamic> get(String endpoint) async {
-  var headers = await getHeaders();
-  var response = await http.get(
-    Uri.parse('$baseUrl/$endpoint'),
-    headers: headers,
-  );
+    var headers = await getHeaders();
+    var response = await http.get(
+      Uri.parse('$baseUrl/$endpoint'),
+      headers: headers,
+    );
 
-  if (response.statusCode == 401) {
-    await _refreshToken();
-    headers = await getHeaders();
-    response = await http.get(Uri.parse('$baseUrl/$endpoint'), headers: headers);
+    if (response.statusCode == 401) {
+      await _refreshToken();
+      headers = await getHeaders();
+      response = await http.get(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: headers,
+      );
+    }
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Error: ${response.statusCode}');
+    }
   }
 
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    throw Exception('Error: ${response.statusCode}');
-  }
-}
-
-  static Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
-  var headers = await getHeaders();
-  var response = await http.post(
-    Uri.parse('$baseUrl/$endpoint'),
-    headers: headers,
-    body: jsonEncode(body),
-  );
-
-  if (response.statusCode == 401) {
-    await _refreshToken();
-    headers = await getHeaders();
-    response = await http.post(
+  static Future<dynamic> post(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
+    var headers = await getHeaders();
+    var response = await http.post(
       Uri.parse('$baseUrl/$endpoint'),
       headers: headers,
       body: jsonEncode(body),
     );
+
+    if (response.statusCode == 401) {
+      await _refreshToken();
+      headers = await getHeaders();
+      response = await http.post(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+    }
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.body.isEmpty) return null;
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 204) {
+      return null;
+    } else {
+      if (response.body.isEmpty)
+        throw Exception('Error: ${response.statusCode}');
+      final error = jsonDecode(response.body);
+      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+    }
   }
 
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    if (response.body.isEmpty) return null;  
-    return jsonDecode(response.body);
-  } else if (response.statusCode == 204) {  
-    return null;
-  } else {
-    if (response.body.isEmpty) throw Exception('Error: ${response.statusCode}');
-    final error = jsonDecode(response.body);
-    throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
-  }
-}
-
-static Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
-  var headers = await getHeaders();
-  var response = await http.put(
-    Uri.parse('$baseUrl/$endpoint'),
-    headers: headers,
-    body: jsonEncode(body),
-  );
-
-  if (response.statusCode == 401) {
-    await _refreshToken();
-    headers = await getHeaders();
-    response = await http.put(
+  static Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
+    var headers = await getHeaders();
+    var response = await http.put(
       Uri.parse('$baseUrl/$endpoint'),
       headers: headers,
       body: jsonEncode(body),
     );
+
+    if (response.statusCode == 401) {
+      await _refreshToken();
+      headers = await getHeaders();
+      response = await http.put(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+    }
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+    }
   }
 
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    final error = jsonDecode(response.body);
-    throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
-  }
-}
-
-static Future<void> delete(String endpoint) async {
-  var headers = await getHeaders();
-  var response = await http.delete(
-    Uri.parse('$baseUrl/$endpoint'),
-    headers: headers,
-  );
-
-  if (response.statusCode == 401) {
-    await _refreshToken();
-    headers = await getHeaders();
-    response = await http.delete(
+  static Future<void> delete(String endpoint) async {
+    var headers = await getHeaders();
+    var response = await http.delete(
       Uri.parse('$baseUrl/$endpoint'),
       headers: headers,
     );
-  }
 
-  if (response.statusCode != 200 && response.statusCode != 204) {
-    throw Exception('Error: ${response.statusCode}');
+    if (response.statusCode == 401) {
+      await _refreshToken();
+      headers = await getHeaders();
+      response = await http.delete(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: headers,
+      );
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Error: ${response.statusCode}');
+    }
   }
-}
 
   static Future<void> _refreshToken() async {
-  final prefs = await SharedPreferences.getInstance();
-  final refreshToken = prefs.getString('refresh_token');
-  if (refreshToken == null) throw Exception('No refresh token');
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString('refresh_token');
+    if (refreshToken == null) throw Exception('No refresh token');
 
-  final response = await http.post(
-    Uri.parse('$baseUrl/Auth/refresh-token'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'refreshToken': refreshToken}),
-  );
+    final response = await http.post(
+      Uri.parse('$baseUrl/Auth/refresh-token'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'refreshToken': refreshToken}),
+    );
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    await prefs.setString('jwt_token', data['accessToken']);
-    await prefs.setString('refresh_token', data['refreshToken']);
-  } else {
-    // Refresh token i sam istekao — logout
-    await prefs.clear();
-    throw Exception('Session expired');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      await prefs.setString('jwt_token', data['accessToken']);
+      await prefs.setString('refresh_token', data['refreshToken']);
+    } else {
+      // Refresh token i sam istekao — logout
+      await prefs.clear();
+      throw Exception('Session expired');
+    }
   }
-}
 
-static Future<Map<String, dynamic>> uploadFile(
-    String endpoint, List<int> bytes, String filename) async {
-  final token = await getToken();
-  final uri = Uri.parse('$baseUrl/$endpoint');
-  final request = http.MultipartRequest('POST', uri);
-  if (token != null) request.headers['Authorization'] = 'Bearer $token';
-  request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
-  final streamed = await request.send();
-  final response = await http.Response.fromStream(streamed);
-  if (response.statusCode == 200) return jsonDecode(response.body);
-  throw Exception('Upload failed: ${response.statusCode}');
-}
+  static Future<Map<String, dynamic>> uploadFile(
+    String endpoint,
+    List<int> bytes,
+    String filename,
+  ) async {
+    final token = await getToken();
+    final uri = Uri.parse('$baseUrl/$endpoint');
+    final request = http.MultipartRequest('POST', uri);
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(
+      http.MultipartFile.fromBytes('file', bytes, filename: filename),
+    );
+    final streamed = await request.send();
+    final response = await http.Response.fromStream(streamed);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    throw Exception('Upload failed: ${response.statusCode}');
+  }
 }

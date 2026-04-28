@@ -27,9 +27,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _loadProduct() async {
     try {
-      final data = await ApiService.get(
-          'Product/${widget.inventoryItem.productId}')
-          as Map<String, dynamic>;
+      final data =
+          await ApiService.get('Product/${widget.inventoryItem.productId}')
+              as Map<String, dynamic>;
       if (mounted) setState(() => _product = ProductModel.fromJson(data));
     } catch (_) {
     } finally {
@@ -88,8 +88,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           style: TextStyle(color: AppColors.kTextMid)),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                          onPressed: _loadProduct,
-                          child: const Text('Retry')),
+                          onPressed: _loadProduct, child: const Text('Retry')),
                     ],
                   ),
                 )
@@ -144,8 +143,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: Container(
             decoration: const BoxDecoration(
               color: AppColors.kBg,
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,8 +179,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.receipt_long_outlined,
-                                      size: 12,
-                                      color: AppColors.kError),
+                                      size: 12, color: AppColors.kError),
                                   SizedBox(width: 4),
                                   Text('Prescription',
                                       style: TextStyle(
@@ -212,8 +209,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Row(children: [
                         _StatChip(
                           icon: Icons.payments_outlined,
-                          label:
-                              '${product.price.toStringAsFixed(2)} KM',
+                          label: '${product.price.toStringAsFixed(2)} KM',
                           color: AppColors.kTeal,
                           bg: AppColors.kTealLight,
                         ),
@@ -231,9 +227,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           icon: item.availableQuantity > 5
                               ? Icons.check_circle_outline
                               : Icons.warning_amber_outlined,
-                          label: item.isLowStock
-                              ? 'Low stock'
-                              : 'In stock',
+                          label: item.isLowStock ? 'Low stock' : 'In stock',
                           color: item.isLowStock
                               ? AppColors.kWarning
                               : AppColors.kSuccess,
@@ -245,6 +239,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ],
                   ),
                 ),
+
+                if (product.description != null &&
+                    product.description!.isNotEmpty)
+                  _InfoCard(
+                    title: 'Description',
+                    icon: Icons.info_outline,
+                    children: [
+                      Text(product.description!,
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.kTextMid,
+                              height: 1.5)),
+                    ],
+                  ),
                 const SizedBox(height: 12),
 
                 // ── Availability Card ────────────────────────────────────
@@ -252,9 +260,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   title: 'Availability',
                   icon: Icons.local_pharmacy_outlined,
                   children: [
-                    _DetailRow(
-                        label: 'Pharmacy',
-                        value: item.pharmacyName),
+                    _DetailRow(label: 'Pharmacy', value: item.pharmacyName),
                     _DetailRow(
                         label: 'Available',
                         value: '${item.availableQuantity} units',
@@ -264,9 +270,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     _DetailRow(
                         label: 'Expires',
                         value: _fmtDate(item.expirationDate),
-                        valueColor: item.isExpiringSoon
-                            ? AppColors.kWarning
-                            : null),
+                        valueColor:
+                            item.isExpiringSoon ? AppColors.kWarning : null),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -309,8 +314,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _defaultProductImage() => Container(
         color: AppColors.kTealLight,
         child: const Center(
-          child: Icon(Icons.medication_rounded,
-              color: AppColors.kTeal, size: 80),
+          child:
+              Icon(Icons.medication_rounded, color: AppColors.kTeal, size: 80),
         ),
       );
 }
@@ -330,8 +335,7 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(10),
@@ -341,9 +345,7 @@ class _StatChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(label,
               style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: color)),
+                  fontSize: 12, fontWeight: FontWeight.w600, color: color)),
         ]),
       );
 }
@@ -487,8 +489,7 @@ class _ExpandableCardState extends State<_ExpandableCard> {
                     color: widget.iconBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(widget.icon,
-                      size: 16, color: widget.iconColor),
+                  child: Icon(widget.icon, size: 16, color: widget.iconColor),
                 ),
                 const SizedBox(width: 10),
                 Expanded(

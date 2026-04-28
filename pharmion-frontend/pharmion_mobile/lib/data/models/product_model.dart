@@ -15,6 +15,7 @@ class ProductModel {
   final String instructionsForUse;
   final String contraindications;
   final String? imageUrl;
+  final String? description;
 
   const ProductModel({
     required this.id,
@@ -33,6 +34,7 @@ class ProductModel {
     required this.instructionsForUse,
     required this.contraindications,
     this.imageUrl,
+    this.description,
   });
 
   bool get hasRealImage =>
@@ -60,5 +62,6 @@ class ProductModel {
         instructionsForUse: json['instructionsForUse'] as String? ?? '',
         contraindications: json['contraindications'] as String? ?? '',
         imageUrl: json['imageUrl'] as String?,
+        description: json['description'] as String?,
       );
 }

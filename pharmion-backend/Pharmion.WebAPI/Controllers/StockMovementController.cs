@@ -10,7 +10,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Roles ="Pharmacist")]
     public class StockMovementController : ControllerBase
     {
         private readonly IStockMovementService _stockMovementService;

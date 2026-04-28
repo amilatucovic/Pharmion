@@ -13,6 +13,9 @@ namespace Pharmion.Model.Requests
         [Required]
         public ProductType Type { get; set; }
 
+        [MaxLength(500)]
+        public string? Description { get; set; }
+
         public bool IsPrescriptionRequired { get; set; }
 
         public bool IsActive { get; set; } = true;

@@ -16,6 +16,7 @@ namespace Pharmion.Model.Responses
         public string? Manufacturer { get; set; }
         public string? Unit { get; set; }
         public int? PackageSize { get; set; }
+        public string? Description { get; set; }
         public decimal Price { get; set; }
         public string SideEffects { get; set; }
         public string InstructionsForUse { get; set; }

@@ -10,7 +10,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize] 
     public class ChronicDiseaseController : BaseCRUDController<ChronicDiseaseResponse, ChronicDiseaseSearchObject, ChronicDiseaseUpsertRequest, ChronicDiseaseUpsertRequest>
     {
         public ChronicDiseaseController(IChronicDiseaseService chronicDiseaseService) : base(chronicDiseaseService)
@@ -18,7 +18,6 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous] 
         public override Task<PagedResult<ChronicDiseaseResponse>> Get(
         [FromQuery] ChronicDiseaseSearchObject? search = null)
         {
@@ -26,18 +25,21 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Create([FromBody] ChronicDiseaseUpsertRequest request)
         {
             return base.Create(request);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Update(int id, [FromBody] ChronicDiseaseUpsertRequest request)
         {
             return base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public override Task<IActionResult> Delete(int id)
         {
             return base.Delete(id);

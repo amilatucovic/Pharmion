@@ -67,8 +67,25 @@ namespace Pharmion.Services.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 _context.Payments.Add(payOnPickupPayment);
-              
 
+                var pharmacistsPop = await _context.Pharmacists
+        .Where(p => p.PharmacyId == reservation.PharmacyId)
+        .ToListAsync();
+                var patientNamePop = $"{reservation.Patient!.FirstName} {reservation.Patient.LastName}";
+                foreach (var ph in pharmacistsPop)
+                {
+                    _context.Notifications.Add(new Notification
+                    {
+                        UserId = ph.Id,
+                        Title = "Pacijent odabrao metodu plaćanja",
+                        Message = $"{patientNamePop} je odabrao/la Pay on Pickup za rezervaciju RES-{reservation.Id}.",
+                        Template = NotificationTemplate.PaymentSelected,
+                        Type = NotificationType.InApp,
+                        IsRead = false,
+                        CreatedAt = DateTime.UtcNow,
+                        ReservationId = reservation.Id
+                    });
+                }
                 await _context.SaveChangesAsync();
                 return MapToResponse(payOnPickupPayment);
             }
@@ -107,6 +124,27 @@ namespace Pharmion.Services.Services
             };
 
             _context.Payments.Add(payment);
+            var pharmacists = await _context.Pharmacists
+     .Where(p => p.PharmacyId == reservation.PharmacyId)
+     .ToListAsync();
+
+            var patientName = $"{reservation.Patient!.FirstName} {reservation.Patient.LastName}";
+            var methodName = "Stripe";
+
+            foreach (var ph in pharmacists)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = ph.Id,
+                    Title = "Pacijent odabrao metodu plaćanja",
+                    Message = $"{patientName} je odabrao/la {methodName} za rezervaciju RES-{reservation.Id}.",
+                    Template = NotificationTemplate.PaymentSelected,
+                    Type = NotificationType.InApp,
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow,
+                    ReservationId = reservation.Id
+                });
+            }
             await _context.SaveChangesAsync();
 
             var response = MapToResponse(payment);

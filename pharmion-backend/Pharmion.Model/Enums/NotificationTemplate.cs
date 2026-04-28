@@ -11,6 +11,8 @@ namespace Pharmion.Model.Enums
         ReservationRejected = 3,
         ReservationReadyForPickup = 4,
         ReservationCancelled = 5,
-        NewReservationForPharmacist = 6
+        NewReservationForPharmacist = 6,
+        ReservationCancelledByPharmacist = 7,
+        PaymentSelected = 8,
     }
 }

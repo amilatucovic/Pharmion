@@ -389,7 +389,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 message:
                     'Your payment has been refunded. Please allow 5-10 business days for the funds to appear.',
               ),
-            if (r.isPaid && !r.isReadyForPickup && !r.isPickedUp)
+            if (r.isPaid && !r.isReadyForPickup && !r.isPickedUp && !r.isCancelled)
               _Banner(
                 color: AppColors.kSuccess,
                 bg: const Color(0xFFD1FAE5),

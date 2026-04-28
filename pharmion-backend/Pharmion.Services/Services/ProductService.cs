@@ -243,6 +243,7 @@ namespace Pharmion.Services.Services
                     SKU = p.SKU,
                     Barcode = p.Barcode,
                     Manufacturer = p.Manufacturer,
+                    Description = p.Description,
                     Unit = p.Unit,
                     PackageSize = p.PackageSize,
                     Price = p.Price,

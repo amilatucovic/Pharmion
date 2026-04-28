@@ -315,8 +315,8 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                   ),
                 ),
               ),
-            ],
-            if (_earlyDispenseRequired) ...[
+                ]
+            else if (_earlyDispenseRequired) ...[
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(

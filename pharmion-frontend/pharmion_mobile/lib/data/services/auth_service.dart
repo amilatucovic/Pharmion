@@ -28,8 +28,20 @@ class AuthService {
   }
 
   static Future<void> logout() async {
-    await ApiService.clearSession();
+  final prefs = await SharedPreferences.getInstance();
+  final refreshToken = prefs.getString(AppConstants.keyRefreshToken);
+  
+  if (refreshToken != null && refreshToken.isNotEmpty) {
+    try {
+      await ApiService.post(
+        'Auth/revoke-token',
+        {'refreshToken': refreshToken},
+      );
+    } catch (_) {}
   }
+  
+  await ApiService.clearSession();
+}
 
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();

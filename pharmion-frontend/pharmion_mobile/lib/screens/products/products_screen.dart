@@ -916,7 +916,12 @@ class _RecommendationCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => context.go('/pharmacies'),
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => _ProductInfoSheet(product: rec.product),
+                ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.kTeal,
                   side: const BorderSide(color: AppColors.kTeal),

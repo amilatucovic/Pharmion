@@ -51,19 +51,21 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             entity.ReservationState = nameof(SubmittedReservationState);
             entity.SubmittedAt = DateTime.UtcNow;
-
+            var patient = await _context.Patients.FindAsync(entity.PatientId);
+            var patientName = patient != null
+                ? $"{patient.FirstName} {patient.LastName}"
+                : "Pacijent";
             var pharmacists = await _context.Pharmacists
                 .Where(p => p.PharmacyId == entity.PharmacyId)
                 .ToListAsync();
 
             foreach (var pharmacist in pharmacists)
             {
-                AddNotification(
-                    pharmacist.Id,
-                    "Nova rezervacija",
-                    $"Pacijent je kreirao rezervaciju RES-{entity.Id}.",
-                    NotificationTemplate.NewReservationForPharmacist,
-                    entity.Id);
+                AddNotification(pharmacist.Id,
+                "Nova rezervacija",
+                $"{patientName} je kreirao/la rezervaciju RES-{entity.Id}.",
+                NotificationTemplate.NewReservationForPharmacist,
+                entity.Id);
             }
 
             await _context.SaveChangesAsync(); 

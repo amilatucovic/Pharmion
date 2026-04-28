@@ -141,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     if (confirmed == true) {
-      await ApiService.clearToken();
+      await ApiService.logout();
       if (mounted) {
         Navigator.pushReplacement(
           context,

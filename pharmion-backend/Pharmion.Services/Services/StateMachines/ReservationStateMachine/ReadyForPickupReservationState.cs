@@ -88,10 +88,17 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             entity.CancellationReason = reason;      
             entity.CancelledAt = DateTime.UtcNow;   
             entity.CancelledByUserId = userId;
-            AddNotification(entity.PatientId,
-                     "Rezervacija otkazana",
-                     $"Vaša rezervacija RES-{entity.Id} je otkazana.",
-                     NotificationTemplate.ReservationCancelled,entity.Id);
+            var pharmacist = await _context.Pharmacists.FindAsync(userId);
+            
+            if (pharmacist != null)
+            {
+                var pharmacistName = $"{pharmacist.FirstName} {pharmacist.LastName}";
+                AddNotification(entity.PatientId,
+                    "Rezervacija otkazana od strane farmaceuta",
+                    $"Farmaceut {pharmacistName} je otkazao Vašu rezervaciju RES-{entity.Id}. Razlog: {reason}",
+                    NotificationTemplate.ReservationCancelledByPharmacist, entity.Id);
+            }
+            
 
             await _context.SaveChangesAsync();
 
