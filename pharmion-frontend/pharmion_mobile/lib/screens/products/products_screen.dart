@@ -7,6 +7,7 @@ import '../../data/models/product_model.dart';
 import '../../data/models/recommendation_model.dart';
 import '../../data/services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../data/models/inventory_item_model.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -555,15 +556,52 @@ class _ProductGridCard extends StatelessWidget {
 }
 
 // ─── Product Info Sheet ───────────────────────────────────────────────────────
-class _ProductInfoSheet extends StatelessWidget {
+// ─── Product Info Sheet ───────────────────────────────────────────────────────
+class _ProductInfoSheet extends StatefulWidget {
   final ProductModel product;
   const _ProductInfoSheet({required this.product});
 
   @override
+  State<_ProductInfoSheet> createState() => _ProductInfoSheetState();
+}
+
+class _ProductInfoSheetState extends State<_ProductInfoSheet> {
+  List<InventoryItemModel> _pharmacies = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPharmacies();
+  }
+
+  Future<void> _loadPharmacies() async {
+    final auth = context.read<AuthProvider>();
+    final cityId = auth.cityId;
+
+    try {
+      String url =
+          'InventoryItem?productId=${widget.product.id}&retrieveAll=true';
+      if (cityId != null) url += '&cityId=$cityId';
+
+      final data = await ApiService.get(url) as Map<String, dynamic>;
+      final items = ((data['items'] as List?) ?? [])
+          .map((e) => InventoryItemModel.fromJson(e as Map<String, dynamic>))
+          .where((e) => e.availableQuantity > 0)
+          .toList();
+
+      if (mounted) setState(() => _pharmacies = items);
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) => DraggableScrollableSheet(
-        initialChildSize: 0.42,
-        maxChildSize: 0.7,
-        minChildSize: 0.35,
+        initialChildSize: 0.55,
+        maxChildSize: 0.85,
+        minChildSize: 0.4,
         builder: (_, ctrl) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -601,12 +639,13 @@ class _ProductInfoSheet extends StatelessWidget {
                   controller: ctrl,
                   padding: const EdgeInsets.all(20),
                   children: [
+                    // ── Product header ─────────────────────────────────
                     Row(children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: product.hasRealImage
+                        child: widget.product.hasRealImage
                             ? Image.network(
-                                '${AppConstants.baseUrl}${product.imageUrl}',
+                                '${AppConstants.baseUrl}${widget.product.imageUrl}',
                                 width: 70,
                                 height: 70,
                                 fit: BoxFit.cover,
@@ -627,18 +666,18 @@ class _ProductInfoSheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(product.name,
+                            Text(widget.product.name,
                                 style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.kTextDark)),
                             const SizedBox(height: 4),
-                            Text(product.typeName,
+                            Text(widget.product.typeName,
                                 style: const TextStyle(
                                     fontSize: 12, color: AppColors.kTextMid)),
                             const SizedBox(height: 4),
                             Text(
-                              '${product.price.toStringAsFixed(2)} KM',
+                              '${widget.product.price.toStringAsFixed(2)} KM',
                               style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -651,30 +690,141 @@ class _ProductInfoSheet extends StatelessWidget {
                     const SizedBox(height: 20),
                     const Divider(color: AppColors.kBorder),
                     const SizedBox(height: 12),
-                    const Text(
-                        'To reserve this product, find it in a pharmacy near you.',
+
+                    // ── Availability section ───────────────────────────
+                    Row(children: [
+                      const Icon(Icons.local_pharmacy_outlined,
+                          size: 16, color: AppColors.kTeal),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Available in your city',
                         style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.kTextMid,
-                            height: 1.4)),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context.go('/pharmacies');
-                        },
-                        icon:
-                            const Icon(Icons.local_pharmacy_outlined, size: 18),
-                        label: const Text('Find in Pharmacy'),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.kTextDark),
                       ),
-                    ),
+                    ]),
+                    const SizedBox(height: 12),
+
+                    if (_loading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(
+                              color: AppColors.kTeal, strokeWidth: 2),
+                        ),
+                      )
+                    else if (_pharmacies.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.kBg,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.kBorder),
+                        ),
+                        child: const Row(children: [
+                          Icon(Icons.info_outline,
+                              size: 16, color: AppColors.kTextMid),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Not available in pharmacies in your city.',
+                              style: TextStyle(
+                                  fontSize: 13, color: AppColors.kTextMid),
+                            ),
+                          ),
+                        ]),
+                      )
+                    else
+                      ..._pharmacies.map((p) => _PharmacyAvailabilityCard(
+                            inventoryItem: p,
+                            onTap: () {
+                              Navigator.pop(context);
+                              context.push('/product-detail', extra: p);
+                            },
+                          )),
                   ],
                 ),
               ),
             ],
           ),
+        ),
+      );
+}
+
+// ─── Pharmacy Availability Card ───────────────────────────────────────────────
+class _PharmacyAvailabilityCard extends StatelessWidget {
+  final InventoryItemModel inventoryItem;
+  final VoidCallback onTap;
+
+  const _PharmacyAvailabilityCard({
+    required this.inventoryItem,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.kBorder),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.kTealLight,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.local_pharmacy_outlined,
+                  size: 18, color: AppColors.kTeal),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                inventoryItem.pharmacyName,
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.kTextDark),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: inventoryItem.isLowStock
+                    ? const Color(0xFFFEF3C7)
+                    : const Color(0xFFD1FAE5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                inventoryItem.isLowStock
+                    ? 'Low (${inventoryItem.availableQuantity})'
+                    : '${inventoryItem.availableQuantity} in stock',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: inventoryItem.isLowStock
+                        ? AppColors.kWarning
+                        : AppColors.kSuccess),
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(Icons.chevron_right,
+                size: 16, color: AppColors.kTextLight),
+          ]),
         ),
       );
 }

@@ -43,6 +43,8 @@ namespace Pharmion.Services.Services
                 var threshold = DateTime.UtcNow.AddDays(30);
                 query = query.Where(i => i.ExpirationDate <= threshold);
             }
+            if (search.CityId.HasValue)
+                query = query.Where(i => i.Pharmacy.City.Id == search.CityId.Value);
 
             return query;
         }
@@ -92,6 +94,7 @@ namespace Pharmion.Services.Services
             var baseQuery = _context.Set<InventoryItem>()
                 .Include(i => i.Product)
                 .Include(i => i.Pharmacy)
+                .ThenInclude(p=>p.City)
                 .AsQueryable();
 
             baseQuery = ApplyFilter(baseQuery, search);

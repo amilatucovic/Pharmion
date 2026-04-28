@@ -12,6 +12,7 @@ namespace Pharmion.Model.SearchObjects
 
         
         public bool? LowStock { get; set; }
+        public int? CityId { get; set; }
 
         public bool? ExpiringSoon { get; set; }
     }

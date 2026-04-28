@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Pharmion.Model.Enums;
 using Pharmion.Model.Exceptions;
 using Pharmion.Model.Messages;
@@ -23,16 +24,18 @@ namespace Pharmion.Services.Services
         private readonly PharmionDbContext _context;
         private readonly IServiceProvider _serviceProvider;
         private readonly IRabbitMQPublisher _publisher;
+        private readonly ILogger<ReservationService> _logger;
 
         public ReservationService(
             PharmionDbContext context,
             IMapper mapper,
             IServiceProvider serviceProvider,
-            IRabbitMQPublisher publisher) : base(context, mapper)
+            IRabbitMQPublisher publisher, ILogger<ReservationService> logger) : base(context, mapper)
         {
             _context = context;
             _serviceProvider = serviceProvider;
             _publisher = publisher;
+            _logger = logger;
         }
 
         public override async Task<PagedResult<ReservationResponse>> GetAsync(ReservationSearchObject search)
@@ -157,7 +160,7 @@ namespace Pharmion.Services.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
+                _logger.LogError("RabbitMQ publish failed: {Message}", ex.Message);
             }
 
             return result;
@@ -173,7 +176,24 @@ namespace Pharmion.Services.Services
             var currentState = GetCurrentState(reservation.ReservationState);
             await currentState.ApproveAsync(reservationId, pharmacistId);
 
-            return await ReloadAndMapAsync(reservationId);
+            var result = await ReloadAndMapAsync(reservationId);
+
+            try
+            {
+                await _publisher.PublishAsync(new ReservationApprovedMessage
+                {
+                    ReservationId = result.Id,
+                    PatientEmail = result.PatientEmail,
+                    PatientName = result.PatientName,
+                    PharmacyName = result.PharmacyName
+                }, "reservation.approved");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("RabbitMQ publish failed: {Message}", ex.Message);
+            }
+
+            return result;
         }
 
         public async Task<ReservationResponse> RejectAsync(int reservationId, int pharmacistId, string reason)
@@ -200,7 +220,7 @@ namespace Pharmion.Services.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
+                _logger.LogError("RabbitMQ publish failed: {Message}", ex.Message);
             }
 
             return result;
@@ -230,7 +250,7 @@ namespace Pharmion.Services.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"RabbitMQ publish failed: {ex.Message}");
+                _logger.LogError("RabbitMQ publish failed: {Message}", ex.Message);
             }
 
             return result;

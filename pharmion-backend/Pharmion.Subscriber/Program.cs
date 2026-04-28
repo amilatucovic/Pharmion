@@ -9,19 +9,19 @@ var rabbitConnection = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTIONST
     ?? "host=localhost;username=guest;password=guest";
 
 var bus = RabbitHutch.CreateBus(rabbitConnection);
-logger.LogInformation("Pharmion Subscriber pokrenut...");
+logger.LogInformation("Pharmion Subscriber started...");
 
 await bus.PubSub.SubscribeAsync<ReservationSubmittedMessage>(
     "reservation_submitted",
     async msg => await ExecuteWithRetryAsync(
         () => SendEmailAsync(
             msg.PatientEmail,
-            "Rezervacija uspješno kreirana - Pharmion",
-            $"Poštovani/a {msg.PatientName},\n\n" +
-            $"Vaša rezervacija br. {msg.ReservationId} u apoteci {msg.PharmacyName} " +
-            $"je uspješno kreirana dana {msg.CreatedAt:dd.MM.yyyy}.\n\n" +
-            $"Farmaceut će pregledati Vašu rezervaciju i obavijestiti Vas o statusu.\n\n" +
-            $"Srdačan pozdrav,\nTim Pharmion"),
+            "Reservation successfully created - Pharmion",
+            $"Dear {msg.PatientName},\n\n" +
+            $"Your reservation no. {msg.ReservationId} at pharmacy {msg.PharmacyName} " +
+            $"has been successfully created on {msg.CreatedAt:dd.MM.yyyy}.\n\n" +
+            $"A pharmacist will review your reservation and notify you about the status.\n\n" +
+            $"Best regards,\nPharmion Team", logger),
         logger, msg.PatientEmail),
     config => config.WithTopic("reservation.submitted"));
 
@@ -30,13 +30,13 @@ await bus.PubSub.SubscribeAsync<ReservationRejectedMessage>(
     async msg => await ExecuteWithRetryAsync(
         () => SendEmailAsync(
             msg.PatientEmail,
-            "Rezervacija odbijena - Pharmion",
-            $"Poštovani/a {msg.PatientName},\n\n" +
-            $"Nažalost, Vaša rezervacija br. {msg.ReservationId} u apoteci {msg.PharmacyName} " +
-            $"je odbijena.\n" +
-            $"Razlog: {msg.Reason}\n\n" +
-            $"Za više informacija obratite se apoteci.\n\n" +
-            $"Srdačan pozdrav,\nTim Pharmion"),
+           "Reservation rejected - Pharmion",
+           $"Dear {msg.PatientName},\n\n" +
+           $"Unfortunately, your reservation no. {msg.ReservationId} at pharmacy {msg.PharmacyName} " +
+           $"has been rejected.\n" +
+           $"Reason: {msg.Reason}\n\n" +
+           $"For more information please contact the pharmacy.\n\n" +
+           $"Best regards,\nPharmion Team", logger),
         logger, msg.PatientEmail),
     config => config.WithTopic("reservation.rejected"));
 
@@ -45,12 +45,12 @@ await bus.PubSub.SubscribeAsync<ReservationReadyMessage>(
     async msg => await ExecuteWithRetryAsync(
         () => SendEmailAsync(
             msg.PatientEmail,
-            "Vaša rezervacija je spremna - Pharmion",
-            $"Poštovani/a {msg.PatientName},\n\n" +
-            $"Vaša rezervacija br. {msg.ReservationId} u apoteci {msg.PharmacyName} " +
-            $"je spremna za preuzimanje.\n" +
-            $"Molimo preuzmite je do: {msg.PickupDeadline:dd.MM.yyyy HH:mm}\n\n" +
-            $"Srdačan pozdrav,\nTim Pharmion"),
+           "Your reservation is ready - Pharmion",
+           $"Dear {msg.PatientName},\n\n" +
+           $"Your reservation no. {msg.ReservationId} at pharmacy {msg.PharmacyName} " +
+           $"is ready for pickup.\n" +
+           $"Please pick it up by: {msg.PickupDeadline:dd.MM.yyyy HH:mm}\n\n" +
+           $"Best regards,\nPharmion Team", logger),
         logger, msg.PatientEmail),
     config => config.WithTopic("reservation.ready"));
 
@@ -59,15 +59,15 @@ await bus.PubSub.SubscribeAsync<ReservationApprovedMessage>(
     async msg => await ExecuteWithRetryAsync(
         () => SendEmailAsync(
             msg.PatientEmail,
-            "Rezervacija odobrena - Pharmion",
-            $"Poštovani/a {msg.PatientName},\n\n" +
-            $"Vaša rezervacija br. {msg.ReservationId} u apoteci {msg.PharmacyName} " +
-            $"je odobrena.\n\n" +
-            $"Srdačan pozdrav,\nTim Pharmion"),
+           "Reservation approved - Pharmion",
+           $"Dear {msg.PatientName},\n\n" +
+           $"Your reservation no. {msg.ReservationId} at pharmacy {msg.PharmacyName} " +
+           $"has been approved.\n\n" +
+           $"Best regards,\nPharmion Team", logger),
         logger, msg.PatientEmail),
     config => config.WithTopic("reservation.approved"));
 
-logger.LogInformation("Čeka poruke...");
+logger.LogInformation("Waiting for messages...");
 await Task.Delay(Timeout.Infinite);
 bus.Dispose();
 
@@ -103,7 +103,7 @@ static async Task ExecuteWithRetryAsync(Func<Task> action, ILogger logger,
 }
 
 
-static async Task SendEmailAsync(string toEmail, string subject, string body)
+static async Task SendEmailAsync(string toEmail, string subject, string body, ILogger logger)
 {
     string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME")
         ?? "pharmion211@gmail.com";
@@ -129,4 +129,5 @@ static async Task SendEmailAsync(string toEmail, string subject, string body)
     };
 
     await smtpClient.SendMailAsync(mailMessage);
+    logger.LogInformation("Email sent → {ToEmail} | {Subject}", toEmail, subject);
 }
