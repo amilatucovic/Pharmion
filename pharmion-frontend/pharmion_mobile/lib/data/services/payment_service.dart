@@ -3,7 +3,7 @@ import 'api_service.dart';
 class PaymentService {
   static Future<Map<String, dynamic>> createPaymentIntent({
     required int reservationId,
-    required int method, // 1 = Stripe, 2 = PayOnPickup
+    required int method, 
   }) async {
     return await ApiService.post('Payment/create-intent', {
       'reservationId': reservationId,

@@ -137,7 +137,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
         ));
       }
     } on EarlyDispenseRequiredException catch (e) {
-      // Backend vratio 409 — prikaži early dispense dialog
       if (mounted) {
         setState(() {
           _earlyDispenseRequired = true;
@@ -168,7 +167,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Handle
           Center(
             child: Container(
               width: 40,
@@ -181,7 +179,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
           ),
           const SizedBox(height: 20),
 
-          // Header
           Row(children: [
             Container(
               width: 40,
@@ -233,7 +230,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ),
             )
           else ...[
-            // Error
             if (_error != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
@@ -256,7 +252,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               const SizedBox(height: 16),
             ],
 
-            // Prescription required + no prescriptions
             if (widget.isPrescriptionRequired &&
                 _prescriptionItems.isEmpty) ...[
               Container(
@@ -350,7 +345,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Reason type dropdown
               const Text('Reason for early pickup',
                   style: TextStyle(
                       fontSize: 13,
@@ -391,7 +385,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ),
               const SizedBox(height: 12),
 
-              // Other reason text field
               if (_selectedReasonType == 99) ...[
                 TextField(
                   controller: _earlyReasonController,
@@ -459,7 +452,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ),
               const SizedBox(height: 8),
             ] else ...[
-              // Prescription selector
               if (widget.isPrescriptionRequired) ...[
                 const Text('Select Prescription',
                     style: TextStyle(
@@ -520,7 +512,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                 const SizedBox(height: 16),
               ],
 
-              // Pharmacy info
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -550,7 +541,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Quantity selector
               Row(children: [
                 const Text('Quantity',
                     style: TextStyle(
@@ -599,7 +589,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ]),
               const SizedBox(height: 20),
 
-              // Confirm button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

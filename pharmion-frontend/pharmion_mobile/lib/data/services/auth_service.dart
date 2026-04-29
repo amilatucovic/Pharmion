@@ -11,7 +11,6 @@ class AuthService {
       auth: false,
     ) as Map<String, dynamic>;
 
-    // Samo pacijenti mogu koristiti mobilnu aplikaciju
     if (data['role'] != 'Patient') {
       throw const AppException('Access denied. This app is for patients only.');
     }

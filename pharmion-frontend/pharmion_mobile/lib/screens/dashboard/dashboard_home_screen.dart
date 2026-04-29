@@ -56,7 +56,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
         onRefresh: _loadData,
         child: CustomScrollView(
           slivers: [
-            // ── App Bar ───────────────────────────────────────────────────
             SliverAppBar(
               expandedHeight: 140,
               floating: false,
@@ -172,7 +171,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // ── Active Prescriptions ──────────────────────────────
                     _SectionHeader(
                       title: 'Active Prescriptions',
                       onSeeAll: () => context.go('/prescriptions'),
@@ -188,7 +186,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                           .map((p) => _PrescriptionCard(prescription: p)),
                     const SizedBox(height: 24),
 
-                    // ── Recent Reservations ───────────────────────────────
                     _SectionHeader(
                       title: 'Recent Reservations',
                       onSeeAll: () => context.go('/reservations'),
@@ -207,7 +204,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                           )),
                     const SizedBox(height: 24),
 
-                    // ── Pharmacies in Your City ───────────────────────────
                     _SectionHeader(
                       title: 'Pharmacies Near You',
                       onSeeAll: null,
@@ -232,7 +228,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
   }
 }
 
-// ─── Section Widgets ──────────────────────────────────────────────────────────
 
 class _SectionTitle extends StatelessWidget {
   final String title;
@@ -307,7 +302,6 @@ class _EmptyCard extends StatelessWidget {
       );
 }
 
-// ─── Quick Action ─────────────────────────────────────────────────────────────
 
 class _QuickAction extends StatelessWidget {
   final IconData icon;
@@ -367,7 +361,6 @@ class _QuickAction extends StatelessWidget {
       );
 }
 
-// ─── Prescription Card ────────────────────────────────────────────────────────
 
 class _PrescriptionCard extends StatelessWidget {
   final PrescriptionModel prescription;
@@ -485,7 +478,6 @@ class _PrescriptionCard extends StatelessWidget {
   }
 }
 
-// ─── Reservation Card ─────────────────────────────────────────────────────────
 
 class _ReservationCard extends StatelessWidget {
   final ReservationModel reservation;
@@ -600,7 +592,6 @@ class _ReservationCard extends StatelessWidget {
       );
 }
 
-// ─── Pharmacy Card ────────────────────────────────────────────────────────────
 
 class _PharmacyCard extends StatelessWidget {
   final PharmacyModel pharmacy;

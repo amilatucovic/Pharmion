@@ -21,15 +21,14 @@ namespace Pharmion.WebAPI.Controllers
 
         [HttpGet("{patientId}")]
         [Authorize(Roles = Roles.Patient)]
-        public async Task<IActionResult> GetRecommendations(int patientId)
+        public async Task<IActionResult> GetRecommendations(int patientId, [FromQuery] int count = 3)
         {
             try
             {
                 var userId = _currentUserService.GetUserId();
                 if (patientId != userId)
                     return Forbid();
-
-                var recommendations = await _recommendationService.GetRecommendationsAsync(patientId);
+                var recommendations = await _recommendationService.GetRecommendationsAsync(patientId, count);
                 return Ok(recommendations);
             }
             catch (UserException ex)

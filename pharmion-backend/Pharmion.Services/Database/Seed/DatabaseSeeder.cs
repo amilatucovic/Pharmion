@@ -1,5 +1,4 @@
-﻿
-namespace Pharmion.Services.Database.Seed
+﻿namespace Pharmion.Services.Database.Seed
 {
     public static class DatabaseSeeder
     {

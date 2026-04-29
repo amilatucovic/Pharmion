@@ -110,6 +110,11 @@ class ReservationModel {
     final withZ = s.endsWith('Z') ? s : '${s}Z';
     return DateTime.tryParse(withZ)?.toLocal();
   }
+
+  String get stateDisplayFormatted => reservationStateDisplay.replaceAllMapped(
+  RegExp(r'(?<=[a-z])(?=[A-Z])'),
+  (match) => ' ',
+);
 }
 
 class ReservationItemModel {

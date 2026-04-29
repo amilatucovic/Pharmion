@@ -99,7 +99,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _buildContent(InventoryItemModel item, ProductModel product) {
     return CustomScrollView(
       slivers: [
-        // ── App Bar with image ───────────────────────────────────────────
         SliverAppBar(
           expandedHeight: 260,
           pinned: true,
@@ -148,14 +147,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Header ──────────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
                   color: Colors.white,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Name + prescription badge
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -193,7 +190,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const SizedBox(height: 6),
 
-                      // Type + manufacturer
                       Text(
                         [
                           product.typeName,
@@ -205,7 +201,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Stats row
                       Row(children: [
                         _StatChip(
                           icon: Icons.payments_outlined,
@@ -255,7 +250,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 const SizedBox(height: 12),
 
-                // ── Availability Card ────────────────────────────────────
                 _InfoCard(
                   title: 'Availability',
                   icon: Icons.local_pharmacy_outlined,
@@ -276,7 +270,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // ── Medical Info ─────────────────────────────────────────
                 if (product.instructionsForUse.isNotEmpty)
                   _ExpandableCard(
                     title: 'Instructions for Use',
@@ -302,7 +295,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     iconBg: AppColors.kErrorLight,
                   ),
 
-                const SizedBox(height: 100), // space for bottom bar
+                const SizedBox(height: 100), 
               ],
             ),
           ),
@@ -320,7 +313,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       );
 }
 
-// ─── Stat Chip ────────────────────────────────────────────────────────────────
 class _StatChip extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -350,7 +342,6 @@ class _StatChip extends StatelessWidget {
       );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
 class _InfoCard extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -405,7 +396,6 @@ class _InfoCard extends StatelessWidget {
       );
 }
 
-// ─── Detail Row ───────────────────────────────────────────────────────────────
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
@@ -439,7 +429,6 @@ class _DetailRow extends StatelessWidget {
       );
 }
 
-// ─── Expandable Card ──────────────────────────────────────────────────────────
 class _ExpandableCard extends StatefulWidget {
   final String title;
   final IconData icon;

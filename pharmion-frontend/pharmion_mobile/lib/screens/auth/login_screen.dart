@@ -52,7 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 60),
 
-              // ── Logo ──────────────────────────────────────────────────────
               Image.asset(
                 'assets/images/pharmion_logo.png',
                 width: 250,
@@ -60,7 +59,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 fit: BoxFit.contain,
               ),
               
-              // ── Form card ─────────────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -92,7 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Error
                     Consumer<AuthProvider>(
                       builder: (_, auth, __) {
                         if (auth.error == null) return const SizedBox.shrink();
@@ -119,7 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
 
-                    // Username
                     const Text('Username',
                         style: TextStyle(
                             fontSize: 13,
@@ -138,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Password
                     const Text('Password',
                         style: TextStyle(
                             fontSize: 13,
@@ -170,7 +165,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Login button
                     Consumer<AuthProvider>(
                       builder: (_, auth, __) => ElevatedButton(
                         onPressed: auth.loading ? null : _login,
@@ -188,7 +182,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Register link
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Text("Don't have an account? ",
                     style: TextStyle(fontSize: 14, color: AppColors.kTextMid)),

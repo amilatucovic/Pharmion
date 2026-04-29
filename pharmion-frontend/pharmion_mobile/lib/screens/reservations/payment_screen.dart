@@ -17,7 +17,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool _loading = false;
   bool _isPaid = false;
   String? _error;
-  int _selectedMethod = 1; // 1 = Stripe, 2 = PayOnPickup
+  int _selectedMethod = 1; 
 
   String _fmtAmount(double amount) => '${amount.toStringAsFixed(2)} KM';
 
@@ -91,7 +91,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     final r = widget.reservation;
 
-    // ── Paid state ─────────────────────────────────────────────────────
     if (_isPaid) {
       return Scaffold(
         backgroundColor: AppColors.kBg,
@@ -158,7 +157,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       );
     }
 
-    // ── Payment form ───────────────────────────────────────────────────
     return Scaffold(
       backgroundColor: AppColors.kBg,
       appBar: AppBar(
@@ -213,7 +211,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Order summary ──────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -306,7 +303,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             const SizedBox(height: 24),
 
-            // ── Payment method ─────────────────────────────────────
             const Text('Payment Method',
                 style: TextStyle(
                     fontSize: 15,
@@ -329,7 +325,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onTap: () => setState(() => _selectedMethod = 2),
             ),
 
-            // ── Error ──────────────────────────────────────────────
             if (_error != null) ...[
               const SizedBox(height: 16),
               Container(
@@ -360,7 +355,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 }
 
-// ─── Method Card ──────────────────────────────────────────────────────────────
 class _MethodCard extends StatelessWidget {
   final bool selected;
   final IconData icon;

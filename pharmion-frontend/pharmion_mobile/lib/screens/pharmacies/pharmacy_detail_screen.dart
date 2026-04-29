@@ -42,16 +42,16 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
     });
 
     try {
-      final data = await ApiService.get(
-          'InventoryItem?pharmacyId=${widget.pharmacy.id}'
-          '&productName=${Uri.encodeComponent(query.trim())}'
-          '&pageSize=20') as Map<String, dynamic>;
+      final data =
+          await ApiService.get('InventoryItem?pharmacyId=${widget.pharmacy.id}'
+              '&productName=${Uri.encodeComponent(query.trim())}'
+              '&pageSize=20') as Map<String, dynamic>;
 
       if (mounted) {
         setState(() {
           _results = ((data['items'] as List?) ?? [])
-              .map((i) =>
-                  InventoryItemModel.fromJson(i as Map<String, dynamic>))
+              .map(
+                  (i) => InventoryItemModel.fromJson(i as Map<String, dynamic>))
               .where((i) => !i.isExpired && i.availableQuantity > 0)
               .toList();
         });
@@ -73,7 +73,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
       backgroundColor: AppColors.kBg,
       body: CustomScrollView(
         slivers: [
-          // ── App Bar ───────────────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 180,
             pinned: true,
@@ -133,7 +132,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Info Card ────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -189,18 +187,13 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                         ],
                         if (pharmacy.workingHours != null) ...[
                           const SizedBox(height: 12),
-                          _InfoRow(
-                            icon: Icons.schedule_outlined,
-                            label: 'Working Hours',
-                            value: pharmacy.workingHours!,
-                          ),
+                          _WorkingHoursRow(value: pharmacy.workingHours!),
                         ],
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Search ───────────────────────────────────────────
                   const Text('Available Products',
                       style: TextStyle(
                           fontSize: 16,
@@ -216,8 +209,7 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                     style: const TextStyle(
                         fontSize: 14, color: AppColors.kTextDark),
                     decoration: InputDecoration(
-                      hintText:
-                          'Search for a medication in this pharmacy...',
+                      hintText: 'Search for a medication in this pharmacy...',
                       hintStyle: const TextStyle(
                           color: AppColors.kTextLight, fontSize: 13),
                       prefixIcon: const Icon(Icons.search,
@@ -241,30 +233,27 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                           horizontal: 16, vertical: 14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: AppColors.kBorder),
+                        borderSide: const BorderSide(color: AppColors.kBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: AppColors.kBorder),
+                        borderSide: const BorderSide(color: AppColors.kBorder),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                            color: AppColors.kTeal, width: 2),
+                        borderSide:
+                            const BorderSide(color: AppColors.kTeal, width: 2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Results ──────────────────────────────────────────
                   if (_loading)
                     const Center(
                       child: Padding(
                         padding: EdgeInsets.all(32),
-                        child: CircularProgressIndicator(
-                            color: AppColors.kTeal),
+                        child:
+                            CircularProgressIndicator(color: AppColors.kTeal),
                       ),
                     )
                   else if (!_hasSearched)
@@ -282,8 +271,8 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                           'No available medications match "$_searchQuery" in this pharmacy.',
                     )
                   else
-                    ..._results.map((item) => _ProductCard(
-                        item: item, fmtDate: _fmtDate)),
+                    ..._results.map(
+                        (item) => _ProductCard(item: item, fmtDate: _fmtDate)),
 
                   const SizedBox(height: 16),
                 ],
@@ -296,7 +285,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
   }
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -340,7 +328,6 @@ class _EmptyState extends StatelessWidget {
       );
 }
 
-// ─── Info Row ─────────────────────────────────────────────────────────────────
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -387,7 +374,6 @@ class _InfoRow extends StatelessWidget {
       );
 }
 
-// ─── Product Card ─────────────────────────────────────────────────────────────
 class _ProductCard extends StatelessWidget {
   final InventoryItemModel item;
   final String Function(DateTime) fmtDate;
@@ -395,107 +381,145 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => context.push('/product-detail', extra: item),
-    child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: item.isLowStock
-                ? AppColors.kWarning.withValues(alpha: 0.4)
-                : AppColors.kBorder,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+        onTap: () => context.push('/product-detail', extra: item),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: item.isLowStock
+                  ? AppColors.kWarning.withValues(alpha: 0.4)
+                  : AppColors.kBorder,
             ),
-          ],
-        ),
-        child: Row(children: [
-          // Product image or default
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: _ProductImage(imageUrl: item.productImageUrl),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
+          child: Row(children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _ProductImage(imageUrl: item.productImageUrl),
+            ),
+            const SizedBox(width: 12),
 
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.productName,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.kTextDark)),
-                if (item.productSku != null) ...[
-                  const SizedBox(height: 2),
-                  Text('SKU: ${item.productSku}',
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.productName,
                       style: const TextStyle(
-                          fontSize: 11, color: AppColors.kTextMid)),
-                ],
-                const SizedBox(height: 6),
-                Row(children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: item.isLowStock
-                          ? const Color(0xFFFEF3C7)
-                          : AppColors.kTealLight,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '${item.availableQuantity} available',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.kTextDark)),
+                  if (item.productSku != null) ...[
+                    const SizedBox(height: 2),
+                    Text('SKU: ${item.productSku}',
+                        style: const TextStyle(
+                            fontSize: 11, color: AppColors.kTextMid)),
+                  ],
+                  const SizedBox(height: 6),
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
                         color: item.isLowStock
-                            ? AppColors.kWarning
-                            : AppColors.kTeal,
+                            ? const Color(0xFFFEF3C7)
+                            : AppColors.kTealLight,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '${item.availableQuantity} available',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: item.isLowStock
+                              ? AppColors.kWarning
+                              : AppColors.kTeal,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Exp: ${fmtDate(item.expirationDate)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: item.isExpiringSoon
-                          ? AppColors.kWarning
-                          : AppColors.kTextLight,
+                    const SizedBox(width: 8),
+                    Text(
+                      'Exp: ${fmtDate(item.expirationDate)}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: item.isExpiringSoon
+                            ? AppColors.kWarning
+                            : AppColors.kTextLight,
+                      ),
                     ),
-                  ),
-                ]),
-              ],
-            ),
-          ),
-
-          if (item.isLowStock)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF3C7),
-                borderRadius: BorderRadius.circular(6),
+                  ]),
+                ],
               ),
-              child: const Text('Low',
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.kWarning)),
             ),
-        ]),
-    ),
+
+            if (item.isLowStock)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text('Low',
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.kWarning)),
+              ),
+          ]),
+        ),
       );
 }
 
-// ─── Product Image ────────────────────────────────────────────────────────────
+class _WorkingHoursRow extends StatelessWidget {
+  final String value;
+  const _WorkingHoursRow({required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.kTealLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.schedule, size: 16, color: AppColors.kTeal),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Working Hours',
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.kTextMid,
+                      fontWeight: FontWeight.w500)),
+              const SizedBox(height: 2),
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.kTextDark,
+                      fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ProductImage extends StatelessWidget {
   final String? imageUrl;
   const _ProductImage({this.imageUrl});

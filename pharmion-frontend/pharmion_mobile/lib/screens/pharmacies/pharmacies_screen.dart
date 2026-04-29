@@ -96,13 +96,11 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                   onRefresh: _load,
                   child: Column(
                     children: [
-                      // ── Search & Filter ──────────────────────────────
                       Container(
                         color: Colors.white,
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                         child: Column(
                           children: [
-                            // Search
                             TextField(
                               controller: _searchCtrl,
                               onChanged: (v) =>
@@ -147,8 +145,7 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                             ),
                             const SizedBox(height: 10),
 
-                            // City filter chips
-                            // Umjesto SizedBox sa ListView chipova, stavi ovo:
+                          
                             if (_cities.length > 1)
                               DropdownButtonFormField<String>(
                                 value: _selectedCity,
@@ -194,7 +191,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                         ),
                       ),
 
-                      // ── Results count ────────────────────────────────
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                         child: Row(children: [
@@ -206,7 +202,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                         ]),
                       ),
 
-                      // ── List ─────────────────────────────────────────
                       Expanded(
                         child: _filtered.isEmpty
                             ? _EmptyState(
@@ -227,7 +222,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
   }
 }
 
-// ─── Pharmacy Card ────────────────────────────────────────────────────────────
 class _PharmacyCard extends StatelessWidget {
   final PharmacyModel pharmacy;
   const _PharmacyCard({required this.pharmacy});
@@ -294,10 +288,13 @@ class _PharmacyCard extends StatelessWidget {
                       const Icon(Icons.schedule_outlined,
                           size: 12, color: AppColors.kTextLight),
                       const SizedBox(width: 4),
-                      Text(
-                        pharmacy.workingHours!,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.kTextMid),
+                      Expanded(
+                        child: Text(
+                          pharmacy.workingHours!,
+                          style: const TextStyle(
+                              fontSize: 11, color: AppColors.kTextMid),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ]),
                   ],
@@ -325,7 +322,6 @@ class _PharmacyCard extends StatelessWidget {
       );
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final String searchQuery;
   final String? selectedCity;
@@ -372,7 +368,6 @@ class _EmptyState extends StatelessWidget {
       );
 }
 
-// ─── Error State ──────────────────────────────────────────────────────────────
 class _ErrorState extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;

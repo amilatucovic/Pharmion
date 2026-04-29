@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_exception.dart';
+import '../../providers/auth_provider.dart';
 
 class ApiService {
   static Future<Map<String, String>> _headers({bool auth = true}) async {
@@ -144,8 +145,9 @@ class ApiService {
       await prefs.setString(AppConstants.keyAccessToken, data['accessToken']);
       await prefs.setString(AppConstants.keyRefreshToken, data['refreshToken']);
     } else {
-      await prefs.clear();
-      throw const UnauthorizedException();
+       await prefs.clear();
+       AuthProvider.handleGlobalUnauthorized(); 
+       throw const UnauthorizedException();
     }
   }
 

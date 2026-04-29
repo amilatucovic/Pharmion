@@ -30,7 +30,7 @@ namespace Pharmion.Services.Database.Seed
                 {
                     PatientId = patient.Id,
                     CreatedByPharmacistId = pharmacist.Id,
-                    DoctorName = "Dr. Edin Halilović",
+                    DoctorName = "Almedina Omanović",
                     Facility = "Dom zdravlja Mostar",
                     IssuedAt = DateTime.UtcNow.AddDays(-30),
                     ValidFrom = DateTime.UtcNow.AddDays(-30),
@@ -58,7 +58,7 @@ namespace Pharmion.Services.Database.Seed
                 {
                     PatientId = patient.Id,
                     CreatedByPharmacistId = pharmacist.Id,
-                    DoctorName = "Dr. Amra Kovačević",
+                    DoctorName = "Asja Kuko",
                     Facility = "Klinička bolnica Mostar",
                     IssuedAt = DateTime.UtcNow.AddDays(-60),
                     ValidFrom = DateTime.UtcNow.AddDays(-60),
@@ -86,7 +86,7 @@ namespace Pharmion.Services.Database.Seed
                 {
                     PatientId = patient.Id,
                     CreatedByPharmacistId = pharmacist.Id,
-                    DoctorName = "Dr. Edin Halilović",
+                    DoctorName = "Ammar Tucović",
                     Facility = "Dom zdravlja Mostar",
                     IssuedAt = DateTime.UtcNow.AddDays(-10),
                     ValidFrom = DateTime.UtcNow.AddDays(-10),

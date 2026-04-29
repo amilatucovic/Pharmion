@@ -2,6 +2,6 @@
 {
     public interface IRecommendationService
     {
-        Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId);
+        Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId, int count = 3);
     }
 }

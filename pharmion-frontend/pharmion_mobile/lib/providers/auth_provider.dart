@@ -24,20 +24,37 @@ class AuthProvider extends ChangeNotifier {
   bool get loading => _loading;
   String get fullName => '$_firstName $_lastName'.trim();
   bool get isAuthenticated => _status == AuthStatus.authenticated;
+  static AuthProvider? _instance;
+
+  AuthProvider() {
+    _instance = this;
+  }
+
+  static void handleGlobalUnauthorized() {
+    _instance?.handleUnauthorized();
+  }
+
+  Future<void> handleUnauthorized() async {
+    await AuthService.logout();
+    _status = AuthStatus.unauthenticated;
+    _firstName = null;
+    _lastName = null;
+    _email = null;
+    _userId = null;
+    _cityId = null;
+    notifyListeners();
+  }
 
   Future<void> checkAuth() async {
     final loggedIn = await AuthService.isLoggedIn();
     if (loggedIn) {
-    final data = await AuthService.getSessionData();
+      final data = await AuthService.getSessionData();
       _setUserData(data);
       _status = AuthStatus.authenticated;
     } else {
-       _status = AuthStatus.unauthenticated;
+      _status = AuthStatus.unauthenticated;
     }
     notifyListeners();
-    // _status = AuthStatus.unauthenticated;
-    // notifyListeners();
-    // return;
   }
 
   Future<bool> login(String username, String password) async {
@@ -94,11 +111,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void clearError() {
-  if (_error != null) {
-    _error = null;
-    notifyListeners();
+    if (_error != null) {
+      _error = null;
+      notifyListeners();
+    }
   }
-}
 
   void _setUserData(Map<String, String?> data) {
     _userId = int.tryParse(data['userId'] ?? '');

@@ -430,8 +430,160 @@ namespace Pharmion.Services.Database.Seed
                     ImageUrl = "/images/products/sensodyne.png",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Vitamin C 1000 mg",
+                    Type = ProductType.Supplement,
+                    Description = "Vitamin C is a powerful antioxidant that supports immune function, helps protect cells from oxidative stress, and aids in collagen production for healthy skin.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-VITC-1000",
+                    Barcode = "387000000030",
+                    Manufacturer = "Doppelherz",
+                    Unit = "tablet",
+                    PackageSize = 20,
+                    Price = 8.50m,
+                    SideEffects = "Mild stomach upset at high doses.",
+                    InstructionsForUse = "1 tablet daily.",
+                    Contraindications = "Kidney stones.",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Probiotic Complex",
+                    Type = ProductType.Supplement,
+                    Description = "A blend of beneficial bacteria that supports gut health, digestion, and immune system function. Helps restore natural intestinal flora after antibiotic use.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-PRO-01",
+                    Barcode = "387000000031",
+                    Manufacturer = "BioGaia",
+                    Unit = "capsule",
+                    PackageSize = 30,
+                    Price = 19.90m,
+                    SideEffects = "Mild bloating initially.",
+                    InstructionsForUse = "1 capsule daily.",
+                    Contraindications = "Immunocompromised patients should consult a doctor.",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Collagen powder",
+                    Type = ProductType.Supplement,
+                    Description = "Collagen supports skin elasticity, joint health, and hair strength. Often used to improve skin appearance and reduce signs of aging.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-COLL-01",
+                    Barcode = "387000000032",
+                    Manufacturer = "Vital Proteins",
+                    Unit = "g",
+                    PackageSize = 300,
+                    Price = 39.90m,
+                    SideEffects = "Generally well tolerated.",
+                    InstructionsForUse = "Mix 1 scoop with water daily.",
+                    Contraindications = "None known.",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Melatonin 3 mg",
+                    Type = ProductType.Supplement,
+                    Description = "Melatonin helps regulate sleep-wake cycles and is commonly used for insomnia or jet lag. Promotes faster sleep onset and improved sleep quality.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-MEL-03",
+                    Barcode = "387000000033",
+                    Manufacturer = "Natrol",
+                    Unit = "tablet",
+                    PackageSize = 30,
+                    Price = 10.50m,
+                    SideEffects = "Drowsiness, vivid dreams.",
+                    InstructionsForUse = "Take 30 minutes before bedtime.",
+                    Contraindications = "Pregnancy and autoimmune diseases (consult doctor).",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Calcium + Vitamin D",
+                    Type = ProductType.Supplement,
+                    Description = "Supports bone strength and density by combining calcium with vitamin D for better absorption. Recommended for osteoporosis prevention.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-CALD-01",
+                    Barcode = "387000000034",
+                    Manufacturer = "Solgar",
+                    Unit = "tablet",
+                    PackageSize = 60,
+                    Price = 16.90m,
+                    SideEffects = "Constipation.",
+                    InstructionsForUse = "1–2 tablets daily.",
+                    Contraindications = "Hypercalcaemia.",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                        Name = "Ashwagandha extract",
+                        Type = ProductType.Supplement,
+                        Description = "Ashwagandha is an adaptogen that helps reduce stress, improve mood, and support overall mental well-being.",
+                        IsPrescriptionRequired = false,
+                        SKU = "SUP-ASH-01",
+                        Barcode = "387000000035",
+                        Manufacturer = "Himalaya",
+                        Unit = "capsule",
+                        PackageSize = 60,
+                        Price = 21.00m,
+                        SideEffects = "Mild gastrointestinal discomfort.",
+                        InstructionsForUse = "1 capsule daily.",
+                        Contraindications = "Pregnancy.",
+                        ImageUrl = "/images/products/default-product.jpg",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Multivitamin tablets",
+                    Type = ProductType.Supplement,
+                    Description = "A balanced combination of essential vitamins and minerals to support overall health, immunity, and energy levels.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-MULTI-01",
+                    Barcode = "387000000036",
+                    Manufacturer = "Centrum",
+                    Unit = "tablet",
+                    PackageSize = 30,
+                    Price = 18.00m,
+                    SideEffects = "Generally well tolerated.",
+                    InstructionsForUse = "1 tablet daily.",
+                    Contraindications = "Hypersensitivity.",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product
+                {
+                    Name = "Biotin 5000 mcg",
+                    Type = ProductType.Supplement,
+                    Description = "Biotin supports healthy hair, skin, and nails. Commonly used to reduce hair thinning and improve nail strength.",
+                    IsPrescriptionRequired = false,
+                    SKU = "SUP-BIOT-01",
+                    Barcode = "387000000037",
+                    Manufacturer = "Nature's Bounty",
+                    Unit = "tablet",
+                    PackageSize = 60,
+                    Price = 17.50m,
+                    SideEffects = "Rare skin reactions.",
+                    InstructionsForUse = "1 tablet daily.",
+                    Contraindications = "Hypersensitivity.",
+                    ImageUrl = "/images/products/default-product.jpg",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
                 }
-            };
+                };
 
             await context.Products.AddRangeAsync(products);
             await context.SaveChangesAsync();

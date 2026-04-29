@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Generički selection chip — koristi se za odabir jedne opcije iz skupa
 class SelectChip extends StatelessWidget {
   final String label;
   final bool selected;

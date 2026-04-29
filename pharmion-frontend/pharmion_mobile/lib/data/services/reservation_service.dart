@@ -2,7 +2,6 @@ import '../models/prescription_model.dart';
 import 'api_service.dart';
 
 class ReservationService {
-  /// Dohvata aktivne recepte pacijenta koji sadrže određeni productId
   static Future<List<_PrescriptionItemWithPrescription>>
       getPrescriptionsForProduct(int productId) async {
     final data = await ApiService.get(
@@ -13,7 +12,6 @@ class ReservationService {
         .where((p) => !p.isExpired)
         .toList();
 
-    // Filtriraj iteme koji sadrže ovaj produkt i imaju preostala ponavljanja
     final result = <_PrescriptionItemWithPrescription>[];
     for (final prescription in prescriptions) {
       for (final item in prescription.items) {
@@ -29,7 +27,6 @@ class ReservationService {
     return result;
   }
 
-  /// Dodaje proizvod u rezervaciju (kreira draft ako ne postoji)
   static Future<Map<String, dynamic>> addToReservation({
     required int pharmacyId,
     required int productId,
@@ -66,7 +63,6 @@ class _PrescriptionItemWithPrescription {
   });
 }
 
-// Export klasu da je dostupna van fajla
 class PrescriptionItemWithPrescription {
   final PrescriptionModel prescription;
   final PrescriptionItemModel item;

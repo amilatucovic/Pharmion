@@ -153,7 +153,6 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen>
   }
 }
 
-// ─── Prescription List ────────────────────────────────────────────────────────
 class _PrescriptionList extends StatelessWidget {
   final List<PrescriptionModel> prescriptions;
   final String emptyMessage;
@@ -208,7 +207,6 @@ class _PrescriptionList extends StatelessWidget {
   }
 }
 
-// ─── Prescription Card ────────────────────────────────────────────────────────
 class _PrescriptionCard extends StatelessWidget {
   final PrescriptionModel prescription;
   const _PrescriptionCard({required this.prescription});
@@ -245,7 +243,6 @@ class _PrescriptionCard extends StatelessWidget {
       statusLabel = p.statusDisplay;
     }
 
-    // Count repeats available across all items
     final totalRepeatsLeft = p.items
         .fold<int>(0, (sum, item) => sum + (item.repeats - item.repeatsUsed));
 
@@ -268,7 +265,6 @@ class _PrescriptionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header ────────────────────────────────────────────
             Row(
               children: [
                 Container(
@@ -295,7 +291,7 @@ class _PrescriptionCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Dr. ${p.doctorName}',
+                        'dr. med. ${p.doctorName}',
                         style: const TextStyle(
                             fontSize: 12, color: AppColors.kTextMid),
                       ),
@@ -323,7 +319,6 @@ class _PrescriptionCard extends StatelessWidget {
             const Divider(height: 1, color: AppColors.kBorder),
             const SizedBox(height: 12),
 
-            // ── Items preview ──────────────────────────────────────
             ...p.items.take(2).map((item) => Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(children: [
@@ -362,7 +357,6 @@ class _PrescriptionCard extends StatelessWidget {
             const Divider(height: 1, color: AppColors.kBorder),
             const SizedBox(height: 10),
 
-            // ── Footer ─────────────────────────────────────────────
             Row(children: [
               const Icon(Icons.calendar_today_outlined,
                   size: 12, color: AppColors.kTextLight),
@@ -424,7 +418,6 @@ class _PrescriptionCard extends StatelessWidget {
   }
 }
 
-// ─── Error State ──────────────────────────────────────────────────────────────
 class _ErrorState extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Standardni TextField sa Pharmion stilom i inline error podrškom
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;

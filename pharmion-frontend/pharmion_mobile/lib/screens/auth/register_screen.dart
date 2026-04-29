@@ -80,7 +80,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // ── Validations ────────────────────────────────────────────────────────────
 
   bool _validatePage1() {
     final errors = <String, String?>{};
@@ -233,7 +232,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (success && mounted) context.go('/');
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -258,7 +256,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: Column(children: [
-        // Progress bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
@@ -302,7 +299,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ── Page 1 ─────────────────────────────────────────────────────────────────
   Widget _buildPage1() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -432,12 +428,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ── Page 2 ─────────────────────────────────────────────────────────────────
   Widget _buildPage2() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Backend error
         Consumer<AuthProvider>(builder: (_, auth, __) {
           if (auth.error == null) return const SizedBox.shrink();
           return Container(
@@ -461,7 +455,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }),
 
         FormCard(children: [
-          // Gender
           FormFieldWrapper(
             label: 'Gender *',
             error: _errors['gender'],
@@ -489,7 +482,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Date of Birth
           FormFieldWrapper(
             label: 'Date of Birth *',
             hint: 'Must be at least 18 years old',
@@ -529,7 +521,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // JMBG
           FormFieldWrapper(
             label: 'JMBG *',
             hint: '13 digits',
@@ -549,7 +540,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Phone
           FormFieldWrapper(
             label: 'Phone Number *',
             error: _errors['phone'],
@@ -564,7 +554,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Address
           FormFieldWrapper(
             label: 'Address *',
             error: _errors['address'],
@@ -578,7 +567,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // City
           FormFieldWrapper(
             label: 'City *',
             error: _errors['city'],
@@ -629,7 +617,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Insurance (optional)
           FormFieldWrapper(
             label: 'Insurance Number',
             hint: 'Optional',
@@ -642,7 +629,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Emergency (optional)
           FormFieldWrapper(
             label: 'Emergency Contact',
             hint: 'Optional',
@@ -655,7 +641,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Is insured toggle
           GestureDetector(
             onTap: () => setState(() => _isInsured = !_isInsured),
             child: AnimatedContainer(

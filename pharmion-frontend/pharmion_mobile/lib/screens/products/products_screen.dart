@@ -20,7 +20,6 @@ class _ProductsScreenState extends State<ProductsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Products tab
   List<ProductModel> _products = [];
   bool _productsLoading = true;
   bool _loadingMore = false;
@@ -32,7 +31,6 @@ class _ProductsScreenState extends State<ProductsScreen>
   static const int _pageSize = 10;
   bool _hasMore = true;
 
-  // Recommendations tab
   List<RecommendationModel> _recommendations = [];
   bool _recsLoading = true;
   String? _recsError;
@@ -129,7 +127,7 @@ class _ProductsScreenState extends State<ProductsScreen>
     });
     try {
       final data =
-          await ApiService.get('Recommendation/$patientId') as List<dynamic>;
+          await ApiService.get('Recommendation/$patientId?count=4') as List<dynamic>;
       final items = data
           .map((r) => RecommendationModel.fromJson(r as Map<String, dynamic>))
           .toList();
@@ -403,7 +401,6 @@ class _ProductsScreenState extends State<ProductsScreen>
   }
 }
 
-// ─── Type Chip ────────────────────────────────────────────────────────────────
 class _TypeChip extends StatelessWidget {
   final String label;
   final bool selected;
@@ -437,7 +434,6 @@ class _TypeChip extends StatelessWidget {
       );
 }
 
-// ─── Product Grid Card ────────────────────────────────────────────────────────
 class _ProductGridCard extends StatelessWidget {
   final ProductModel product;
   const _ProductGridCard({required this.product});
@@ -555,8 +551,6 @@ class _ProductGridCard extends StatelessWidget {
   }
 }
 
-// ─── Product Info Sheet ───────────────────────────────────────────────────────
-// ─── Product Info Sheet ───────────────────────────────────────────────────────
 class _ProductInfoSheet extends StatefulWidget {
   final ProductModel product;
   const _ProductInfoSheet({required this.product});
@@ -639,7 +633,6 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
                   controller: ctrl,
                   padding: const EdgeInsets.all(20),
                   children: [
-                    // ── Product header ─────────────────────────────────
                     Row(children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
@@ -691,7 +684,6 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
                     const Divider(color: AppColors.kBorder),
                     const SizedBox(height: 12),
 
-                    // ── Availability section ───────────────────────────
                     Row(children: [
                       const Icon(Icons.local_pharmacy_outlined,
                           size: 16, color: AppColors.kTeal),
@@ -752,7 +744,6 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
       );
 }
 
-// ─── Pharmacy Availability Card ───────────────────────────────────────────────
 class _PharmacyAvailabilityCard extends StatelessWidget {
   final InventoryItemModel inventoryItem;
   final VoidCallback onTap;
@@ -829,7 +820,6 @@ class _PharmacyAvailabilityCard extends StatelessWidget {
       );
 }
 
-// ─── Recommendation Card ──────────────────────────────────────────────────────
 class _RecommendationCard extends StatelessWidget {
   final RecommendationModel rec;
   const _RecommendationCard({required this.rec});
@@ -950,7 +940,6 @@ class _RecommendationCard extends StatelessWidget {
       );
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
@@ -986,7 +975,6 @@ class _EmptyState extends StatelessWidget {
       );
 }
 
-// ─── Error State ──────────────────────────────────────────────────────────────
 class _ErrorState extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;

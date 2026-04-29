@@ -17,7 +17,7 @@ class _MobileNotificationBellState extends State<MobileNotificationBell> {
   @override
   void initState() {
     super.initState();
-    _fetchCount(); // ← odmah učita
+    _fetchCount();  
     _timer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => _fetchCount(),

@@ -116,7 +116,7 @@ public class RecommendationService : IRecommendationService
         _logger.LogInformation("ML model trained with {Count} records and saved", data.Count);
     }
 
-    public async Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId)
+    public async Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId, int count = 3)
     {
         if (_model == null || _predictionEngine == null)
             await LoadOrTrainModelAsync();
@@ -143,14 +143,14 @@ public class RecommendationService : IRecommendationService
             .ToListAsync();
 
         if (!reservedIds.Any())
-            return await GetFallbackRecommendationsAsync(context, allSupplements, reservedIds);
+            return await GetFallbackRecommendationsAsync(context, allSupplements, reservedIds, count);
 
         var candidates = allSupplements
             .Where(s => !reservedIds.Contains(s.Id))
             .ToList();
 
         if (!candidates.Any())
-            return await GetFallbackRecommendationsAsync(context, allSupplements, reservedIds);
+            return await GetFallbackRecommendationsAsync(context, allSupplements, reservedIds, count);
 
         var scores = new Dictionary<int, float>();
         foreach (var reservedId in reservedIds)
@@ -171,7 +171,7 @@ public class RecommendationService : IRecommendationService
         }
 
         var topIds = scores.OrderByDescending(x => x.Value)
-            .Take(5)
+            .Take(count)
             .Select(x => x.Key)
             .ToList();
 
@@ -184,19 +184,19 @@ public class RecommendationService : IRecommendationService
         {
             Product = MapToProductResponse(s),
             Score = scores[s.Id],
-            Reason = BuildReason(patient, s.SupplementDetails, age)
+            Reason = BuildReason()
         }).ToList();
     }
 
     private async Task<List<RecommendationResponse>> GetFallbackRecommendationsAsync(
-        PharmionDbContext context, List<Product> supplements, List<int> reservedIds)
+        PharmionDbContext context, List<Product> supplements, List<int> reservedIds, int count=3)
     {
         var popular = await context.ReservationItems
             .Where(ri => ri.Product.Type == ProductType.Supplement
                       && !reservedIds.Contains(ri.ProductId))
             .GroupBy(ri => ri.ProductId)
             .OrderByDescending(g => g.Count())
-            .Take(5)
+            .Take(count)
             .Select(g => g.Key)
             .ToListAsync();
 
@@ -234,7 +234,7 @@ public class RecommendationService : IRecommendationService
         UpdatedAt = s.UpdatedAt
     };
 
-    private string BuildReason(Patient patient, SupplementDetail? details, int age)
+    private string BuildReason()
     {
         return "Recommended because it is frequently reserved together with similar users";
     }

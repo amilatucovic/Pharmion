@@ -76,7 +76,6 @@ class PrescriptionDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Expiry banner ──────────────────────────────────────
             if (p.isExpiringSoon && !p.isExpired)
               _Banner(
                 color: AppColors.kWarning,
@@ -94,7 +93,6 @@ class PrescriptionDetailScreen extends StatelessWidget {
                 message: 'This prescription has expired and can no longer be used.',
               ),
 
-            // ── Prescription info ──────────────────────────────────
             _SectionCard(
               children: [
                 _DetailRow(
@@ -128,7 +126,6 @@ class PrescriptionDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // ── Medications ────────────────────────────────────────
             const Text(
               'Medications',
               style: TextStyle(
@@ -146,7 +143,6 @@ class PrescriptionDetailScreen extends StatelessWidget {
   }
 }
 
-// ─── Medication Card ──────────────────────────────────────────────────────────
 class _MedicationCard extends StatelessWidget {
   final PrescriptionItemModel item;
   const _MedicationCard({required this.item});
@@ -203,7 +199,6 @@ class _MedicationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header ──────────────────────────────────────────────
           Row(children: [
             Container(
               width: 40,
@@ -260,7 +255,6 @@ class _MedicationCard extends StatelessWidget {
           const Divider(height: 1, color: AppColors.kBorder),
           const SizedBox(height: 12),
 
-          // ── Details grid ─────────────────────────────────────────
           Row(children: [
             Expanded(
               child: _MiniStat(
@@ -288,7 +282,6 @@ class _MedicationCard extends StatelessWidget {
             ),
           ]),
 
-          // ── Repeat progress bar ──────────────────────────────────
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -315,7 +308,6 @@ class _MedicationCard extends StatelessWidget {
             ),
           ),
 
-          // ── Next eligible ────────────────────────────────────────
           if (!_isExhausted && !_isAvailable && item.nextEligibleDispenseAt != null) ...[
             const SizedBox(height: 10),
             Container(
@@ -341,7 +333,6 @@ class _MedicationCard extends StatelessWidget {
             ),
           ],
 
-          // ── Last dispensed ───────────────────────────────────────
           if (item.lastDispensedAt != null) ...[
             const SizedBox(height: 8),
             Row(children: [
@@ -361,7 +352,6 @@ class _MedicationCard extends StatelessWidget {
   }
 }
 
-// ─── Mini Stat ────────────────────────────────────────────────────────────────
 class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
@@ -404,7 +394,6 @@ class _MiniStat extends StatelessWidget {
       );
 }
 
-// ─── Banner ───────────────────────────────────────────────────────────────────
 class _Banner extends StatelessWidget {
   final Color color;
   final Color bg;
@@ -446,7 +435,6 @@ class _Banner extends StatelessWidget {
       );
 }
 
-// ─── Section Card ─────────────────────────────────────────────────────────────
 class _SectionCard extends StatelessWidget {
   final List<Widget> children;
   const _SectionCard({required this.children});
@@ -469,7 +457,6 @@ class _SectionCard extends StatelessWidget {
       );
 }
 
-// ─── Detail Row ───────────────────────────────────────────────────────────────
 class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;

@@ -326,7 +326,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Status banners ───────────────────────────────────────
             if (r.isReadyForPickup)
               _Banner(
                 color: const Color(0xFF2563EB),
@@ -399,7 +398,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                     : 'Pay on pickup selected. Please pay when collecting.',
               ),
 
-            // ── Pharmacy & dates ─────────────────────────────────────
             _InfoCard(children: [
               _DetailRow(
                 icon: Icons.local_pharmacy_outlined,
@@ -432,7 +430,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             ]),
             const SizedBox(height: 16),
 
-            // ── Items ────────────────────────────────────────────────
             const Text('Medication Items',
                 style: TextStyle(
                     fontSize: 15,
@@ -513,7 +510,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             ],
             const SizedBox(height: 16),
 
-            // ── Totals ───────────────────────────────────────────────
             if (r.items.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(16),
@@ -554,7 +550,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             ],
             const SizedBox(height: 16),
 
-            // ── Timeline ─────────────────────────────────────────────
             const Text('Timeline',
                 style: TextStyle(
                     fontSize: 15,
@@ -570,7 +565,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 }
 
-// ─── Banner ───────────────────────────────────────────────────────────────────
 class _Banner extends StatelessWidget {
   final Color color;
   final Color bg;
@@ -610,7 +604,6 @@ class _Banner extends StatelessWidget {
       );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
 class _InfoCard extends StatelessWidget {
   final List<Widget> children;
   const _InfoCard({required this.children});
@@ -633,7 +626,6 @@ class _InfoCard extends StatelessWidget {
       );
 }
 
-// ─── Detail Row ───────────────────────────────────────────────────────────────
 class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -675,7 +667,6 @@ class _DetailRow extends StatelessWidget {
       );
 }
 
-// ─── Item Card ────────────────────────────────────────────────────────────────
 class _ItemCard extends StatelessWidget {
   final ReservationItemModel item;
   final bool isDraft;
@@ -707,7 +698,6 @@ class _ItemCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Product info ─────────────────────────────────────────
             Row(children: [
               Container(
                 width: 36,
@@ -770,7 +760,6 @@ class _ItemCard extends StatelessWidget {
               ]),
             ]),
 
-            // ── Draft controls ───────────────────────────────────────
             if (isDraft) ...[
               const SizedBox(height: 10),
               const Divider(height: 1, color: AppColors.kBorder),
@@ -839,7 +828,6 @@ class _ItemCard extends StatelessWidget {
       );
 }
 
-// ─── Total Row ────────────────────────────────────────────────────────────────
 class _TotalRow extends StatelessWidget {
   final String label;
   final String value;
@@ -868,7 +856,6 @@ class _TotalRow extends StatelessWidget {
       ]);
 }
 
-// ─── Timeline ─────────────────────────────────────────────────────────────────
 class _Timeline extends StatelessWidget {
   final ReservationModel reservation;
   const _Timeline({required this.reservation});

@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pharmion.Model.Enums;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
-using System;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Database.Seed
 {

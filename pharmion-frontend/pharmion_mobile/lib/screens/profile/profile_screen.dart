@@ -401,7 +401,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Avatar + name ──────────────────────────────
                     Center(
                       child: Column(
                         children: [
@@ -463,7 +462,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // ── Personal info ──────────────────────────────
                     _SectionTitle(title: 'Personal Information'),
                     const SizedBox(height: 10),
                     _InfoCard(children: [
@@ -497,7 +495,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ]),
                     const SizedBox(height: 20),
 
-                    // ── Chronic diseases ───────────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -543,7 +540,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                     const SizedBox(height: 20),
 
-                    // ── Security ───────────────────────────────────
                     _SectionTitle(title: 'Security'),
                     const SizedBox(height: 10),
                     _ActionTile(
@@ -567,7 +563,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// ─── Password Field ───────────────────────────────────────────────────────────
 class _PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
@@ -615,7 +610,6 @@ class _PasswordFieldState extends State<_PasswordField> {
       );
 }
 
-// ─── Section Title ────────────────────────────────────────────────────────────
 class _SectionTitle extends StatelessWidget {
   final String title;
   const _SectionTitle({required this.title});
@@ -630,7 +624,6 @@ class _SectionTitle extends StatelessWidget {
       );
 }
 
-// ─── Info Card ────────────────────────────────────────────────────────────────
 class _InfoCard extends StatelessWidget {
   final List<Widget> children;
   const _InfoCard({required this.children});
@@ -653,7 +646,6 @@ class _InfoCard extends StatelessWidget {
       );
 }
 
-// ─── Info Row ─────────────────────────────────────────────────────────────────
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -692,7 +684,6 @@ class _InfoRow extends StatelessWidget {
       );
 }
 
-// ─── Disease Card ─────────────────────────────────────────────────────────────
 class _DiseaseCard extends StatelessWidget {
   final String name;
   final String code;
@@ -754,7 +745,6 @@ class _DiseaseCard extends StatelessWidget {
       );
 }
 
-// ─── Action Tile ──────────────────────────────────────────────────────────────
 class _ActionTile extends StatelessWidget {
   final IconData icon;
   final String title;

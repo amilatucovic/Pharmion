@@ -145,7 +145,6 @@ class _ReservationsScreenState extends State<ReservationsScreen>
   }
 }
 
-// ─── Reservation List ─────────────────────────────────────────────────────────
 class _ReservationList extends StatelessWidget {
   final List<ReservationModel> reservations;
   final IconData emptyIcon;
@@ -208,7 +207,6 @@ class _ReservationList extends StatelessWidget {
   }
 }
 
-// ─── Reservation Card ─────────────────────────────────────────────────────────
 class _ReservationCard extends StatelessWidget {
   final ReservationModel reservation;
   final VoidCallback onTap;
@@ -260,7 +258,6 @@ class _ReservationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                // Icon
                 Container(
                   width: 40,
                   height: 40,
@@ -289,7 +286,6 @@ class _ReservationCard extends StatelessWidget {
                     ),
                   ]),
                 ),
-                // Status badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 4),
@@ -298,7 +294,7 @@ class _ReservationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    reservation.reservationStateDisplay,
+                    reservation.stateDisplayFormatted,
                     style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -310,7 +306,6 @@ class _ReservationCard extends StatelessWidget {
               const Divider(height: 1, color: AppColors.kBorder),
               const SizedBox(height: 10),
 
-              // Items preview
               ...reservation.items.take(2).map((item) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Row(children: [
@@ -341,7 +336,6 @@ class _ReservationCard extends StatelessWidget {
                 ),
               const SizedBox(height: 8),
 
-              // Total + arrow
               Row(children: [
                 const Spacer(),
                 Text(
@@ -356,7 +350,6 @@ class _ReservationCard extends StatelessWidget {
                     size: 18, color: AppColors.kTextLight),
               ]),
 
-              // Ready for pickup banner
               if (reservation.isReadyForPickup) ...[
                 const SizedBox(height: 8),
                 Container(

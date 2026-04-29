@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Wrapper koji prikazuje label, hint i error ispod bilo kojeg input widgeta
 class FormFieldWrapper extends StatelessWidget {
   final String label;
   final String? hint;

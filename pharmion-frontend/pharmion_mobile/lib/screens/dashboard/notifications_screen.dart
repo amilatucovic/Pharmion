@@ -253,7 +253,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 }
 
-// ─── Notification Card ────────────────────────────────────────────────────────
 class _NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final String formattedDate;
