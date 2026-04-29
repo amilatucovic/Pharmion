@@ -216,7 +216,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 child: SizedBox(
                   height: 44,
                   child: DropdownButtonFormField<int?>(
-                    value: _selectedType, // ← FIX: value umjesto initialValue
+                    value: _selectedType,
                     hint: const Text(
                       'All types',
                       style: TextStyle(color: AppColors.kTextMid, fontSize: 13),
@@ -936,7 +936,7 @@ class _TypeBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        typeName,
+        ProductService.productTypes[type] ?? typeName,
         style: TextStyle(fontSize: 11, color: fg, fontWeight: FontWeight.w600),
       ),
     );

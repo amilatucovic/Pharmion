@@ -296,30 +296,26 @@ namespace Pharmion.Services.Services
         {
             byte[] saltBytes = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
-            {
                 rng.GetBytes(saltBytes);
-            }
+
             string salt = Convert.ToBase64String(saltBytes);
 
-            using (var hmac = new HMACSHA512(saltBytes))
-            {
-                byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string hash = Convert.ToBase64String(hashBytes);
-                return (hash, salt);
-            }
+            var pbkdf2 = new Rfc2898DeriveBytes(
+                password, saltBytes, 100000, HashAlgorithmName.SHA256);
+            string hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+
+            return (hash, salt);
         }
 
         private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
         {
             byte[] saltBytes = Convert.FromBase64String(storedSalt);
 
-            using (var hmac = new HMACSHA512(saltBytes))
-            {
-                byte[] computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string computedHashString = Convert.ToBase64String(computedHash);
+            var pbkdf2 = new Rfc2898DeriveBytes(
+                password, saltBytes, 100000, HashAlgorithmName.SHA256);
+            string computedHash = Convert.ToBase64String(pbkdf2.GetBytes(32));
 
-                return computedHashString == storedHash;
-            }
+            return computedHash == storedHash;
         }
     }
 }

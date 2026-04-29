@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Model.Enums;
 using Pharmion.Services.Database.Entities;
-using System;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Database.Seed
 {
@@ -16,20 +12,20 @@ namespace Pharmion.Services.Database.Seed
             if (await context.Patients.AnyAsync())
                 return;
 
-            
             var sarajevo = await context.Cities.FirstOrDefaultAsync(c => c.Name == "Sarajevo");
             var mostar = await context.Cities.FirstOrDefaultAsync(c => c.Name == "Mostar");
             var bugojno = await context.Cities.FirstOrDefaultAsync(c => c.Name == "Bugojno");
             var tuzla = await context.Cities.FirstOrDefaultAsync(c => c.Name == "Tuzla");
             var zenica = await context.Cities.FirstOrDefaultAsync(c => c.Name == "Zenica");
 
-            var (hash1, salt1) = GeneratePasswordHash("Patient123!");
-            var (hash2, salt2) = GeneratePasswordHash("Patient123!");
-            var (hash3, salt3) = GeneratePasswordHash("Patient123!");
-            var (hash4, salt4) = GeneratePasswordHash("Patient123!");
-            var (hash5, salt5) = GeneratePasswordHash("Patient123!");
-            var (hash6, salt6) = GeneratePasswordHash("Patient123!");
-            var (hash7, salt7) = GeneratePasswordHash("Patient123!");
+            var (hash1, salt1) = CreatePasswordHash("Patient123!");
+            var (hash2, salt2) = CreatePasswordHash("Patient123!");
+            var (hash3, salt3) = CreatePasswordHash("Patient123!");
+            var (hash4, salt4) = CreatePasswordHash("Patient123!");
+            var (hash5, salt5) = CreatePasswordHash("Patient123!");
+            var (hash6, salt6) = CreatePasswordHash("Patient123!");
+            var (hash7, salt7) = CreatePasswordHash("Patient123!");
+            var (hashTest, saltTest) = CreatePasswordHash("Test123!");
 
             var patients = new[]
             {
@@ -50,7 +46,7 @@ namespace Pharmion.Services.Database.Seed
                     Address = "Titova 45",
                     CityId = sarajevo?.Id ?? 1,
                     PhoneNumber = "+38761234567",
-                    EmergencyContact = "+38761987654 (Supruga Amela)",
+                    EmergencyContact = "+38761987654 (Wife Amela)",
                     IsInsured = true,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -71,7 +67,7 @@ namespace Pharmion.Services.Database.Seed
                     Address = "Branilaca Sarajeva 12",
                     CityId = sarajevo?.Id ?? 1,
                     PhoneNumber = "+38762345678",
-                    EmergencyContact = "+38762876543 (Majka Fatima)",
+                    EmergencyContact = "+38762876543 (Mother Fatima)",
                     IsInsured = true,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -92,7 +88,7 @@ namespace Pharmion.Services.Database.Seed
                     Address = "Maršala Tita 88",
                     CityId = mostar?.Id ?? 2,
                     PhoneNumber = "+38763456789",
-                    EmergencyContact = "+38763765432 (Brat Elmir)",
+                    EmergencyContact = "+38763765432 (Brother Elmir)",
                     IsInsured = true,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -109,11 +105,11 @@ namespace Pharmion.Services.Database.Seed
                     IsActive = true,
                     DateOfBirth = new DateTime(1995, 5, 30),
                     JMBG = "3005995175056",
-                    InsuranceNumber = null, 
+                    InsuranceNumber = null,
                     Address = "307 Motorizovane brigade 92",
                     CityId = bugojno?.Id ?? 3,
                     PhoneNumber = "+38765567890",
-                    EmergencyContact = "+38765098765 (Otac Senad)",
+                    EmergencyContact = "+38765098765 (Father Senad)",
                     IsInsured = false,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -134,7 +130,7 @@ namespace Pharmion.Services.Database.Seed
                     Address = "Turalibegova 67",
                     CityId = tuzla?.Id ?? 4,
                     PhoneNumber = "+38766678901",
-                    EmergencyContact = "+38766456789 (Sestra Lejla)",
+                    EmergencyContact = "+38766456789 (Sister Lejla)",
                     IsInsured = true,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -155,7 +151,7 @@ namespace Pharmion.Services.Database.Seed
                     Address = "Kamberović Polje 34",
                     CityId = zenica?.Id ?? 5,
                     PhoneNumber = "+38767789012",
-                    EmergencyContact = "+38767345678 (Majka Hanifa)",
+                    EmergencyContact = "+38767345678 (Mother Hanifa)",
                     IsInsured = true,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -176,7 +172,28 @@ namespace Pharmion.Services.Database.Seed
                     Address = "Zmaja od Bosne 55",
                     CityId = sarajevo?.Id ?? 1,
                     PhoneNumber = "+38768890123",
-                    EmergencyContact = "+38768234567 (Supruga Amra)",
+                    EmergencyContact = "+38768234567 (Wife Amra)",
+                    IsInsured = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Patient
+                {
+                    FirstName = "Amila",
+                    LastName = "Amilić",
+                    Username = "patient",
+                    Email = "tucovicamila@gmail.com",
+                    PasswordHash = hashTest,
+                    PasswordSalt = saltTest,
+                    Gender = Gender.Female,
+                    Role = Role.Patient,
+                    IsActive = true,
+                    DateOfBirth = new DateTime(1990, 6, 15),
+                    JMBG = "1506990175099",
+                    InsuranceNumber = "OSI-000000001",
+                    Address = "Kočine Masline b. b.",
+                    CityId = mostar?.Id ?? 2,
+                    PhoneNumber = "+38761000001",
+                    EmergencyContact = "+38761000002 (Family)",
                     IsInsured = true,
                     CreatedAt = DateTime.UtcNow
                 }
@@ -186,21 +203,17 @@ namespace Pharmion.Services.Database.Seed
             await context.SaveChangesAsync();
         }
 
-        private static (string hash, string salt) GeneratePasswordHash(string password)
+        private static (string hash, string salt) CreatePasswordHash(string password)
         {
             byte[] saltBytes = new byte[16];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(saltBytes);
-            }
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(saltBytes);
             string salt = Convert.ToBase64String(saltBytes);
 
-            using (var hmac = new HMACSHA512(saltBytes))
-            {
-                byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string hash = Convert.ToBase64String(hashBytes);
-                return (hash, salt);
-            }
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, 100000, HashAlgorithmName.SHA256);
+            string hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+
+            return (hash, salt);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Services.Database.Entities;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pharmion.Services.Database.Seed
@@ -18,75 +17,99 @@ namespace Pharmion.Services.Database.Seed
                 new PharmacologicalCategory
                 {
                     Code = "J01",
-                    Name = "Antibakterijski lijekovi za sistemsku upotrebu",
-                    Description = "Antibiotici za liječenje bakterijskih infekcija",
+                    Name = "Antibacterials for systemic use",
+                    Description = "Antibiotics for the treatment of bacterial infections.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "N02",
-                    Name = "Analgetici",
-                    Description = "Lijekovi protiv bola",
+                    Name = "Analgesics",
+                    Description = "Pain-relief medicines.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "N05",
-                    Name = "Psiholeptici",
-                    Description = "Sedativi i anksiolitici",
+                    Name = "Psycholeptics",
+                    Description = "Sedatives and anxiolytics.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "C03",
-                    Name = "Diuretici",
-                    Description = "Lijekovi za povećanje izlučivanja tečnosti",
+                    Name = "Diuretics",
+                    Description = "Medicines that increase fluid excretion.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "A11",
-                    Name = "Vitamini",
-                    Description = "Vitaminski preparati",
+                    Name = "Vitamins",
+                    Description = "Vitamin preparations.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "A10",
-                    Name = "Antidijabetici",
-                    Description = "Lijekovi koji se koriste za regulaciju nivoa glukoze u krvi kod pacijenata sa dijabetesom.",
+                    Name = "Antidiabetics",
+                    Description = "Medicines used to regulate blood glucose levels in patients with diabetes.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
-                    Code = "CCB",
-                    Name = "Blokatori kalcijumskih kanala",
-                    Description = "Lijekovi koji blokiraju ulazak kalcijuma u ćelije srčanog mišića i krvnih sudova, koriste se u terapiji hipertenzije i angine pektoris.",
+                    Code = "C08",
+                    Name = "Calcium channel blockers",
+                    Description = "Medicines that block calcium entry into cardiac and vascular smooth muscle cells, used in hypertension and angina pectoris.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "R03",
-                    Name = "Lijekovi za opstruktivne bolesti disajnih puteva",
-                    Description = "Bronhodilatatori i lijekovi za astmu",
+                    Name = "Medicines for obstructive airway diseases",
+                    Description = "Bronchodilators and medicines for asthma.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 },
                 new PharmacologicalCategory
                 {
                     Code = "M01",
-                    Name = "Antiinflamatorni i antireumatski lijekovi",
-                    Description = "NSAIL i drugi protuupalni lijekovi",
+                    Name = "Anti-inflammatory and antirheumatic medicines",
+                    Description = "NSAIDs and other anti-inflammatory medicines.",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
-                }
+                },
+                new PharmacologicalCategory
+                {
+                    Code = "C02",
+                    Name = "Antihypertensives",
+                    Description = "Medicines used to treat high blood pressure (hypertension).",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new PharmacologicalCategory
+                {
+                    Code = "C07",
+                    Name = "Beta blocking agents",
+                    Description = "Medicines that reduce heart rate and blood pressure, used in hypertension and heart diseases.",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new PharmacologicalCategory
+                {
+                    Code = "C09",
+                    Name = "Agents acting on the renin-angiotensin system",
+                    Description = "ACE inhibitors and ARBs used for hypertension and heart failure.",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
             };
 
             await context.PharmacologicalCategories.AddRangeAsync(categories);

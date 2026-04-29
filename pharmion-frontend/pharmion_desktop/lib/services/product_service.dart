@@ -24,6 +24,7 @@ class ProductModel {
   final int? minAge;
   final int? maxAge;
   final String? tags;
+  final String? description;
 
   ProductModel({
     required this.id,
@@ -54,9 +55,9 @@ class ProductModel {
     this.minAge,
     this.maxAge,
     this.tags,
+    this.description,
   });
 
-  // JEDINI fromJson konstruktor — konvertuje type iz stringa u int
   factory ProductModel.fromJson(Map<String, dynamic> j) {
     int typeInt;
     if (j['type'] is int) {
@@ -106,6 +107,7 @@ class ProductModel {
       minAge: j['minAge'] as int?,
       maxAge: j['maxAge'] as int?,
       tags: j['tags'] as String?,
+      description: j['description'] as String?,
     );
   }
 

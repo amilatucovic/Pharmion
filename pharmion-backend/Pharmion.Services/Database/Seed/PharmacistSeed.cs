@@ -2,9 +2,7 @@
 using Pharmion.Model.Enums;
 using Pharmion.Services.Database.Entities;
 using System;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Pharmion.Services.Database.Seed
@@ -16,17 +14,18 @@ namespace Pharmion.Services.Database.Seed
             if (await context.Pharmacists.AnyAsync())
                 return;
 
-            
             var luprivKocine = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 13");
             var luprivVrapcici = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 12");
             var luprivFejiceva = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 10");
             var luprivBugojno = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 25");
+            var luprivGrbavicka = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 15");
 
-            var (hash1, salt1) = GeneratePasswordHash("Pharmacist123!");
-            var (hash2, salt2) = GeneratePasswordHash("Pharmacist123!");
-            var (hash3, salt3) = GeneratePasswordHash("Admin123!");
-            var (hash4, salt4) = GeneratePasswordHash("Pharmacist123!");
-            var (hash5, salt5) = GeneratePasswordHash("Pharmacist123!");
+            var (hash1, salt1) = CreatePasswordHash("Pharmacist123!");
+            var (hash2, salt2) = CreatePasswordHash("Pharmacist123!");
+            var (hash3, salt3) = CreatePasswordHash("Pharmacist123!");
+            var (hash4, salt4) = CreatePasswordHash("Pharmacist123!");
+            var (hashAdmin, saltAdmin) = CreatePasswordHash("Test123!");
+            var (hashPharmacist, saltPharmacist) = CreatePasswordHash("Test123!");
 
             var pharmacists = new[]
             {
@@ -43,7 +42,7 @@ namespace Pharmion.Services.Database.Seed
                     IsActive = true,
                     LicenseNumber = "MAG-2018-0123",
                     PharmacyId = luprivFejiceva?.Id ?? 1,
-                    IsAdministrator = true,
+                    IsAdministrator = false,
                     CreatedAt = DateTime.UtcNow
                 },
                 new Pharmacist
@@ -64,33 +63,17 @@ namespace Pharmion.Services.Database.Seed
                 },
                 new Pharmacist
                 {
-                    FirstName = "Lejla",
-                    LastName = "Hadžić",
-                    Username = "lejla.hadzic",
-                    Email = "lejla.hadzic@lupriv.ba",
-                    PasswordHash = hash3,
-                    PasswordSalt = salt3,
-                    Gender = Gender.Female,
-                    Role = Role.Pharmacist,
-                    IsActive = true,
-                    LicenseNumber = "MAG-2017-0789",
-                    PharmacyId = luprivVrapcici?.Id ?? 3,
-                    IsAdministrator = true,
-                    CreatedAt = DateTime.UtcNow
-                },
-                new Pharmacist
-                {
                     FirstName = "Tarik",
                     LastName = "Imamović",
                     Username = "tarik.imamovic",
                     Email = "tarik.imamovic@lupriv.ba",
-                    PasswordHash = hash4,
-                    PasswordSalt = salt4,
+                    PasswordHash = hash3,
+                    PasswordSalt = salt3,
                     Gender = Gender.Male,
                     Role = Role.Pharmacist,
                     IsActive = true,
                     LicenseNumber = "MAG-2020-0234",
-                    PharmacyId = luprivBugojno?.Id ?? 4,
+                    PharmacyId = luprivGrbavicka?.Id ?? 5,
                     IsAdministrator = false,
                     CreatedAt = DateTime.UtcNow
                 },
@@ -100,12 +83,44 @@ namespace Pharmion.Services.Database.Seed
                     LastName = "Bašić",
                     Username = "selma.basic",
                     Email = "selma.basic@lupriv.ba",
-                    PasswordHash = hash5,
-                    PasswordSalt = salt5,
+                    PasswordHash = hash4,
+                    PasswordSalt = salt4,
                     Gender = Gender.Female,
                     Role = Role.Pharmacist,
                     IsActive = true,
                     LicenseNumber = "MAG-2021-0567",
+                    PharmacyId = luprivKocine?.Id ?? 1,
+                    IsAdministrator = false,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Pharmacist
+                {
+                    FirstName = "Admin",
+                    LastName = "Adminović",
+                    Username = "admin",
+                    Email = "admin@pharmion.ba",
+                    PasswordHash = hashAdmin,
+                    PasswordSalt = saltAdmin,
+                    Gender = Gender.Male,
+                    Role = Role.Pharmacist,
+                    IsActive = true,
+                    LicenseNumber = "MAG-2015-0001",
+                    PharmacyId = luprivKocine?.Id ?? 1,
+                    IsAdministrator = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Pharmacist
+                {
+                    FirstName = "Amila",
+                    LastName = "Tucović",
+                    Username = "pharmacist",
+                    Email = "amila.tucovic@lupriv.ba",
+                    PasswordHash = hashPharmacist,
+                    PasswordSalt = saltPharmacist,
+                    Gender = Gender.Female,
+                    Role = Role.Pharmacist,
+                    IsActive = true,
+                    LicenseNumber = "MAG-2022-0099",
                     PharmacyId = luprivKocine?.Id ?? 1,
                     IsAdministrator = false,
                     CreatedAt = DateTime.UtcNow
@@ -116,21 +131,17 @@ namespace Pharmion.Services.Database.Seed
             await context.SaveChangesAsync();
         }
 
-        private static (string hash, string salt) GeneratePasswordHash(string password)
+        private static (string hash, string salt) CreatePasswordHash(string password)
         {
             byte[] saltBytes = new byte[16];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(saltBytes);
-            }
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(saltBytes);
             string salt = Convert.ToBase64String(saltBytes);
 
-            using (var hmac = new HMACSHA512(saltBytes))
-            {
-                byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string hash = Convert.ToBase64String(hashBytes);
-                return (hash, salt);
-            }
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, 100000, HashAlgorithmName.SHA256);
+            string hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+
+            return (hash, salt);
         }
     }
 }

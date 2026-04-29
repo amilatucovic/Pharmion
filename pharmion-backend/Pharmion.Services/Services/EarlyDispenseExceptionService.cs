@@ -33,7 +33,9 @@ namespace Pharmion.Services.Services
                 .Include(e => e.ApprovedByPharmacist)
                 .AsQueryable();
 
-            
+            query = query.Where(e => e.Reservation.ReservationState != "DraftReservationState");
+
+
             if (search.PharmacyId.HasValue)
                 query = query.Where(e => e.Reservation.PharmacyId == search.PharmacyId.Value);
 

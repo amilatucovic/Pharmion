@@ -25,6 +25,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _sideEffectsController = TextEditingController();
   final _instructionsController = TextEditingController();
   final _contraindicationsController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   int _selectedType = 1;
   bool _isPrescriptionRequired = false;
@@ -80,6 +81,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _minAgeController.text = p.minAge?.toString() ?? '';
     _maxAgeController.text = p.maxAge?.toString() ?? '';
     _tagsController.text = p.tags ?? '';
+    _descriptionController.text = p.description ?? '';
   }
 
   Future<void> _loadCategories() async {
@@ -117,6 +119,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       _minAgeController,
       _maxAgeController,
       _tagsController,
+      _descriptionController,
     ]) {
       c.dispose();
     }
@@ -304,6 +307,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             'maxAge': int.tryParse(_maxAgeController.text.trim()),
           if (_tagsController.text.trim().isNotEmpty)
             'tags': _tagsController.text.trim(),
+          if (_descriptionController.text.trim().isNotEmpty)
+            'description': _descriptionController.text.trim(),
         },
       };
 
@@ -490,6 +495,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                                     hint: 'e.g. Amlodipin 5mg',
                                   ),
                                   const SizedBox(height: 14),
+                                  _FormLabel(text: 'Description'),
+                                  const SizedBox(height: 6),
+                                  _StyledTextField(
+                                    controller: _descriptionController,
+                                    hint: 'Short product description...',
+                                    maxLines: 3,
+                                  ),
                                   Row(
                                     children: [
                                       Expanded(

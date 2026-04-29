@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Services.Database.Entities;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pharmion.Services.Database.Seed
 {
@@ -15,50 +12,43 @@ namespace Pharmion.Services.Database.Seed
 
             var diseases = new[]
             {
-            new ChronicDisease { Code = "I10", Name = "Esencijalna (primarna) hipertenzija", Description = "Hronično povišen arterijski krvni pritisak." },
-            new ChronicDisease { Code = "I25", Name = "Hronična ishemijska bolest srca", Description = "Dugotrajno smanjena prokrvljenost srčanog mišića." },
-            new ChronicDisease { Code = "I50", Name = "Hronično zatajenje srca", Description = "Smanjena sposobnost srca da pumpa krv." },
+                
+                new ChronicDisease { Code = "I10", Name = "Essential (primary) hypertension", Description = "Chronically elevated arterial blood pressure." },
+                new ChronicDisease { Code = "I25", Name = "Chronic ischaemic heart disease", Description = "Long-term reduced blood supply to the heart muscle." },
+                new ChronicDisease { Code = "I50", Name = "Chronic heart failure", Description = "Reduced ability of the heart to pump blood." },
 
-            // Endokrine i metaboličke bolesti
-            new ChronicDisease { Code = "E10", Name = "Dijabetes melitus tip 1", Description = "Autoimuno oboljenje sa apsolutnim nedostatkom inzulina." },
-            new ChronicDisease { Code = "E11", Name = "Dijabetes melitus tip 2", Description = "Metabolički poremećaj sa insulinskom rezistencijom." },
-            new ChronicDisease { Code = "E03", Name = "Hipotireoza", Description = "Smanjena funkcija štitne žlijezde." },
-            new ChronicDisease { Code = "E05", Name = "Hipertireoza", Description = "Povećana funkcija štitne žlijezde." },
-            new ChronicDisease { Code = "E66", Name = "Gojaznost", Description = "Hronično stanje prekomjerne tjelesne mase." },
+                new ChronicDisease { Code = "E10", Name = "Type 1 diabetes mellitus", Description = "Autoimmune disease with absolute insulin deficiency." },
+                new ChronicDisease { Code = "E11", Name = "Type 2 diabetes mellitus", Description = "Metabolic disorder characterised by insulin resistance." },
+                new ChronicDisease { Code = "E03", Name = "Hypothyroidism", Description = "Reduced function of the thyroid gland." },
+                new ChronicDisease { Code = "E05", Name = "Hyperthyroidism", Description = "Increased function of the thyroid gland." },
+                new ChronicDisease { Code = "E66", Name = "Obesity", Description = "Chronic condition of excess body weight." },
 
-            // Respiratorne bolesti
-            new ChronicDisease { Code = "J45", Name = "Astma", Description = "Hronična upalna bolest disajnih puteva." },
-            new ChronicDisease { Code = "J44", Name = "Hronična opstruktivna plućna bolest", Description = "Progresivna bolest pluća sa ograničenim protokom zraka." },
+                new ChronicDisease { Code = "J45", Name = "Asthma", Description = "Chronic inflammatory disease of the airways." },
+                new ChronicDisease { Code = "J44", Name = "Chronic obstructive pulmonary disease (COPD)", Description = "Progressive lung disease with limited airflow." },
 
-            // Neurološke bolesti
-            new ChronicDisease { Code = "G35", Name = "Multipla skleroza", Description = "Autoimuna demijelinizacijska bolest centralnog nervnog sistema." },
-            new ChronicDisease { Code = "G20", Name = "Parkinsonova bolest", Description = "Progresivni neurodegenerativni poremećaj pokreta." },
-            new ChronicDisease { Code = "G40", Name = "Epilepsija", Description = "Hronični neurološki poremećaj sa ponavljanim epileptičnim napadima." },
-            new ChronicDisease { Code = "G43", Name = "Migrena", Description = "Hronični poremećaj sa epizodama jake glavobolje." },
-            new ChronicDisease { Code = "G30", Name = "Alzheimerova bolest", Description = "Progresivna neurodegenerativna bolest koja dovodi do demencije." },
+                new ChronicDisease { Code = "G35", Name = "Multiple sclerosis", Description = "Autoimmune demyelinating disease of the central nervous system." },
+                new ChronicDisease { Code = "G20", Name = "Parkinson's disease", Description = "Progressive neurodegenerative movement disorder." },
+                new ChronicDisease { Code = "G40", Name = "Epilepsy", Description = "Chronic neurological disorder with recurrent seizures." },
+                new ChronicDisease { Code = "G43", Name = "Migraine", Description = "Chronic disorder with episodes of severe headache." },
+                new ChronicDisease { Code = "G30", Name = "Alzheimer's disease", Description = "Progressive neurodegenerative disease leading to dementia." },
 
-            // Bubrežne bolesti
-            new ChronicDisease { Code = "N18", Name = "Hronična bubrežna bolest", Description = "Postepeni i trajni gubitak funkcije bubrega." },
+                new ChronicDisease { Code = "N18", Name = "Chronic kidney disease", Description = "Progressive and permanent loss of kidney function." },
 
-            // Gastrointestinalne bolesti
-            new ChronicDisease { Code = "K50", Name = "Crohnova bolest", Description = "Hronična upalna bolest probavnog trakta." },
-            new ChronicDisease { Code = "K51", Name = "Ulcerozni kolitis", Description = "Hronična upalna bolest debelog crijeva." },
-            new ChronicDisease { Code = "K21", Name = "Gastroezofagealna refluksna bolest", Description = "Hronični povrat želučane kiseline u jednjak." },
+                new ChronicDisease { Code = "K50", Name = "Crohn's disease", Description = "Chronic inflammatory bowel disease affecting the digestive tract." },
+                new ChronicDisease { Code = "K51", Name = "Ulcerative colitis", Description = "Chronic inflammatory disease of the large intestine." },
+                new ChronicDisease { Code = "K21", Name = "Gastro-oesophageal reflux disease (GERD)", Description = "Chronic backflow of stomach acid into the oesophagus." },
 
-            // Reumatološke i autoimune bolesti
-            new ChronicDisease { Code = "M05", Name = "Reumatoidni artritis", Description = "Autoimuna upalna bolest zglobova." },
-            new ChronicDisease { Code = "M81", Name = "Osteoporoza bez patološkog prijeloma", Description = "Smanjena gustina kostiju i povećan rizik od prijeloma." },
-            new ChronicDisease { Code = "M79.7", Name = "Fibromialgija", Description = "Hronični sindrom difuznih bolova u mišićima." },
-            new ChronicDisease { Code = "L40", Name = "Psorijaza", Description = "Hronična autoimuna bolest kože." },
-            new ChronicDisease { Code = "M32", Name = "Sistemski eritemski lupus", Description = "Sistemska autoimuna bolest koja može zahvatiti više organa." },
+                new ChronicDisease { Code = "M05", Name = "Rheumatoid arthritis", Description = "Autoimmune inflammatory disease of the joints." },
+                new ChronicDisease { Code = "M81", Name = "Osteoporosis without pathological fracture", Description = "Reduced bone density with increased fracture risk." },
+                new ChronicDisease { Code = "M79.7", Name = "Fibromyalgia", Description = "Chronic syndrome of diffuse muscle pain." },
+                new ChronicDisease { Code = "L40", Name = "Psoriasis", Description = "Chronic autoimmune skin disease." },
+                new ChronicDisease { Code = "M32", Name = "Systemic lupus erythematosus", Description = "Systemic autoimmune disease that can affect multiple organs." },
 
-            // Mentalni poremećaji
-            new ChronicDisease { Code = "F33", Name = "Rekurentni depresivni poremećaj", Description = "Ponavljajuće epizode depresije." },
-            new ChronicDisease { Code = "F41", Name = "Anksiozni poremećaji", Description = "Hronični poremećaji sa izraženom anksioznošću." },
+                new ChronicDisease { Code = "F33", Name = "Recurrent depressive disorder", Description = "Recurrent episodes of depression." },
+                new ChronicDisease { Code = "F41", Name = "Anxiety disorders", Description = "Chronic disorders characterised by marked anxiety." },
 
-            // Hronične infekcije
-            new ChronicDisease { Code = "B18", Name = "Hronični virusni hepatitis", Description = "Dugotrajna virusna infekcija jetre (hepatitis B ili C)." },
-            new ChronicDisease { Code = "B20", Name = "HIV bolest", Description = "Hronična infekcija virusom humane imunodeficijencije." }
+                new ChronicDisease { Code = "B18", Name = "Chronic viral hepatitis", Description = "Long-term viral infection of the liver (hepatitis B or C)." },
+                new ChronicDisease { Code = "B20", Name = "HIV disease", Description = "Chronic infection with the human immunodeficiency virus." }
             };
 
             await context.ChronicDiseases.AddRangeAsync(diseases);

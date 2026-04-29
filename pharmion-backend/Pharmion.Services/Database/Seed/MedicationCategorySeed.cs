@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Model.Enums;
 using Pharmion.Services.Database.Entities;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Pharmion.Services.Database.Seed
 {
@@ -19,8 +17,8 @@ namespace Pharmion.Services.Database.Seed
                 new MedicationCategory
                 {
                     Code = CategoryCode.CategoryA,
-                    Name = "Lista A - Esencijalni lijekovi",
-                    Description = "Lijekovi koje u potpunosti plaća zdravstveno osiguranje uz participaciju od 1 KM",
+                    Name = "List A – Essential Medicines",
+                    Description = "Medicines fully covered by health insurance with a flat co-payment of 1 KM.",
                     PatientPaymentPercentage = 0,
                     InsurancePaymentPercentage = 100,
                     FlatFee = 1.00m,
@@ -29,8 +27,8 @@ namespace Pharmion.Services.Database.Seed
                 new MedicationCategory
                 {
                     Code = CategoryCode.CategoryB,
-                    Name = "Lista B - Standardni lijekovi",
-                    Description = "Lijekovi koje osiguranje plaća 60%, pacijent 40%",
+                    Name = "List B – Standard Medicines",
+                    Description = "Insurance covers 60%, patient pays 40%.",
                     PatientPaymentPercentage = 40,
                     InsurancePaymentPercentage = 60,
                     FlatFee = null,
@@ -39,8 +37,8 @@ namespace Pharmion.Services.Database.Seed
                 new MedicationCategory
                 {
                     Code = CategoryCode.CategoryC,
-                    Name = "Lista C - Komercijalni lijekovi",
-                    Description = "Lijekovi koje pacijent u potpunosti plaća",
+                    Name = "List C – Commercial Medicines",
+                    Description = "Patient pays the full price.",
                     PatientPaymentPercentage = 100,
                     InsurancePaymentPercentage = 0,
                     FlatFee = null,
