@@ -5,7 +5,6 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
-using System.Security.Claims;
 
 namespace Pharmion.WebAPI.Controllers
 {
@@ -17,15 +16,17 @@ namespace Pharmion.WebAPI.Controllers
                              PrescriptionUpsertRequest, PrescriptionUpsertRequest>
     {
         private readonly IPrescriptionService _prescriptionService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public PrescriptionController(IPrescriptionService prescriptionService)
+        public PrescriptionController(IPrescriptionService prescriptionService, ICurrentUserService currentUserService)
             : base(prescriptionService)
         {
             _prescriptionService = prescriptionService;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public override Task<PagedResult<PrescriptionResponse>> Get(
         [FromQuery] PrescriptionSearchObject? search = null)
         {
@@ -33,44 +34,39 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public override Task<PrescriptionResponse?> GetById(int id)
         {
             return base.GetById(id);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public override async Task<IActionResult> Create([FromBody] PrescriptionUpsertRequest request)
         {
-            try
-            {
-                var pharmacistId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _prescriptionService.CreateAsync(request, pharmacistId);
                 return Ok(result);
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public override Task<IActionResult> Update(int id, [FromBody] PrescriptionUpsertRequest request)
         {
             return base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public override Task<IActionResult> Delete(int id)
         {
             return base.Delete(id);
         }
 
         [HttpPost("{id}/cancel")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> Cancel(int id)
         {
             try
@@ -85,10 +81,10 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpGet("my")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> GetMyPrescriptions([FromQuery] PrescriptionSearchObject search)
         {
-            var patientId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var patientId = _currentUserService.GetUserId();
             search.PatientId = patientId; 
             var result = await _prescriptionService.GetAsync(search);
             return Ok(result);

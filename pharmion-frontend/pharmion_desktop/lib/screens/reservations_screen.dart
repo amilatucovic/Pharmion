@@ -94,7 +94,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
       MaterialPageRoute(
         builder: (_) => ReservationDetailScreen(reservationId: reservation.id),
       ),
-    ).then((_) => _loadData()); // refresh nakon povratka
+    ).then((_) => _loadData());
   }
 
   int get _totalPages => (_totalCount / _pageSize).ceil();
@@ -106,10 +106,8 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Filters row ────────────────────────────────────────────────
           Row(
             children: [
-              // Search
               Expanded(
                 flex: 3,
                 child: SizedBox(
@@ -164,7 +162,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Status filter
               Expanded(
                 flex: 2,
                 child: SizedBox(
@@ -222,7 +219,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Refresh button
               SizedBox(
                 height: 44,
                 child: OutlinedButton.icon(
@@ -244,7 +240,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              // Date From
               Expanded(
                 child: SizedBox(
                   height: 44,
@@ -296,7 +291,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // Date To
               Expanded(
                 child: SizedBox(
                   height: 44,
@@ -348,7 +342,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // Clear filters
               if (_dateFrom != null || _dateTo != null)
                 SizedBox(
                   height: 44,
@@ -379,7 +372,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           ),
           const SizedBox(height: 12),
 
-          // ── Table ──────────────────────────────────────────────────────
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -395,7 +387,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -494,7 +485,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -538,7 +528,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                           ),
                   ),
 
-                  // Paginacija
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -560,7 +549,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                             ),
                           ),
                           const Spacer(),
-                          // Previous
                           IconButton(
                             onPressed: _currentPage > 0
                                 ? () {
@@ -572,7 +560,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                             color: AppColors.kTextMid,
                             disabledColor: const Color(0xFFCBD5E1),
                           ),
-                          // Page numbers
                           ...List.generate(_totalPages.clamp(0, 5), (i) {
                             final page = i;
                             final isSelected = page == _currentPage;
@@ -610,7 +597,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                               ),
                             );
                           }),
-                          // Next
                           IconButton(
                             onPressed: _currentPage < _totalPages - 1
                                 ? () {
@@ -634,8 +620,6 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     );
   }
 }
-
-// ─── Row Widget ───────────────────────────────────────────────────────────────
 
 class _ReservationRow extends StatefulWidget {
   final ReservationModel reservation;
@@ -674,7 +658,6 @@ class _ReservationRowState extends State<_ReservationRow> {
         ),
         child: Row(
           children: [
-            // Patient
             Expanded(
               flex: 3,
               child: Column(
@@ -701,7 +684,6 @@ class _ReservationRowState extends State<_ReservationRow> {
               ),
             ),
 
-            // Pharmacy
             Expanded(
               flex: 3,
               child: Text(
@@ -714,7 +696,6 @@ class _ReservationRowState extends State<_ReservationRow> {
               ),
             ),
 
-            // Items count
             Expanded(
               flex: 2,
               child: Row(
@@ -741,7 +722,6 @@ class _ReservationRowState extends State<_ReservationRow> {
               ),
             ),
 
-            // Total
             Expanded(
               flex: 2,
               child: Text(
@@ -754,26 +734,22 @@ class _ReservationRowState extends State<_ReservationRow> {
               ),
             ),
 
-            // Date
             Expanded(
               flex: 2,
               child: Text(
-                _formatDate(r.createdAt),
+                _formatDate(r.submittedAt ?? r.createdAt),
                 style: const TextStyle(fontSize: 12, color: AppColors.kTextMid),
               ),
             ),
 
-            // Status
             Expanded(
               flex: 2,
               child: _ReservationStatusBadge(status: r.reservationStateDisplay),
             ),
 
-            // Actions
             SizedBox(
               width: 100,
               child: Center(
-                // ← dodaj Center
                 child: TextButton(
                   onPressed: widget.onTap,
                   style: TextButton.styleFrom(
@@ -804,8 +780,6 @@ class _ReservationRowState extends State<_ReservationRow> {
     return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
   }
 }
-
-// ─── Status Badge ─────────────────────────────────────────────────────────────
 
 class _ReservationStatusBadge extends StatelessWidget {
   final String status;
@@ -859,6 +833,13 @@ class _ReservationStatusBadge extends StatelessWidget {
         icon = Icons.help_outline;
     }
 
+    String _formatStatus(String status) {
+      return status.replaceAllMapped(
+        RegExp(r'(?<=[a-z])(?=[A-Z])'),
+        (match) => ' ',
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -872,7 +853,7 @@ class _ReservationStatusBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Flexible(
             child: Text(
-              status,
+              _formatStatus(status),
               style: TextStyle(
                 color: fg,
                 fontSize: 11,

@@ -18,17 +18,17 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policies.AdminOnly)]
         public override Task<IActionResult> Create([FromBody] InventoryItemInsertRequest request)
             => base.Create(request);
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public override Task<IActionResult> Update(int id, [FromBody] InventoryItemUpdateRequest request)
             => base.Update(id, request);
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public override Task<IActionResult> Delete(int id)
             => base.Delete(id);
     }

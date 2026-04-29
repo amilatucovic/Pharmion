@@ -11,7 +11,7 @@ class ExceptionsScreen extends StatefulWidget {
 
 class _ExceptionsScreenState extends State<ExceptionsScreen> {
   final _searchController = TextEditingController();
-  String? _statusFilter = '1'; // default Pending
+  String? _statusFilter = '1';
   String? _reasonFilter;
   int _currentPage = 0;
   static const int _pageSize = 10;
@@ -163,7 +163,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
       padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          // ── Filters ───────────────────────────────────────────────────────
           Row(
             children: [
               Expanded(
@@ -224,7 +223,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Status filter
               Expanded(
                 flex: 1,
                 child: SizedBox(
@@ -265,7 +263,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
               ),
               const SizedBox(width: 12),
 
-              // Reason filter
               Expanded(
                 flex: 2,
                 child: SizedBox(
@@ -350,7 +347,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // ── Table ─────────────────────────────────────────────────────────
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -366,7 +362,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -424,7 +419,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -472,7 +466,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
                           ),
                   ),
 
-                  // Pagination
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -565,7 +558,6 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
   }
 }
 
-// ─── Row ──────────────────────────────────────────────────────────────────────
 class _ExceptionRow extends StatefulWidget {
   final EarlyDispenseExceptionModel exception;
   final bool isEven;
@@ -613,7 +605,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
         ),
         child: Row(
           children: [
-            // Patient
             Expanded(
               flex: 3,
               child: Column(
@@ -640,7 +631,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
               ),
             ),
 
-            // Medication
             Expanded(
               flex: 3,
               child: Column(
@@ -667,7 +657,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
               ),
             ),
 
-            // Pharmacy
             Expanded(
               flex: 2,
               child: Text(
@@ -677,8 +666,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
               ),
             ),
 
-            // Reason
-            // Reason
             Expanded(
               flex: 2,
               child: Column(
@@ -710,7 +697,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
               ),
             ),
 
-            // Status
             Expanded(
               flex: 2,
               child: Center(
@@ -735,7 +721,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
               ),
             ),
 
-            // Requested
             Expanded(
               flex: 2,
               child: Text(
@@ -744,7 +729,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
               ),
             ),
 
-            // Actions
             SizedBox(
               width: 80,
               child: Center(
@@ -789,7 +773,6 @@ class _ExceptionRowState extends State<_ExceptionRow> {
   }
 }
 
-// ─── Detail / Action Dialog ───────────────────────────────────────────────────
 class _ExceptionDetailDialog extends StatefulWidget {
   final EarlyDispenseExceptionModel exception;
   final VoidCallback onActionDone;
@@ -850,8 +833,9 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
         );
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -947,7 +931,6 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Row(
                   children: [
                     Container(
@@ -1008,7 +991,6 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
                 const Divider(height: 1),
                 const SizedBox(height: 16),
 
-                // Error
                 if (_error != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -1040,11 +1022,9 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
                   const SizedBox(height: 12),
                 ],
 
-                // Two column info
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left: Patient + Medication
                     Expanded(
                       child: Column(
                         children: [
@@ -1079,7 +1059,6 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
                     ),
                     const SizedBox(width: 16),
 
-                    // Right: Exception details
                     Expanded(
                       child: Column(
                         children: [
@@ -1121,7 +1100,6 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
                   ],
                 ),
 
-                // Action section (only for pending)
                 if (_isPending) ...[
                   const SizedBox(height: 16),
                   const Divider(height: 1),
@@ -1290,7 +1268,6 @@ class _ExceptionDetailDialogState extends State<_ExceptionDetailDialog> {
   }
 }
 
-// ─── Section + Detail Row helpers ────────────────────────────────────────────
 class _Section extends StatelessWidget {
   final String title;
   final IconData icon;

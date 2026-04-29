@@ -88,26 +88,25 @@ class ApiService {
   }
 
   static Future<void> delete(String endpoint) async {
-    var headers = await _headers();
-    var response = await http.delete(
+  var headers = await _headers();
+  var response = await http.delete(
+    Uri.parse('${AppConstants.baseUrl}/$endpoint'),
+    headers: headers,
+  );
+
+  if (response.statusCode == 401) {
+    await _refreshToken();
+    headers = await _headers();
+    response = await http.delete(
       Uri.parse('${AppConstants.baseUrl}/$endpoint'),
       headers: headers,
     );
-
-    if (response.statusCode == 401) {
-      await _refreshToken();
-      headers = await _headers();
-      response = await http.delete(
-        Uri.parse('${AppConstants.baseUrl}/$endpoint'),
-        headers: headers,
-      );
-    }
-
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw AppException('Error: ${response.statusCode}',
-          statusCode: response.statusCode);
-    }
   }
+
+  if (response.statusCode != 200 && response.statusCode != 204) {
+    _handleResponse(response); 
+  }
+}
 
   static dynamic _handleResponse(http.Response response) {
     if (response.statusCode == 200 || response.statusCode == 201) {

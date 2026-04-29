@@ -23,7 +23,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
         {
             var entity = await _context.Reservations.FindAsync(id);
             if (entity == null)
-                throw new UserException("Reservation not found");
+                throw new NotFoundException("Reservation not found");
 
             _mapper.Map(request, entity);
             entity.UpdatedAt = DateTime.UtcNow;
@@ -39,7 +39,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (entity == null)
-                throw new UserException("Reservation not found");
+                throw new NotFoundException("Reservation not found");
             if (entity.PatientId != patientId)
                 throw new UserException("You can only submit your own reservations");
             if (!entity.Items.Any())
@@ -80,10 +80,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             entity.CancellationReason = reason;
             entity.CancelledAt = DateTime.UtcNow;
             entity.CancelledByUserId = userId;
-            AddNotification(entity.PatientId, "Rezervacija otkazana",
-              $"Vaša rezervacija RES-{entity.Id} je otkazana.",
-              NotificationTemplate.ReservationCancelled,entity.Id);
-            await _context.SaveChangesAsync();
+            
 
             return _mapper.Map<ReservationResponse>(entity);
         }

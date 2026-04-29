@@ -21,7 +21,11 @@ class TopProduct {
   final int rank;
   final String name;
   final int count;
-  const TopProduct({required this.rank, required this.name, required this.count});
+  const TopProduct({
+    required this.rank,
+    required this.name,
+    required this.count,
+  });
 }
 
 class RecentReservation {
@@ -42,44 +46,44 @@ class RecentReservation {
 class DashboardService {
   static Future<DashboardStats> getStats() async {
     final prefs = await SharedPreferences.getInstance();
-  final isAdmin = prefs.getBool('isAdministrator') ?? false;
-  final pharmacyId = prefs.getInt('pharmacyId') ?? 0;
+    final isAdmin = prefs.getBool('isAdministrator') ?? false;
+    final pharmacyId = prefs.getInt('pharmacyId') ?? 0;
 
-  // Pharmacy filter za rezervacije
-  final pharmacyFilter =
-      (!isAdmin && pharmacyId > 0) ? '&pharmacyId=$pharmacyId' : '';
+    final pharmacyFilter = (!isAdmin && pharmacyId > 0)
+        ? '&pharmacyId=$pharmacyId'
+        : '';
 
-  // CityId — prvo iz prefs (sačuvan pri loginu), fallback dohvat apoteke
-  int? cityId;
-  if (!isAdmin) {
-    cityId = prefs.getInt('cityId'); // iz login response
+    int? cityId;
+    if (!isAdmin) {
+      cityId = prefs.getInt('cityId');
 
-    // Fallback: ako cityId nije u prefs, dohvati iz apoteke
-    if (cityId == null && pharmacyId > 0) {
-      try {
-        final pharmacy = await ApiService.get('Pharmacy/$pharmacyId')
-            as Map<String, dynamic>;
-        cityId = pharmacy['cityId'] as int?;
-        // Sačuvaj za buduće
-        if (cityId != null) await prefs.setInt('cityId', cityId);
-      } catch (_) {}
+      if (cityId == null && pharmacyId > 0) {
+        try {
+          final pharmacy =
+              await ApiService.get('Pharmacy/$pharmacyId')
+                  as Map<String, dynamic>;
+          cityId = pharmacy['cityId'] as int?;
+          if (cityId != null) await prefs.setInt('cityId', cityId);
+        } catch (_) {}
+      }
     }
-  }
 
-  final patientUrl = (!isAdmin && cityId != null)
-      ? 'Patient?pageSize=1&includeTotalCount=true&cityId=$cityId'
-      : 'Patient?pageSize=1&includeTotalCount=true';
+    final patientUrl = (!isAdmin && cityId != null)
+        ? 'Patient?pageSize=1&includeTotalCount=true&cityId=$cityId'
+        : 'Patient?pageSize=1&includeTotalCount=true';
 
-  final reservationUrl =
-      'Reservation?pageSize=200&retrieveAll=false$pharmacyFilter';
+    final reservationUrl =
+        'Reservation?pageSize=200&retrieveAll=false$pharmacyFilter';
 
-  final results = await Future.wait([
-    ApiService.get(reservationUrl),
-    ApiService.get(patientUrl),
-    (!isAdmin && pharmacyId > 0)
-    ? ApiService.get('InventoryItem?pageSize=1&includeTotalCount=true&pharmacyId=$pharmacyId')
-    : ApiService.get('Product?pageSize=1&includeTotalCount=true'),
-  ]);
+    final results = await Future.wait([
+      ApiService.get(reservationUrl),
+      ApiService.get(patientUrl),
+      (!isAdmin && pharmacyId > 0)
+          ? ApiService.get(
+              'InventoryItem?pageSize=1&includeTotalCount=true&pharmacyId=$pharmacyId',
+            )
+          : ApiService.get('Product?pageSize=1&includeTotalCount=true'),
+    ]);
 
     final reservationsData = results[0] as Map<String, dynamic>;
     final patientsData = results[1] as Map<String, dynamic>;
@@ -99,11 +103,11 @@ class DashboardService {
   static int _countToday(List allReservations) {
     final today = DateTime.now();
     return allReservations.where((r) {
-      final created =
-          DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000);
-      return created.year == today.year &&
-          created.month == today.month &&
-          created.day == today.day;
+      final submitted = DateTime.tryParse(r['submittedAt'] ?? '');
+      if (submitted == null) return false;
+      return submitted.year == today.year &&
+          submitted.month == today.month &&
+          submitted.day == today.day;
     }).length;
   }
 
@@ -124,8 +128,9 @@ class DashboardService {
     }
 
     final sorted = productCounts.entries.toList()
-      ..sort((a, b) =>
-          (b.value['count'] as int).compareTo(a.value['count'] as int));
+      ..sort(
+        (a, b) => (b.value['count'] as int).compareTo(a.value['count'] as int),
+      );
 
     return List.generate(
       sorted.take(5).length,
@@ -137,18 +142,22 @@ class DashboardService {
     );
   }
 
-  static List<RecentReservation> _buildRecentReservations(List allReservations) {
+  static List<RecentReservation> _buildRecentReservations(
+    List allReservations,
+  ) {
     return allReservations.take(5).map((r) {
-      final status = r['reservationStateDisplay'] as String? ??
-          (r['reservationState'] as String? ?? 'Unknown')
-              .replaceAll('ReservationState', '');
+      final status =
+          r['reservationStateDisplay'] as String? ??
+          (r['reservationState'] as String? ?? 'Unknown').replaceAll(
+            'ReservationState',
+            '',
+          );
       return RecentReservation(
         id: r['id'] as int? ?? 0,
         patientName: r['patientName'] as String? ?? 'N/A',
         pharmacyName: r['pharmacyName'] as String? ?? 'N/A',
         status: status,
-        createdAt:
-            DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000),
+        createdAt: DateTime.tryParse(r['createdAt'] ?? '') ?? DateTime(2000),
       );
     }).toList();
   }

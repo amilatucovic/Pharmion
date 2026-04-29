@@ -15,8 +15,8 @@ namespace Pharmion.Services.Services
         public RabbitMQPublisher(IConfiguration configuration, ILogger<RabbitMQPublisher> logger)
         {
             _logger = logger;
-            var connectionString = configuration["RabbitMQ:ConnectionString"]
-                ?? "host=localhost;username=guest;password=guest";
+            var connectionString = configuration["RABBITMQ_CONNECTIONSTRING"]
+               ?? throw new InvalidOperationException("RABBITMQ_CONNECTIONSTRING not configured");
 
             _bus = RabbitHutch.CreateBus(connectionString);
             _logger.LogInformation("RabbitMQ publisher initialized");

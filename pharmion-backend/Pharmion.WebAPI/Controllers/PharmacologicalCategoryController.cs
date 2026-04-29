@@ -9,7 +9,7 @@ namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = Policies.AdminOnly)]
     public class PharmacologicalCategoryController : BaseCRUDController<PharmacologicalCategoryResponse, PharmacologicalCategorySearchObject, PharmacologicalCategoryUpsertRequest, PharmacologicalCategoryUpsertRequest>
     {
         public PharmacologicalCategoryController(IPharmacologicalCategoryService pharmacologicalCategoryService) : base(pharmacologicalCategoryService)

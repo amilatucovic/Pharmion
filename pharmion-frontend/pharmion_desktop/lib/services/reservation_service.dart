@@ -225,8 +225,9 @@ class ReservationService {
     if (patientName != null && patientName.isNotEmpty) {
       params.write('&patientName=$patientName');
     }
-    if (dateFrom != null)
+    if (dateFrom != null) {
       params.write('&createdFrom=${dateFrom.toIso8601String()}');
+    }
     if (dateTo != null) params.write('&createdTo=${dateTo.toIso8601String()}');
     if (pharmacyId != null) params.write('&pharmacyId=$pharmacyId');
     final data =
@@ -248,7 +249,7 @@ class ReservationService {
         await ApiService.get('Reservation/$id') as Map<String, dynamic>;
     final reservation = ReservationModel.fromJson(data);
 
-    // Dohvati allowed actions
+    
     final actionsData =
         await ApiService.get('Reservation/$id/allowed-actions')
             as Map<String, dynamic>;
@@ -333,6 +334,10 @@ class ReservationService {
     'CancelledReservationState',
   ];
 
-  static String stateDisplayName(String state) =>
-      state.replaceAll('ReservationState', '');
+  static String stateDisplayName(String state) => state
+    .replaceAll('ReservationState', '')
+    .replaceAllMapped(
+      RegExp(r'(?<=[a-z])(?=[A-Z])'),
+      (match) => ' ',
+    );
 }

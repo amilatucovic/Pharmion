@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
@@ -22,28 +23,28 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public override Task<IActionResult> Create([FromBody] ProductInsertRequest request)
         {
             return base.Create(request);
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public override Task<IActionResult> Update(int id, [FromBody] ProductUpdateRequest request)
         {
             return base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public override Task<IActionResult> Delete(int id)
         {
             return base.Delete(id);
         }
 
         [HttpPost("{id}/image")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public async Task<IActionResult> UploadProductImage(int id, IFormFile file)
         {
             try
@@ -75,7 +76,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpDelete("{id}/image")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = Policies.AdminOnly)]
         public async Task<IActionResult> DeleteProductImage(int id)
         {
             try
@@ -94,7 +95,7 @@ namespace Pharmion.WebAPI.Controllers
 
                 return Ok(new { message = "Image deleted, reverted to default" });
             }
-            catch (Exception ex)
+            catch (UserException ex)
             {
                 return StatusCode(500, new { message = "Error deleting image", error = ex.Message });
             }

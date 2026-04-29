@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Services.Interfaces;
-using System.Security.Claims;
 
 namespace Pharmion.WebAPI.Controllers
 {
@@ -13,29 +11,25 @@ namespace Pharmion.WebAPI.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, ICurrentUserService currentUserService)
         {
             _paymentService = paymentService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("create-intent")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> CreateIntent(
             [FromBody] CreatePaymentIntentRequest request)
         {
-            try
-            {
-                var patientId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+                var patientId = _currentUserService.GetUserId();
                 var result = await _paymentService
                     .CreatePaymentIntentAsync(patientId, request);
                 return Ok(result);
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+           
         }
 
         [HttpPost("webhook")]
@@ -46,51 +40,34 @@ namespace Pharmion.WebAPI.Controllers
                 .ReadToEndAsync();
             var stripeSignature = Request.Headers["Stripe-Signature"];
 
-            try
-            {
+           
                 await _paymentService.HandleWebhookAsync(payload, stripeSignature!);
                 return Ok();
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            
         }
 
         [HttpPost("pay-on-pickup/{reservationId}")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> PayOnPickup(int reservationId)
         {
-            try
-            {
-                var pharmacistId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+           
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _paymentService
                     .ProcessPayOnPickupAsync(pharmacistId, reservationId);
                 return Ok(result);
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+           
         }
 
         [HttpPost("refund/{reservationId}")]
         [Authorize]
         public async Task<IActionResult> Refund(int reservationId)
         {
-            try
-            {
-                var userId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+                var userId = _currentUserService.GetUserId();
                 var result = await _paymentService
                     .RefundAsync(reservationId, userId);
                 return Ok(result);
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+           
         }
 
         [HttpGet("by-reservation/{reservationId}")]

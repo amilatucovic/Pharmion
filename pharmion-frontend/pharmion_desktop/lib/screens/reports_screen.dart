@@ -36,7 +36,6 @@ class _ReportsScreenState extends State<ReportsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tab bar
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -92,7 +91,6 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 }
 
-// ─── Inventory Report Tab ─────────────────────────────────────────────────────
 class _InventoryReportTab extends StatefulWidget {
   const _InventoryReportTab();
 
@@ -103,7 +101,7 @@ class _InventoryReportTab extends StatefulWidget {
 class _InventoryReportTabState extends State<_InventoryReportTab> {
   int? _selectedPharmacyId;
   String _selectedPharmacyName = 'All Pharmacies';
-  String? _statusFilter; // null=all, 'lowStock', 'expiringSoon'
+  String? _statusFilter;
   List<Map<String, dynamic>> _pharmacies = [];
   bool _loadingPharmacies = true;
   bool _generating = false;
@@ -134,7 +132,6 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
   Future<void> _generate() async {
     setState(() => _generating = true);
     try {
-      // Fetch all items
       final result = await InventoryService.getItems(
         page: 0,
         pageSize: 1000,
@@ -180,7 +177,6 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left: config panel
         SizedBox(
           width: 320,
           child: Container(
@@ -321,7 +317,6 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
                   const Divider(height: 1),
                   const SizedBox(height: 20),
 
-                  // Info box
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -397,7 +392,6 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
         ),
         const SizedBox(width: 20),
 
-        // Right: preview info
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(24),
@@ -470,7 +464,7 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Clicking "Generate PDF" will open the system print/save dialog where you can print or save as PDF.',
+                          'Clicking "Generate PDF" will open the system print/save dialog where you can print or save as PDF. For Inventory Status Report, choose portrait orientation for best results. For Reservations Report, landscape orientation is recommended.',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.kTextMid,
@@ -489,7 +483,6 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
   }
 }
 
-// ─── Reservations Report Tab ──────────────────────────────────────────────────
 class _ReservationsReportTab extends StatefulWidget {
   const _ReservationsReportTab();
 
@@ -511,7 +504,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
   void initState() {
     super.initState();
     _loadPharmacies();
-    // Default: current month
     final now = DateTime.now();
     _dateFrom = DateTime(now.year, now.month, 1);
     _dateTo = now;
@@ -621,7 +613,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left: config
         SizedBox(
           width: 320,
           child: Container(
@@ -683,7 +674,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
                   const Divider(height: 1),
                   const SizedBox(height: 20),
 
-                  // Pharmacy
                   const _SectionLabel('Pharmacy'),
                   const SizedBox(height: 8),
                   _loadingPharmacies
@@ -728,7 +718,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
                         ),
                   const SizedBox(height: 16),
 
-                  // Status
                   const _SectionLabel('Reservation Status'),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String?>(
@@ -757,7 +746,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Date range
                   const _SectionLabel('Date Range'),
                   const SizedBox(height: 8),
                   Row(
@@ -855,7 +843,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
                   const Divider(height: 1),
                   const SizedBox(height: 20),
 
-                  // Info
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -941,7 +928,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
         ),
         const SizedBox(width: 20),
 
-        // Right: preview
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(24),
@@ -1020,7 +1006,7 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Clicking "Generate PDF" will open the system print/save dialog where you can print or save as PDF.',
+                          'Clicking "Generate PDF" will open the system print/save dialog where you can print or save as PDF. For Inventory Status Report, choose portrait orientation for best results. For Reservations Report, landscape orientation is recommended.',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.kTextMid,
@@ -1038,8 +1024,6 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
     );
   }
 }
-
-// ─── Shared Helper Widgets ────────────────────────────────────────────────────
 
 InputDecoration _inputDeco() => InputDecoration(
   filled: true,

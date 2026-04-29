@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pharmion.Model.Exceptions;
 using Pharmion.Model.Requests;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
-using System.Security.Claims;
 
 namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Pharmacist")]
+    [Authorize(Roles = Roles.Pharmacist)]
     public class EarlyDispenseExceptionController : ControllerBase
     {
         private readonly IEarlyDispenseExceptionService _service;
+        private readonly ICurrentUserService _currentUserService;
 
-        public EarlyDispenseExceptionController(IEarlyDispenseExceptionService service)
+        public EarlyDispenseExceptionController(IEarlyDispenseExceptionService service, ICurrentUserService currentUserService)
         {
             _service = service;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -40,33 +40,19 @@ namespace Pharmion.WebAPI.Controllers
         [HttpPost("{id}/approve")]
         public async Task<IActionResult> Approve(int id, [FromBody] ApproveExceptionRequest request)
         {
-            try
-            {
-                var pharmacistId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _service.ApproveAsync(id, pharmacistId, request);
                 return Ok(result);
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
         }
 
         [HttpPost("{id}/reject")]
         public async Task<IActionResult> Reject(int id, [FromBody] RejectExceptionRequest request)
         {
-            try
-            {
-                var pharmacistId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _service.RejectAsync(id, pharmacistId, request);
                 return Ok(result);
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+           
         }
     }
 }

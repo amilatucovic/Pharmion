@@ -79,7 +79,6 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filters row
           Row(
             children: [
               Expanded(
@@ -230,7 +229,6 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Table
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -246,7 +244,6 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -334,7 +331,6 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -375,7 +371,6 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                           ),
                   ),
 
-                  // Pagination
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -507,7 +502,6 @@ class _PrescriptionRowState extends State<_PrescriptionRow> {
         ),
         child: Row(
           children: [
-            // Patient
             Expanded(
               flex: 3,
               child: Column(
@@ -533,7 +527,6 @@ class _PrescriptionRowState extends State<_PrescriptionRow> {
                 ],
               ),
             ),
-            // Doctor / Facility
             Expanded(
               flex: 3,
               child: Column(
@@ -559,8 +552,6 @@ class _PrescriptionRowState extends State<_PrescriptionRow> {
                 ],
               ),
             ),
-            // Items count
-            // Items count
             Expanded(
               flex: 2,
               child: Align(
@@ -585,7 +576,6 @@ class _PrescriptionRowState extends State<_PrescriptionRow> {
                 ),
               ),
             ),
-            // Valid to
             Expanded(
               flex: 2,
               child: p.validTo != null
@@ -606,7 +596,6 @@ class _PrescriptionRowState extends State<_PrescriptionRow> {
                       style: TextStyle(fontSize: 13, color: AppColors.kTextMid),
                     ),
             ),
-            // Status kolona u _PrescriptionRow
             Expanded(
               flex: 2,
               child: Align(
@@ -614,7 +603,6 @@ class _PrescriptionRowState extends State<_PrescriptionRow> {
                 child: _PrescriptionStatusBadge(status: p.statusDisplay),
               ),
             ),
-            // Actions
             SizedBox(
               width: 100,
               child: Align(

@@ -168,7 +168,6 @@ class _ChronicDiseasesScreenState extends State<ChronicDiseasesScreen> {
       padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          // ── Filters ───────────────────────────────────────────────────────
           Row(
             children: [
               Expanded(
@@ -304,7 +303,6 @@ class _ChronicDiseasesScreenState extends State<ChronicDiseasesScreen> {
           ),
           const SizedBox(height: 16),
 
-          // ── Table ─────────────────────────────────────────────────────────
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -320,7 +318,6 @@ class _ChronicDiseasesScreenState extends State<ChronicDiseasesScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -370,7 +367,6 @@ class _ChronicDiseasesScreenState extends State<ChronicDiseasesScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -412,7 +408,6 @@ class _ChronicDiseasesScreenState extends State<ChronicDiseasesScreen> {
                           ),
                   ),
 
-                  // Pagination
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -505,7 +500,6 @@ class _ChronicDiseasesScreenState extends State<ChronicDiseasesScreen> {
   }
 }
 
-// ─── Row Widget ───────────────────────────────────────────────────────────────
 class _DiseaseRow extends StatefulWidget {
   final ChronicDiseaseModel disease;
   final bool isEven;
@@ -544,7 +538,6 @@ class _DiseaseRowState extends State<_DiseaseRow> {
         ),
         child: Row(
           children: [
-            // Code badge
             SizedBox(
               width: 80,
               child: Container(
@@ -565,7 +558,6 @@ class _DiseaseRowState extends State<_DiseaseRow> {
               ),
             ),
 
-            // Name
             Expanded(
               flex: 3,
               child: Padding(
@@ -582,7 +574,6 @@ class _DiseaseRowState extends State<_DiseaseRow> {
               ),
             ),
 
-            // Description
             Expanded(
               flex: 4,
               child: Text(
@@ -592,7 +583,6 @@ class _DiseaseRowState extends State<_DiseaseRow> {
               ),
             ),
 
-            // Status
             Expanded(
               flex: 1,
               child: Center(
@@ -637,7 +627,6 @@ class _DiseaseRowState extends State<_DiseaseRow> {
               ),
             ),
 
-            // Actions
             SizedBox(
               width: 100,
               child: Center(
@@ -683,7 +672,6 @@ class _DiseaseRowState extends State<_DiseaseRow> {
   }
 }
 
-// ─── Create / Edit Dialog ─────────────────────────────────────────────────────
 class _DiseaseDialog extends StatefulWidget {
   final ChronicDiseaseModel? disease;
   final VoidCallback onSaved;
@@ -772,7 +760,7 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
       }
     } catch (e) {
       if (mounted) {
-           setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -815,7 +803,6 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 children: [
                   Container(
@@ -857,7 +844,6 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
               const Divider(height: 1),
               const SizedBox(height: 16),
 
-              // Error
               if (_error != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -889,11 +875,9 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
                 const SizedBox(height: 12),
               ],
 
-              // Code + Name side by side
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Code
                   Expanded(
                     flex: 1,
                     child: Column(
@@ -921,7 +905,6 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Name
                   Expanded(
                     flex: 2,
                     child: Column(
@@ -952,7 +935,6 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
               ),
               const SizedBox(height: 14),
 
-              // Description
               _Label('Description'),
               const SizedBox(height: 6),
               TextField(
@@ -969,7 +951,6 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
               ),
               const SizedBox(height: 14),
 
-              // Active toggle
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -1020,7 +1001,6 @@ class _DiseaseDialogState extends State<_DiseaseDialog> {
               ),
               const SizedBox(height: 20),
 
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

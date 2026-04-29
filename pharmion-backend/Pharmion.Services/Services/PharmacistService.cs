@@ -64,14 +64,17 @@ namespace Pharmion.Services.Services
             };
         }
 
-        public async Task<PharmacistResponse?> GetByIdAsync(int id)
+        public async Task<PharmacistResponse> GetByIdAsync(int id)
         {
             var pharmacist = await _context.Pharmacists
                 .Include(p => p.Pharmacy)
                     .ThenInclude(ph => ph.City)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            return pharmacist == null ? null : MapToResponse(pharmacist);
+            if (pharmacist == null)
+                throw new UserException("Pharmacist not found.");
+
+            return  MapToResponse(pharmacist);
         }
 
         public async Task<PharmacistResponse> CreateAsync(RegisterPharmacistRequest request)

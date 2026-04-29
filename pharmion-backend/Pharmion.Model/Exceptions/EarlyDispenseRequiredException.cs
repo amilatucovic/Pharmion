@@ -2,7 +2,7 @@
 
 namespace Pharmion.Model.Exceptions
 {
-    public class EarlyDispenseRequiredException : Exception
+    public class EarlyDispenseRequiredException : UserException
     {
         public DateTime NextEligibleDate { get; }
         public int DaysRemaining { get; }

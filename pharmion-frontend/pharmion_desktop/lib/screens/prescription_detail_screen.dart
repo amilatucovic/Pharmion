@@ -34,7 +34,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _error = e.toString().replaceAll('Exception: ', ''));
-      } 
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -129,7 +129,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       backgroundColor: AppColors.kBg,
       body: Column(
         children: [
-          // Top bar
           Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -261,7 +260,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header card
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -341,7 +339,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Notes
           if (p.notes != null && p.notes!.isNotEmpty) ...[
             Container(
               width: double.infinity,
@@ -375,7 +372,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
             const SizedBox(height: 16),
           ],
 
-          // Items
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -433,7 +429,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                 const Divider(height: 1),
                 const SizedBox(height: 4),
 
-                // Items header
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Row(
@@ -528,7 +523,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                     ),
                     child: Row(
                       children: [
-                        // Product
                         Expanded(
                           flex: 3,
                           child: Column(
@@ -552,7 +546,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                             ],
                           ),
                         ),
-                        // Dosage
                         Expanded(
                           flex: 2,
                           child: Text(
@@ -564,7 +557,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // Therapy type
                         Expanded(
                           flex: 2,
                           child: Align(
@@ -572,7 +564,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                             child: _TherapyBadge(therapyType: item.therapyType),
                           ),
                         ),
-                        // Qty per period
                         Expanded(
                           flex: 1,
                           child: Text(
@@ -584,7 +575,7 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                             ),
                           ),
                         ),
-                        // Repeats
+
                         Expanded(
                           flex: 2,
                           child: item.isExhausted
@@ -604,7 +595,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
                                   ),
                                 ),
                         ),
-                        // Next eligible
                         Expanded(
                           flex: 2,
                           child: isEligible
@@ -640,8 +630,6 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
   String _formatDate(DateTime dt) =>
       '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
 }
-
-// ─── Helper Widgets ───────────────────────────────────────────────────────────
 
 class _InfoRow extends StatelessWidget {
   final IconData icon;

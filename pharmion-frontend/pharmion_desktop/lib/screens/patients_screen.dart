@@ -18,7 +18,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
   bool? _isInsuredFilter;
   int _currentPage = 0;
   static const int _pageSize = 10;
-  int? _cityFilter; // cityId apoteke farmaceuta
+  int? _cityFilter;
   bool _isAdmin = false;
 
   bool _loading = true;
@@ -38,14 +38,14 @@ class _PatientsScreenState extends State<PatientsScreen> {
   }
 
   Future<void> _initFilters() async {
-  final prefs = await SharedPreferences.getInstance();
-  _isAdmin = prefs.getBool('isAdministrator') ?? false;
-  
-  if (!_isAdmin) {
-    _cityFilter = prefs.getInt('cityId'); 
+    final prefs = await SharedPreferences.getInstance();
+    _isAdmin = prefs.getBool('isAdministrator') ?? false;
+
+    if (!_isAdmin) {
+      _cityFilter = prefs.getInt('cityId');
+    }
+    _loadData();
   }
-  _loadData();
-}
 
   Future<void> _loadData() async {
     setState(() => _loading = true);
@@ -93,7 +93,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filters
           Row(
             children: [
               Expanded(
@@ -232,7 +231,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Table
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -248,7 +246,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -336,7 +333,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -379,7 +375,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           ),
                   ),
 
-                  // Pagination
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -472,8 +467,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
   }
 }
 
-// ─── Row Widget ───────────────────────────────────────────────────────────────
-
 class _PatientRow extends StatefulWidget {
   final PatientModel patient;
   final bool isEven;
@@ -511,7 +504,6 @@ class _PatientRowState extends State<_PatientRow> {
         ),
         child: Row(
           children: [
-            // Patient name + email
             Expanded(
               flex: 3,
               child: Column(
@@ -537,7 +529,6 @@ class _PatientRowState extends State<_PatientRow> {
                 ],
               ),
             ),
-            // City
             Expanded(
               flex: 2,
               child: Text(
@@ -549,7 +540,6 @@ class _PatientRowState extends State<_PatientRow> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            // Age
             Expanded(
               flex: 1,
               child: Text(
@@ -557,7 +547,6 @@ class _PatientRowState extends State<_PatientRow> {
                 style: const TextStyle(fontSize: 13, color: AppColors.kTextMid),
               ),
             ),
-            // Insured badge
             Expanded(
               flex: 2,
               child: Align(
@@ -574,7 +563,7 @@ class _PatientRowState extends State<_PatientRow> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min, // ← ovo je ključno
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         p.isInsured
@@ -601,7 +590,6 @@ class _PatientRowState extends State<_PatientRow> {
                 ),
               ),
             ),
-            // Chronic conditions count
             Expanded(
               flex: 2,
               child: p.chronicDiseases.isEmpty
@@ -618,7 +606,6 @@ class _PatientRowState extends State<_PatientRow> {
                       overflow: TextOverflow.ellipsis,
                     ),
             ),
-            // Actions
             SizedBox(
               width: 100,
               child: Align(
@@ -649,8 +636,6 @@ class _PatientRowState extends State<_PatientRow> {
     );
   }
 }
-
-// ─── Patient Detail Screen ────────────────────────────────────────────────────
 
 class PatientDetailScreen extends StatefulWidget {
   final int patientId;
@@ -694,7 +679,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       backgroundColor: AppColors.kBg,
       body: Column(
         children: [
-          // Top bar
           Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -759,7 +743,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Info card
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -854,7 +837,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                 const SizedBox(height: 20),
                 const Divider(height: 1),
                 const SizedBox(height: 20),
-                // Details grid
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -901,7 +883,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Prescriptions placeholder
           _PatientPrescriptionsCard(patientId: p.id),
         ],
       ),

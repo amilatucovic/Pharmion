@@ -111,6 +111,10 @@ class ApiService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
+      if (response.body.isNotEmpty) {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+      }
       throw Exception('Error: ${response.statusCode}');
     }
   }
@@ -142,8 +146,9 @@ class ApiService {
     } else if (response.statusCode == 204) {
       return null;
     } else {
-      if (response.body.isEmpty)
-        throw Exception('Error: ${response.statusCode}');
+      if (response.body.isEmpty) {
+       throw Exception('Error: ${response.statusCode}');
+      }
       final error = jsonDecode(response.body);
       throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
     }
@@ -192,6 +197,10 @@ class ApiService {
     }
 
     if (response.statusCode != 200 && response.statusCode != 204) {
+      if (response.body.isNotEmpty) {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+      }
       throw Exception('Error: ${response.statusCode}');
     }
   }
@@ -212,7 +221,6 @@ class ApiService {
       await prefs.setString('jwt_token', data['accessToken']);
       await prefs.setString('refresh_token', data['refreshToken']);
     } else {
-      // Refresh token i sam istekao — logout
       await prefs.clear();
       throw Exception('Session expired');
     }
@@ -233,6 +241,12 @@ class ApiService {
     final streamed = await request.send();
     final response = await http.Response.fromStream(streamed);
     if (response.statusCode == 200) return jsonDecode(response.body);
+    if (response.body.isNotEmpty) {
+      final error = jsonDecode(response.body);
+      throw Exception(
+        error['message'] ?? 'Upload failed: ${response.statusCode}',
+      );
+    }
     throw Exception('Upload failed: ${response.statusCode}');
   }
 }

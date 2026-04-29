@@ -12,10 +12,12 @@ namespace Pharmion.WebAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ICurrentUserService currentUserService)
         {
             _authService = authService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("login")]
@@ -88,7 +90,7 @@ namespace Pharmion.WebAPI.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var userId = _currentUserService.GetUserId();
                 await _authService.ChangePasswordAsync(userId, request.OldPassword, request.NewPassword);
                 return Ok(new { message = "Password changed successfully" });
             }
@@ -104,10 +106,9 @@ namespace Pharmion.WebAPI.Controllers
         {
             return Ok(new
             {
-                userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-                username = User.FindFirst(ClaimTypes.Name)?.Value,
-                email = User.FindFirst(ClaimTypes.Email)?.Value,
-                role = User.FindFirst(ClaimTypes.Role)?.Value
+                userId = _currentUserService.GetUserId(),
+                role = _currentUserService.GetRole(),
+                isAdministrator = _currentUserService.IsAdministrator()
             });
         }
 

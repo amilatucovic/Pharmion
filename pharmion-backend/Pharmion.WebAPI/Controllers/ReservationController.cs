@@ -5,7 +5,6 @@ using Pharmion.Model.Requests;
 using Pharmion.Model.Responses;
 using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Interfaces;
-using System.Security.Claims;
 
 namespace Pharmion.WebAPI.Controllers
 {
@@ -15,21 +14,23 @@ namespace Pharmion.WebAPI.Controllers
     public class ReservationController : BaseCRUDController<ReservationResponse, ReservationSearchObject, ReservationInsertRequest, ReservationUpdateRequest>
     {
         private readonly IReservationService _reservationService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ReservationController(IReservationService reservationService) : base(reservationService)
+        public ReservationController(IReservationService reservationService, ICurrentUserService currentUserService) : base(reservationService)
         {
             _reservationService = reservationService;
+            _currentUserService = currentUserService;
         }
 
 
         [HttpPost]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public override async Task<IActionResult> Create([FromBody] ReservationInsertRequest request)
         {
             try
             {
                
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var userId = _currentUserService.GetUserId();
 
                 if (request.PatientId != userId)
                     return Forbid();
@@ -43,7 +44,7 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public override async Task<IActionResult> Update(int id, [FromBody] ReservationUpdateRequest request)
         {
             try 
@@ -52,7 +53,7 @@ namespace Pharmion.WebAPI.Controllers
                 if (reservation == null)
                     return NotFound();
 
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var userId = _currentUserService.GetUserId();
                 if (reservation.PatientId != userId)
                     return Forbid();
 
@@ -66,12 +67,12 @@ namespace Pharmion.WebAPI.Controllers
 
         
         [HttpPost("{id}/submit")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> Submit(int id)
         {
             try
             {
-                var patientId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var patientId = _currentUserService.GetUserId();
                 var result = await _reservationService.SubmitAsync(id, patientId);
                 return Ok(result);
             }
@@ -83,12 +84,12 @@ namespace Pharmion.WebAPI.Controllers
 
         
         [HttpPost("{id}/approve")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> Approve(int id)
         {
             try
             {
-                var pharmacistId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _reservationService.ApproveAsync(id, pharmacistId);
                 return Ok(result);
             }
@@ -100,12 +101,12 @@ namespace Pharmion.WebAPI.Controllers
 
         
         [HttpPost("{id}/reject")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> Reject(int id, [FromBody] RejectReservationRequest request)
         {
             try
             {
-                var pharmacistId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _reservationService.RejectAsync(id, pharmacistId, request.Reason);
                 return Ok(result);
             }
@@ -117,12 +118,12 @@ namespace Pharmion.WebAPI.Controllers
 
         
         [HttpPost("{id}/mark-ready")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> MarkReady(int id)
         {
             try
             {
-                var pharmacistId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _reservationService.MarkAsReadyAsync(id, pharmacistId);
                 return Ok(result);
             }
@@ -134,12 +135,12 @@ namespace Pharmion.WebAPI.Controllers
 
         
         [HttpPost("{id}/mark-picked-up")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> MarkPickedUp(int id)
         {
             try
             {
-                var pharmacistId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var pharmacistId = _currentUserService.GetUserId();
                 var result = await _reservationService.MarkAsPickedUpAsync(id, pharmacistId);
                 return Ok(result);
             }
@@ -168,22 +169,22 @@ namespace Pharmion.WebAPI.Controllers
 
        
         [HttpGet("by-patient/{patientId}")]
-        [Authorize(Roles = "Patient,Pharmacist")]
+        [Authorize(Roles = $"{Roles.Patient},{Roles.Pharmacist}")]
         public async Task<IActionResult> GetByPatient(int patientId)
         {
             try
             {
                 
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                var userId = _currentUserService.GetUserId();
+                var userRole = _currentUserService.GetRole();
 
-                if (userRole == "Patient" && patientId != userId)
+                if (userRole == Roles.Patient && patientId != userId)
                     return Forbid();
 
                 var reservations = await _reservationService.GetReservationsByPatientAsync(patientId);
                 return Ok(reservations);
             }
-            catch (Exception ex)
+            catch (UserException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -191,7 +192,7 @@ namespace Pharmion.WebAPI.Controllers
 
        
         [HttpGet("by-pharmacy/{pharmacyId}")]
-        [Authorize(Roles = "Pharmacist")]
+        [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> GetByPharmacy(int pharmacyId)
         {
             try
@@ -199,19 +200,19 @@ namespace Pharmion.WebAPI.Controllers
                 var reservations = await _reservationService.GetReservationsByPharmacyAsync(pharmacyId);
                 return Ok(reservations);
             }
-            catch (Exception ex)
+            catch (UserException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpGet("{id}/items")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> GetItems(int id)
         {
             try
             {
-                var patientId = GetUserId();
+                var patientId = _currentUserService.GetUserId();
                 var items = await _reservationService.GetItemsAsync(id, patientId);
                 return Ok(items);
             }
@@ -222,12 +223,12 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost("{id}/items")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> AddItem(int id, [FromBody] ReservationItemInsertRequest request)
         {
             try
             {
-                var patientId = GetUserId();
+                var patientId = _currentUserService.GetUserId();
                 var result = await _reservationService.AddItemAsync(id, patientId, request);
                 return Ok(result);
             }
@@ -238,12 +239,12 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPut("{id}/items/{itemId}")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> UpdateItem(int id, int itemId, [FromBody] ReservationItemUpdateRequest request)
         {
             try
             {
-                var patientId = GetUserId();
+                var patientId = _currentUserService.GetUserId();
                 var result = await _reservationService.UpdateItemAsync(id, itemId, patientId, request);
                 return Ok(result);
             }
@@ -254,12 +255,12 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpDelete("{id}/items/{itemId}")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> DeleteItem(int id, int itemId)
         {
             try
             {
-                var patientId = GetUserId();
+                var patientId = _currentUserService.GetUserId();
                 await _reservationService.DeleteItemAsync(id, itemId, patientId);
                 return NoContent();
             }
@@ -270,12 +271,12 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost("add-to-reservation")]
-        [Authorize(Roles = "Patient")]
+        [Authorize(Roles = Roles.Patient)]
         public async Task<IActionResult> AddToReservation([FromBody] AddToReservationRequest request)
         {
             try
             {
-                var patientId = GetUserId();
+                var patientId = _currentUserService.GetUserId();
                 var result = await _reservationService.AddToReservationAsync(patientId, request);
                 return Ok(result);
             }
@@ -297,12 +298,12 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost("{id}/cancel")]
-        [Authorize(Roles = "Patient,Pharmacist")]
+        [Authorize(Roles = $"{Roles.Patient},{Roles.Pharmacist}")]
         public async Task<IActionResult> Cancel(int id, [FromBody] CancelReservationRequest request)
         {
             try
             {
-                var userId = GetUserId();
+                var userId = _currentUserService.GetUserId();
                 var result = await _reservationService.CancelAsync(id, userId, request.Reason ?? "Cancelled");
                 return Ok(result);
             }
@@ -312,7 +313,6 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
-        private int GetUserId() =>
-            int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        
     }
 }

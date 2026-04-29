@@ -151,7 +151,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          // ── Filters ──────────────────────────────────────────────────────────
           Row(
             children: [
               Expanded(
@@ -256,7 +255,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 child: SizedBox(
                   height: 44,
                   child: DropdownButtonFormField<bool?>(
-                    value: _isActive, // ← FIX: value umjesto initialValue
+                    value: _isActive,
                     hint: const Text(
                       'All statuses',
                       style: TextStyle(color: AppColors.kTextMid, fontSize: 13),
@@ -327,7 +326,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // ── Table ─────────────────────────────────────────────────────────────
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -343,7 +341,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -361,9 +358,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                     child: Row(
                       children: [
-                        // Image placeholder width
                         const SizedBox(width: 56),
-                        // Product
                         const Expanded(
                           flex: 3,
                           child: Text(
@@ -375,7 +370,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ),
                           ),
                         ),
-                        // Type
                         const Expanded(
                           flex: 2,
                           child: Text(
@@ -387,7 +381,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ),
                           ),
                         ),
-                        // Manufacturer
                         const Expanded(
                           flex: 2,
                           child: Text(
@@ -399,7 +392,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ),
                           ),
                         ),
-                        // Price
                         const Expanded(
                           flex: 1,
                           child: Text(
@@ -411,7 +403,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ),
                           ),
                         ),
-                        // Prescription Required — wider to fit text
                         const Expanded(
                           flex: 2,
                           child: Text(
@@ -423,7 +414,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ),
                           ),
                         ),
-                        // Status
                         const Expanded(
                           flex: 1,
                           child: Text(
@@ -435,7 +425,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ),
                           ),
                         ),
-                        // Actions
                         const SizedBox(
                           width: 100,
                           child: Text(
@@ -451,7 +440,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -493,7 +481,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           ),
                   ),
 
-                  // Pagination
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -604,8 +591,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
   );
 }
 
-// ─── Row Widget ───────────────────────────────────────────────────────────────
-
 class _ProductRow extends StatefulWidget {
   final ProductModel product;
   final bool isEven;
@@ -644,13 +629,11 @@ class _ProductRowState extends State<_ProductRow> {
         ),
         child: Row(
           children: [
-            // ── Image avatar — fiksna širina + desni padding da odmaknemo tekst ──
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: _ProductAvatar(product: p),
             ),
 
-            // ── Product name + SKU ────────────────────────────────────────────
             Expanded(
               flex: 3,
               child: Column(
@@ -677,7 +660,6 @@ class _ProductRowState extends State<_ProductRow> {
               ),
             ),
 
-            // ── Type badge ────────────────────────────────────────────────────
             Expanded(
               flex: 2,
               child: Align(
@@ -686,7 +668,6 @@ class _ProductRowState extends State<_ProductRow> {
               ),
             ),
 
-            // ── Manufacturer ──────────────────────────────────────────────────
             Expanded(
               flex: 2,
               child: Text(
@@ -696,7 +677,6 @@ class _ProductRowState extends State<_ProductRow> {
               ),
             ),
 
-            // ── Price ─────────────────────────────────────────────────────────
             Expanded(
               flex: 1,
               child: Text(
@@ -709,7 +689,6 @@ class _ProductRowState extends State<_ProductRow> {
               ),
             ),
 
-            // ── Prescription Required — centriran icon ────────────────────────
             Expanded(
               flex: 2,
               child: p.isPrescriptionRequired
@@ -748,7 +727,6 @@ class _ProductRowState extends State<_ProductRow> {
                       ],
                     ),
             ),
-            // ── Status ────────────────────────────────────────────────────────
             Expanded(
               flex: 1,
               child: Align(
@@ -794,7 +772,6 @@ class _ProductRowState extends State<_ProductRow> {
               ),
             ),
 
-            // ── Actions ───────────────────────────────────────────────────────
             SizedBox(
               width: 100,
               child: Row(
@@ -885,43 +862,43 @@ class _TypeBadge extends StatelessWidget {
     Color bg;
     Color fg;
     switch (type) {
-      case 1: // Medication
+      case 1:
         bg = const Color(0xFFDBEAFE);
         fg = const Color(0xFF2563EB);
         break;
-      case 2: // Supplement
+      case 2:
         bg = const Color(0xFFD1FAE5);
         fg = const Color(0xFF059669);
         break;
-      case 3: // Medical Device
+      case 3:
         bg = const Color(0xFFEDE9FE);
         fg = const Color(0xFF7C3AED);
         break;
-      case 4: // Cosmetic
+      case 4:
         bg = const Color(0xFFFFE4E6);
         fg = const Color(0xFFE11D48);
         break;
-      case 5: // Baby & Child
+      case 5:
         bg = const Color(0xFFFEF3C7);
         fg = const Color(0xFFD97706);
         break;
-      case 6: // Orthopedics
+      case 6:
         bg = const Color(0xFFE0F2FE);
         fg = const Color(0xFF0284C7);
         break;
-      case 7: // Homeopathy
+      case 7:
         bg = const Color(0xFFF0FDF4);
         fg = const Color(0xFF16A34A);
         break;
-      case 8: // Herbal & Tea
+      case 8:
         bg = const Color(0xFFFEF9C3);
         fg = const Color(0xFF854D0E);
         break;
-      case 9: // Diagnostic Test
+      case 9:
         bg = const Color(0xFFF1F5F9);
         fg = const Color(0xFF475569);
         break;
-      case 10: // Personal Care
+      case 10:
         bg = const Color(0xFFFDF4FF);
         fg = const Color(0xFF9333EA);
         break;

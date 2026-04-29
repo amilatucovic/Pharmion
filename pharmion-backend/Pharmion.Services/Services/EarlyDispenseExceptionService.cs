@@ -73,7 +73,7 @@ namespace Pharmion.Services.Services
             };
         }
 
-        public async Task<EarlyDispenseExceptionResponse?> GetByIdAsync(int id)
+        public async Task<EarlyDispenseExceptionResponse> GetByIdAsync(int id)
         {
             var e = await _context.EarlyDispenseExceptions
                 .Include(e => e.PrescriptionItem)
@@ -86,7 +86,10 @@ namespace Pharmion.Services.Services
                 .Include(e => e.ApprovedByPharmacist)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            return e == null ? null : MapToResponse(e);
+            if (e == null)
+                throw new NotFoundException($"Early dispense exception with ID {id} not found.");
+
+            return MapToResponse(e);
         }
 
         public async Task<EarlyDispenseExceptionResponse> ApproveAsync(

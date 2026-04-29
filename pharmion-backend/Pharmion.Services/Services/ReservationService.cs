@@ -73,14 +73,14 @@ namespace Pharmion.Services.Services
             };
         }
 
-        public override async Task<ReservationResponse> GetByIdAsync(int id)
+        public override async Task<ReservationResponse?> GetByIdAsync(int id)
         {
             var reservation = await _context.Reservations
                 .Include(r => r.Patient)
                 .Include(r => r.Pharmacy)
                 .Include(r => r.Items).ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(r => r.Id == id)
-                ?? throw new UserException("Reservation not found");
+                ?? throw new NotFoundException("Reservation not found");
 
             var exceptions = await _context.EarlyDispenseExceptions
                 .Where(e => e.ReservationId == id)

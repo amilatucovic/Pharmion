@@ -26,8 +26,7 @@ class ChronicDiseaseModel {
         name: json['name'] as String? ?? '',
         description: json['description'] as String? ?? '',
         isActive: json['isActive'] as bool? ?? true,
-        createdAt:
-            DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime(2000),
+        createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime(2000),
         updatedAt: json['updatedAt'] != null
             ? DateTime.tryParse(json['updatedAt'])
             : null,
@@ -37,8 +36,7 @@ class ChronicDiseaseModel {
 class PagedChronicDiseases {
   final List<ChronicDiseaseModel> items;
   final int totalCount;
-  const PagedChronicDiseases(
-      {required this.items, required this.totalCount});
+  const PagedChronicDiseases({required this.items, required this.totalCount});
 }
 
 class ChronicDiseaseService {
@@ -56,8 +54,7 @@ class ChronicDiseaseService {
     final data =
         await ApiService.get(params.toString()) as Map<String, dynamic>;
     final items = ((data['items'] as List?) ?? [])
-        .map((e) =>
-            ChronicDiseaseModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => ChronicDiseaseModel.fromJson(e as Map<String, dynamic>))
         .toList();
 
     return PagedChronicDiseases(
@@ -66,17 +63,19 @@ class ChronicDiseaseService {
     );
   }
 
-  static Future<ChronicDiseaseModel> create(
-      Map<String, dynamic> body) async {
-    final data = await ApiService.post('ChronicDisease', body)
-        as Map<String, dynamic>;
+  static Future<ChronicDiseaseModel> create(Map<String, dynamic> body) async {
+    final data =
+        await ApiService.post('ChronicDisease', body) as Map<String, dynamic>;
     return ChronicDiseaseModel.fromJson(data);
   }
 
   static Future<ChronicDiseaseModel> update(
-      int id, Map<String, dynamic> body) async {
-    final data = await ApiService.put('ChronicDisease/$id', body)
-        as Map<String, dynamic>;
+    int id,
+    Map<String, dynamic> body,
+  ) async {
+    final data =
+        await ApiService.put('ChronicDisease/$id', body)
+            as Map<String, dynamic>;
     return ChronicDiseaseModel.fromJson(data);
   }
 

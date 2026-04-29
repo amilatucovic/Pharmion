@@ -106,7 +106,6 @@ class _NotificationBellState extends State<NotificationBell> {
     return OverlayEntry(
       builder: (context) => Stack(
         children: [
-          // Tap outside to close
           Positioned.fill(
             child: GestureDetector(
               onTap: () {
@@ -204,7 +203,6 @@ class _NotificationBellState extends State<NotificationBell> {
   }
 }
 
-// ─── Notification Panel ───────────────────────────────────────────────────────
 class _NotificationPanel extends StatelessWidget {
   final List<dynamic> notifications;
   final bool loading;
@@ -235,7 +233,6 @@ class _NotificationPanel extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
             child: Row(
@@ -296,7 +293,6 @@ class _NotificationPanel extends StatelessWidget {
           ),
           const Divider(height: 1, color: Color(0xFFE2E8F0)),
 
-          // Body
           Flexible(
             child: loading
                 ? const Padding(
@@ -361,7 +357,6 @@ class _NotificationPanel extends StatelessWidget {
   }
 }
 
-// ─── Notification Tile ────────────────────────────────────────────────────────
 class _NotificationTile extends StatelessWidget {
   final String title;
   final String message;
@@ -396,7 +391,6 @@ class _NotificationTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Unread indicator
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Container(
@@ -447,13 +441,10 @@ class _NotificationTile extends StatelessWidget {
             const SizedBox(width: 8),
             GestureDetector(
               onTap: onMarkAsRead,
-              child: const Tooltip(
-                message: 'Mark as read',
-                child: Icon(
-                  Icons.check_circle_outline,
-                  size: 16,
-                  color: AppColors.kTeal,
-                ),
+              child: const Icon(
+                Icons.check_circle_outline,
+                size: 16,
+                color: AppColors.kTeal,
               ),
             ),
           ],

@@ -59,6 +59,8 @@ namespace Pharmion.Services.Services
                                      .ThenInclude(cd => cd.ChronicDisease)
                                      .FirstOrDefaultAsync(p => p.Id == id);
 
+
+
             return patient == null ? null : MapToResponse(patient);
         }
 

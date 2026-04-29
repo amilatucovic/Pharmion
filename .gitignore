@@ -403,3 +403,5 @@ FodyWeavers.xsd
 *.msp
 
 **/.env
+**/.env.zip
+!**/.env-tajne.zip

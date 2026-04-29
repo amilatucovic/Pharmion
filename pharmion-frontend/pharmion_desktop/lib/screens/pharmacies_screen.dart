@@ -151,7 +151,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
       padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          // ── Filters ───────────────────────────────────────────────────────
           Row(
             children: [
               Expanded(
@@ -287,7 +286,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
           ),
           const SizedBox(height: 16),
 
-          // ── Table ─────────────────────────────────────────────────────────
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -303,7 +301,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
               ),
               child: Column(
                 children: [
-                  // Header
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -321,7 +318,7 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                     ),
                     child: Row(
                       children: const [
-                        SizedBox(width: 48), // icon placeholder
+                        SizedBox(width: 48),
                         Expanded(
                           flex: 3,
                           child: Text('Name', style: _headerStyle),
@@ -354,7 +351,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                     ),
                   ),
 
-                  // Body
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -396,7 +392,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                           ),
                   ),
 
-                  // Pagination
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -507,7 +502,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
   );
 }
 
-// ─── Row Widget ───────────────────────────────────────────────────────────────
 class _PharmacyRow extends StatefulWidget {
   final PharmacyModel pharmacy;
   final bool isEven;
@@ -546,7 +540,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
         ),
         child: Row(
           children: [
-            // Icon avatar
             Container(
               width: 36,
               height: 36,
@@ -564,7 +557,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
               ),
             ),
 
-            // Name
             Expanded(
               flex: 3,
               child: Text(
@@ -578,7 +570,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
               ),
             ),
 
-            // Address
             Expanded(
               flex: 3,
               child: Row(
@@ -603,7 +594,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
               ),
             ),
 
-            // City
             Expanded(
               flex: 2,
               child: Text(
@@ -613,7 +603,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
               ),
             ),
 
-            // Status
             Expanded(
               flex: 1,
               child: Center(
@@ -658,7 +647,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
               ),
             ),
 
-            // Actions
             SizedBox(
               width: 100,
               child: Center(
@@ -704,7 +692,6 @@ class _PharmacyRowState extends State<_PharmacyRow> {
   }
 }
 
-// ─── Create / Edit Dialog ─────────────────────────────────────────────────────
 class _PharmacyDialog extends StatefulWidget {
   final PharmacyModel? pharmacy;
   final VoidCallback onSaved;
@@ -876,7 +863,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 children: [
                   Container(
@@ -918,7 +904,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
               const Divider(height: 1),
               const SizedBox(height: 16),
 
-              // Error
               if (_error != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -950,7 +935,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
                 const SizedBox(height: 12),
               ],
 
-              // Name
               _FieldLabel('Pharmacy Name *'),
               const SizedBox(height: 6),
               TextField(
@@ -963,7 +947,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
               ),
               const SizedBox(height: 14),
 
-              // Address
               _FieldLabel('Address *'),
               const SizedBox(height: 6),
               TextField(
@@ -976,7 +959,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
               ),
               const SizedBox(height: 14),
 
-              // City
               _FieldLabel('City *'),
               const SizedBox(height: 6),
               _loadingCities
@@ -1035,7 +1017,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
                     ),
               const SizedBox(height: 16),
 
-              // Active toggle
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -1099,7 +1080,6 @@ class _PharmacyDialogState extends State<_PharmacyDialog> {
               ),
               const SizedBox(height: 20),
 
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

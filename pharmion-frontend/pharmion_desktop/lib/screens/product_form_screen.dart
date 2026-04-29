@@ -186,7 +186,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   Future<void> _save() async {
-    // Name
     if (_nameController.text.trim().isEmpty) {
       setState(() => _error = 'Product name is required.');
       return;
@@ -196,7 +195,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return;
     }
 
-    // Price
     final price = double.tryParse(_priceController.text.replaceAll(',', '.'));
     if (price == null || price <= 0) {
       setState(
@@ -205,13 +203,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return;
     }
 
-    // SKU
     if (_skuController.text.trim().length > 100) {
       setState(() => _error = 'SKU must not exceed 100 characters.');
       return;
     }
 
-    // Barcode — samo brojevi, max 100 znakova
     final barcode = _barcodeController.text.trim();
     if (barcode.isNotEmpty) {
       if (barcode.length > 100) {
@@ -224,19 +220,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       }
     }
 
-    // Manufacturer
     if (_manufacturerController.text.trim().length > 150) {
       setState(() => _error = 'Manufacturer must not exceed 150 characters.');
       return;
     }
 
-    // Unit
     if (_unitController.text.trim().length > 50) {
       setState(() => _error = 'Unit must not exceed 50 characters.');
       return;
     }
 
-    // Package size
     if (_packageSizeController.text.trim().isNotEmpty) {
       final packageSize = int.tryParse(_packageSizeController.text.trim());
       if (packageSize == null || packageSize < 1) {
@@ -247,7 +240,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       }
     }
 
-    // Side Effects / Instructions / Contraindications — max 1000
     if (_sideEffectsController.text.trim().length > 1000) {
       setState(() => _error = 'Side effects must not exceed 1000 characters.');
       return;
@@ -265,7 +257,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return;
     }
 
-    // Sve prošlo — spremi
     setState(() {
       _saving = true;
       _error = null;
@@ -349,7 +340,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       backgroundColor: AppColors.kBg,
       body: Column(
         children: [
-          // ── Top bar ───────────────────────────────────────────────────────────
           Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -437,7 +427,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             ),
           ),
 
-          // ── Body ─────────────────────────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(28),
@@ -478,7 +467,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ── Lijeva kolona ─────────────────────────────────────────────
                       Expanded(
                         child: Column(
                           children: [
@@ -694,12 +682,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       ),
                       const SizedBox(width: 16),
 
-                      // ── Desna kolona — širina 300, samo ovdje su type-specific paneli ──
                       SizedBox(
                         width: 300,
                         child: Column(
                           children: [
-                            // Product Image
                             _SectionCard(
                               title: 'Product Image',
                               icon: Icons.image_outlined,
@@ -778,7 +764,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Medication Details
                             if (_selectedType == 1)
                               _SectionCard(
                                 title: 'Medication Details',
@@ -885,7 +870,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                                       ),
                               ),
 
-                            // Supplement Details
                             if (_selectedType == 2)
                               _SectionCard(
                                 title: 'Supplement Details',
@@ -1035,8 +1019,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     ],
   );
 }
-
-// ─── Reusable Widgets ─────────────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
   final String title;

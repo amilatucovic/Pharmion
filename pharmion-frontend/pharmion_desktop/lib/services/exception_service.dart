@@ -143,7 +143,6 @@ class ExceptionService {
     return EarlyDispenseExceptionModel.fromJson(data);
   }
 
-  // Lokalizovani nazivi za reason type
   static String reasonTypeLabel(String reasonType) {
   switch (reasonType) {
     case '1':

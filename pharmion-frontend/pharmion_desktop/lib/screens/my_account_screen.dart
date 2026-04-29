@@ -13,7 +13,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   bool _loading = true;
   String? _error;
 
-  // Profile data
   int _userId = 0;
   String _firstName = '';
   String _lastName = '';
@@ -160,7 +159,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header card ───────────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
@@ -177,7 +175,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Avatar
                   Container(
                     width: 76,
                     height: 76,
@@ -202,7 +199,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                   ),
                   const SizedBox(width: 24),
 
-                  // Name + badges
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +256,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                     ),
                   ),
 
-                  // Action buttons
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -305,11 +300,9 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
             ),
             const SizedBox(height: 20),
 
-            // ── Info cards grid ───────────────────────────────────────────────
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Personal Information
                 Expanded(
                   child: _InfoCard(
                     title: 'Personal Information',
@@ -333,7 +326,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                 ),
                 const SizedBox(width: 16),
 
-                // Work Information
                 Expanded(
                   child: _InfoCard(
                     title: 'Work Information',
@@ -364,7 +356,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                 ),
                 const SizedBox(width: 16),
 
-                // Account Details
                 Expanded(
                   child: _InfoCard(
                     title: 'Account Details',
@@ -420,7 +411,6 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   }
 }
 
-// ─── Edit Profile Dialog ──────────────────────────────────────────────────────
 class _EditProfileDialog extends StatefulWidget {
   final int userId;
   final String firstName, lastName, email, licenseNumber;
@@ -487,7 +477,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
     });
 
     try {
-      // Dohvati trenutne podatke da ne izgubimo pharmacyId, isAdministrator, isActive
       final current =
           await ApiService.get('Pharmacist/${widget.userId}')
               as Map<String, dynamic>;
@@ -502,7 +491,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
         'isActive': current['isActive'],
       });
 
-      // Ažuriraj SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('firstName', _firstNameCtrl.text.trim());
       await prefs.setString('lastName', _lastNameCtrl.text.trim());
@@ -567,7 +555,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 children: [
                   Container(
@@ -609,7 +596,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               const Divider(height: 1),
               const SizedBox(height: 16),
 
-              // Error
               if (_error != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -641,7 +627,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
                 const SizedBox(height: 12),
               ],
 
-              // First + Last name
               Row(
                 children: [
                   Expanded(
@@ -675,7 +660,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               ),
               const SizedBox(height: 12),
 
-              // Email
               _FieldCol(
                 label: 'Email *',
                 child: TextField(
@@ -689,7 +673,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               ),
               const SizedBox(height: 12),
 
-              // License
               _FieldCol(
                 label: 'License Number *',
                 child: TextField(
@@ -706,7 +689,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               ),
               const SizedBox(height: 6),
 
-              // Note
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -736,7 +718,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               ),
               const SizedBox(height: 20),
 
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -818,7 +799,6 @@ class _FieldCol extends StatelessWidget {
   );
 }
 
-// ─── Shared widgets ───────────────────────────────────────────────────────────
 class _Badge extends StatelessWidget {
   final String label;
   final Color color, bg;
@@ -952,7 +932,6 @@ class _InfoRow extends StatelessWidget {
   );
 }
 
-// ─── Change Password Dialog ───────────────────────────────────────────────────
 class _ChangePasswordDialog extends StatefulWidget {
   const _ChangePasswordDialog();
   @override

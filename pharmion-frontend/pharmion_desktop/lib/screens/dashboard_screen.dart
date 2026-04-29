@@ -391,16 +391,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // Notification bell
                       const NotificationBell(),
                       const SizedBox(width: 8),
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: AppColors.kTealLight,
-                        child: Text(
-                          _firstName.isNotEmpty
-                              ? _firstName[0].toUpperCase()
-                              : 'P',
-                          style: const TextStyle(
-                            color: AppColors.kTeal,
-                            fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () => setState(
+                          () => _selectedIndex = _navItems.indexWhere(
+                            (item) => item.label == 'My Account',
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: AppColors.kTealLight,
+                          child: Text(
+                            _firstName.isNotEmpty
+                                ? _firstName[0].toUpperCase()
+                                : 'P',
+                            style: const TextStyle(
+                              color: AppColors.kTeal,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),

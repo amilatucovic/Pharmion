@@ -208,7 +208,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
       padding: const EdgeInsets.all(28),
       child: Column(
         children: [
-          // ── Filters ───────────────────────────────────────────────────────────
           Row(
             children: [
               Expanded(
@@ -380,7 +379,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
           ),
           const SizedBox(height: 16),
 
-          // ── Table ─────────────────────────────────────────────────────────────
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -396,7 +394,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
               child: Column(
                 children: [
-                  // ── Header ───────────────────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -484,7 +481,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     ),
                   ),
 
-                  // ── Body ─────────────────────────────────────────────────────────
                   Expanded(
                     child: _loading
                         ? const Center(
@@ -529,7 +525,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           ),
                   ),
 
-                  // ── Pagination ───────────────────────────────────────────────────
                   if (!_loading && _totalCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -622,7 +617,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 }
 
-// ─── Filter Chip ──────────────────────────────────────────────────────────────
 class _FilterChip extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -668,7 +662,6 @@ class _FilterChip extends StatelessWidget {
   );
 }
 
-// ─── Row Widget ───────────────────────────────────────────────────────────────
 class _InventoryRow extends StatefulWidget {
   final InventoryItemModel item;
   final bool isEven;
@@ -713,13 +706,11 @@ class _InventoryRowState extends State<_InventoryRow> {
         ),
         child: Row(
           children: [
-            // Avatar
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: _InventoryAvatar(item: item),
             ),
 
-            // Product name + SKU
             Expanded(
               flex: 3,
               child: Column(
@@ -746,7 +737,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Pharmacy
             if (widget.isAdmin)
               Expanded(
                 flex: 2,
@@ -760,7 +750,6 @@ class _InventoryRowState extends State<_InventoryRow> {
                 ),
               ),
 
-            // On Hand — centered
             Expanded(
               flex: 1,
               child: Center(
@@ -775,7 +764,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Reserved — centered
             Expanded(
               flex: 1,
               child: Center(
@@ -791,7 +779,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Available — centered
             Expanded(
               flex: 1,
               child: Center(
@@ -808,7 +795,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Reorder Level — centered
             Expanded(
               flex: 1,
               child: Center(
@@ -822,7 +808,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Expiration — centered, colored if needed
             Expanded(
               flex: 1,
               child: Center(
@@ -840,7 +825,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Status — centered
             Expanded(
               flex: 1,
               child: Center(
@@ -870,7 +854,6 @@ class _InventoryRowState extends State<_InventoryRow> {
               ),
             ),
 
-            // Actions — centered
             SizedBox(
               width: 100,
               child: Center(
@@ -988,7 +971,6 @@ class _InventoryAvatar extends StatelessWidget {
   );
 }
 
-// ─── Stock Movement Dialog ────────────────────────────────────────────────────
 class _StockMovementDialog extends StatefulWidget {
   final InventoryItemModel item;
   final VoidCallback onSaved;
@@ -1052,7 +1034,7 @@ class _StockMovementDialogState extends State<_StockMovementDialog> {
       }
     } catch (e) {
       if (mounted) {
-           setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -1420,7 +1402,6 @@ class _MovementTypeChip extends StatelessWidget {
   );
 }
 
-// ─── Add/Edit Inventory Item Dialog ──────────────────────────────────────────
 class _InventoryItemDialog extends StatefulWidget {
   final InventoryItemModel? item;
   final VoidCallback onSaved;

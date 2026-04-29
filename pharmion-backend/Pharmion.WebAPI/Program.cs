@@ -12,6 +12,7 @@ using Pharmion.WebAPI.Filters;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
 
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 var builder = WebApplication.CreateBuilder(args);
 Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 builder.Services.AddCors(options =>
@@ -51,21 +52,20 @@ builder.Services.AddAuthentication(options =>
     {
         OnAuthenticationFailed = context =>
         {
-            Console.WriteLine($"Auth failed: {context.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine("Token validated successfully!");
+            var logger = context.HttpContext.RequestServices
+            .GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("Authentication failed: {Message}",
+                context.Exception.Message);
             return Task.CompletedTask;
         }
+       
     };
 });
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy =>
-        policy.RequireClaim("IsAdministrator", "True"));
+    options.AddPolicy(Policies.AdminOnly, policy =>
+    policy.RequireClaim("IsAdministrator", "True"));
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -86,7 +86,8 @@ builder.Services.AddScoped<IEarlyDispenseExceptionService, EarlyDispenseExceptio
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPatientChronicDiseaseService, PatientChronicDiseaseService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<InitialReservationState>();
 builder.Services.AddScoped<DraftReservationState>();
@@ -101,7 +102,7 @@ builder.Services.AddSingleton<IRecommendationService, RecommendationService>();
 builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=localhost;Database=220207;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDatabaseServices(connectionString);
 
 
@@ -163,16 +164,17 @@ app.Use(async (context, next) =>
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
         var context = services.GetRequiredService<PharmionDbContext>();
         await context.Database.MigrateAsync();
         await DatabaseSeeder.SeedAllAsync(context);
-        Console.WriteLine("Database seeded successfully!");
+        logger.LogInformation("Database seeded successfully.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error seeding database: {ex.Message}");
+        logger.LogError(ex, "Error seeding database: {Message}", ex.Message);
     }
 }
 

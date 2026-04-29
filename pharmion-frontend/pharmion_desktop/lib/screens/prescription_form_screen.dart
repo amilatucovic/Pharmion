@@ -21,7 +21,6 @@ class PrescriptionFormScreen extends StatefulWidget {
 class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
   bool get _isEdit => widget.prescription != null;
 
-  // Form controllers
   final _doctorNameController = TextEditingController();
   final _facilityController = TextEditingController();
   final _notesController = TextEditingController();
@@ -29,13 +28,11 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
   DateTime? _validFrom;
   DateTime? _validTo;
 
-  // Patient search
   final _patientSearchController = TextEditingController();
   PatientModel? _selectedPatient;
   List<PatientModel> _patientSuggestions = [];
   bool _searchingPatients = false;
 
-  // Items
   final List<_PrescriptionItemForm> _items = [];
 
   bool _saving = false;
@@ -51,7 +48,6 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
       _notesController.text = p.notes ?? '';
       _validFrom = p.validFrom;
       _validTo = p.validTo;
-      // Preload items
       for (final item in p.items) {
         _items.add(
           _PrescriptionItemForm(
@@ -137,7 +133,6 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
   }
 
   Future<void> _save() async {
-    // Validacija
     if (!_isEdit && _selectedPatient == null) {
       setState(() => _error = 'Please select a patient.');
       return;
@@ -272,7 +267,6 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
       backgroundColor: AppColors.kBg,
       body: Column(
         children: [
-          // Top bar
           Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -400,14 +394,12 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Left column - General info
                       Expanded(
                         child: _SectionCard(
                           title: 'General Information',
                           icon: Icons.description_outlined,
                           child: Column(
                             children: [
-                              // Patient (samo za create)
                               if (!_isEdit) ...[
                                 _FormLabel(text: 'Patient *'),
                                 const SizedBox(height: 6),
@@ -483,7 +475,6 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                       ),
                       const SizedBox(width: 16),
 
-                      // Right column - Dates
                       SizedBox(
                         width: 280,
                         child: _SectionCard(
@@ -519,7 +510,6 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Items section
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -627,8 +617,6 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
   }
 }
 
-// ─── Item Form Model ──────────────────────────────────────────────────────────
-
 class _PrescriptionItemForm {
   int? productId;
   String? productName;
@@ -655,8 +643,6 @@ class _PrescriptionItemForm {
     repeatsController.dispose();
   }
 }
-
-// ─── Item Form Widget ─────────────────────────────────────────────────────────
 
 class _PrescriptionItemFormWidget extends StatefulWidget {
   final int index;
@@ -713,7 +699,6 @@ class _PrescriptionItemFormWidgetState
   }
 
   Future<List<Map<String, dynamic>>> _fetchProducts(String query) async {
-    // Koristimo ApiService direktno za products search
     try {
       final result = await _callProductsApi(query);
       return result;
@@ -723,7 +708,6 @@ class _PrescriptionItemFormWidgetState
   }
 
   Future<List<Map<String, dynamic>>> _callProductsApi(String query) async {
-    // Import ApiService i dohvati producte
     final data = await _ProductSearchHelper.search(query);
     return data;
   }
@@ -825,7 +809,6 @@ class _PrescriptionItemFormWidgetState
           ),
           const SizedBox(height: 12),
 
-          // Product search
           _FormLabel(text: 'Product *'),
           const SizedBox(height: 6),
           _ProductSearchField(

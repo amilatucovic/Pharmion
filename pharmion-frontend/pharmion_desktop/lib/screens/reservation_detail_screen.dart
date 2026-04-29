@@ -148,8 +148,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     }
   }
 
-  // ─── Dialogs ───────────────────────────────────────────────────────────────
-
   Future<bool> _showConfirmDialog({
     required String title,
     required String message,
@@ -285,15 +283,12 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     );
   }
 
-  // ─── Build ─────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.kBg,
       body: Column(
         children: [
-          // Top bar
           Container(
             height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -312,7 +307,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                   ),
                 ),
                 const SizedBox(width: 4),
-                // Breadcrumb
                 const Text(
                   'Reservations',
                   style: TextStyle(color: AppColors.kTextMid, fontSize: 14),
@@ -338,7 +332,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             ),
           ),
 
-          // Content
           Expanded(
             child: _loading
                 ? const Center(
@@ -380,15 +373,11 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
 
   Widget _buildContent() {
     final r = _reservation!;
-    debugPrint(
-      'isPaid: ${r.isPaid}, paymentMethod: ${r.paymentMethod}, state: ${r.reservationState}',
-    );
     return SingleChildScrollView(
       padding: const EdgeInsets.all(28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header info ──────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -420,7 +409,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                         label: 'Pharmacy',
                         value: r.pharmacyName,
                       ),
-                      // Nakon pharmacy info:
                       const SizedBox(height: 8),
                       _InfoRow(
                         icon: Icons.payment_outlined,
@@ -490,7 +478,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                   ),
                 ),
                 const SizedBox(width: 32),
-                // Financials
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -534,7 +521,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Patient info
               Expanded(
                 flex: 2,
                 child: _SectionCard(
@@ -581,7 +567,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               ),
               const SizedBox(width: 16),
 
-              // Items
               Expanded(
                 flex: 3,
                 child: _SectionCard(
@@ -589,7 +574,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                   icon: Icons.medication_outlined,
                   child: Column(
                     children: [
-                      // Items header
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
@@ -733,7 +717,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           ),
           const SizedBox(height: 20),
 
-          // ── Action buttons ────────────────────────────────────────────
           if (r.allowedActions.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(20),
@@ -779,7 +762,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 ],
               ),
             ),
-          // ── Refund ────────────────────────────────────────────────
           if (r.isPaid &&
               r.paymentMethod == 'Stripe' &&
               (r.reservationState == 'CancelledReservationState' ||
@@ -908,8 +890,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 }
 
-// ─── Helper Widgets ───────────────────────────────────────────────────────────
-
 class _SectionCard extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -1015,7 +995,7 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start, // ← dodaj
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 14, color: AppColors.kTextMid),
         const SizedBox(width: 8),
@@ -1024,7 +1004,6 @@ class _InfoRow extends StatelessWidget {
           style: const TextStyle(fontSize: 13, color: AppColors.kTextMid),
         ),
         Expanded(
-          // ← wrap u Expanded
           child: Text(
             value,
             style: TextStyle(
@@ -1087,7 +1066,7 @@ class _StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        status,
+        status.replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (match) => ' '),
         style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );

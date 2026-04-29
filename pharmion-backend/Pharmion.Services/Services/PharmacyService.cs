@@ -59,7 +59,7 @@ namespace Pharmion.Services.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (entity == null)
-                return null;
+                throw new NotFoundException("Pharmacy with the specified ID does not exist.");
 
             return MapToResponse(entity);
         }

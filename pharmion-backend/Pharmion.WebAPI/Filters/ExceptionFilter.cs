@@ -14,31 +14,45 @@ namespace Pharmion.WebAPI.Filters
         }
         public override void OnException(ExceptionContext context)
         {
-            _logger.LogError(context.Exception, context.Exception.Message);
+            _logger.LogError(context.Exception, "Unhandled exception: {Message}",
+                context.Exception.Message);
 
-            if (context.Exception is UserException)
+            if (context.Exception is EarlyDispenseRequiredException earlyEx)
             {
-                context.ModelState.AddModelError("userError", context.Exception.Message);
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                context.Result = new JsonResult(new
+                {
+                    requiresEarlyDispenseReason = true,
+                    message = earlyEx.Message,
+                    nextEligibleDate = earlyEx.NextEligibleDate,
+                    daysRemaining = earlyEx.DaysRemaining
+                });
+            }
+            else if (context.Exception is UserException userEx)
+            {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Result = new JsonResult(new { message = userEx.Message });
             }
             else if (context.Exception is UnauthorizedAccessException)
             {
-                context.ModelState.AddModelError("forbidden", context.Exception.Message);
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                context.Result = new JsonResult(new { message = "Access denied." });
+            }
+            else if (context.Exception is NotFoundException notFoundEx)
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Result = new JsonResult(new { message = notFoundEx.Message });
             }
             else
             {
-                context.ModelState.AddModelError("ERROR", "Server side error, please check logs");
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Result = new JsonResult(new
+                {
+                    message = "Server side error, please check logs."
+                });
             }
 
-            var list = context.ModelState.Where(x => x.Value.Errors.Count > 0)
-                .ToDictionary(x => x.Key, y => y.Value.Errors.Select(z => z.ErrorMessage));
-
-            context.Result = new JsonResult(new
-            {
-                errors = list
-            });
+            context.ExceptionHandled = true;
         }
     }
 }

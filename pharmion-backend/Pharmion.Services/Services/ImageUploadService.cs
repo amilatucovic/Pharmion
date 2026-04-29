@@ -15,7 +15,8 @@ namespace Pharmion.Services.Services
         public ImageUploadService(IWebHostEnvironment env, IConfiguration configuration, ILogger<ImageUploadService> logger)
         {
             _uploadPath = Path.Combine(env.WebRootPath, "images", "products");
-            _baseUrl = configuration["AppSettings:BaseUrl"] ?? "https://localhost:5081";
+            _baseUrl = configuration["AppSettings:BaseUrl"]
+               ?? throw new InvalidOperationException("AppSettings:BaseUrl not configured");
 
             if (!Directory.Exists(_uploadPath))
             {
@@ -29,9 +30,6 @@ namespace Pharmion.Services.Services
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Invalid file");
-
-            _logger.LogInformation("Upload: filename={Name}, contentType={CT}, size={Size}",
-            file.FileName, file.ContentType, file.Length);
 
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };

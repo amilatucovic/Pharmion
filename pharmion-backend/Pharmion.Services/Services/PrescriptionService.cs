@@ -58,7 +58,7 @@ namespace Pharmion.Services.Services
                     .ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            return p == null ? null : MapToResponse(p);
+            return p == null ? throw new NotFoundException($"Prescription with ID {id} does not exist") : MapToResponse(p);
         }
 
         protected override IQueryable<Prescription> ApplyFilter(

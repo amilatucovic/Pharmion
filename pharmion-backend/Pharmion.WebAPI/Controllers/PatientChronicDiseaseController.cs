@@ -1,28 +1,27 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Pharmion.Model.Exceptions;
 using Pharmion.Services.Interfaces;
-using System.Security.Claims;
 
 namespace Pharmion.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(Roles = "Patient")]
+    [Authorize(Roles = Roles.Patient)]
     public class PatientChronicDiseaseController : ControllerBase
     {
         private readonly IPatientChronicDiseaseService _service;
+        private readonly ICurrentUserService _currentUserService;
 
-        public PatientChronicDiseaseController(IPatientChronicDiseaseService service)
+        public PatientChronicDiseaseController(IPatientChronicDiseaseService service, ICurrentUserService currentUserService)
         {
             _service = service;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetMyDiseases()
         {
-            var patientId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var patientId = _currentUserService.GetUserId();
             var result = await _service.GetMyDiseasesAsync(patientId);
             return Ok(result);
         }
@@ -30,33 +29,21 @@ namespace Pharmion.WebAPI.Controllers
         [HttpPost("{chronicDiseaseId}")]
         public async Task<IActionResult> AddDisease(int chronicDiseaseId)
         {
-            try
-            {
-                var patientId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+                var patientId = _currentUserService.GetUserId();
                 await _service.AddDiseaseAsync(patientId, chronicDiseaseId);
                 return Ok(new { message = "Disease added successfully." });
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            
         }
 
         [HttpDelete("{chronicDiseaseId}")]
         public async Task<IActionResult> RemoveDisease(int chronicDiseaseId)
         {
-            try
-            {
-                var patientId = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+                var patientId = _currentUserService.GetUserId();
                 await _service.RemoveDiseaseAsync(patientId, chronicDiseaseId);
                 return Ok(new { message = "Disease removed successfully." });
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            
         }
     }
 }

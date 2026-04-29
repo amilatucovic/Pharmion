@@ -14,9 +14,7 @@ class PharmionApp extends StatelessWidget {
       title: 'Pharmion',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00BFA5), // ← tirkizna
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00BFA5)),
         useMaterial3: true,
       ),
       home: const LoginScreen(),

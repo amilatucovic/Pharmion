@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Pharmion.Model.Messages;
 
-using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env")); using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("PharmionSubscriber");
 
 var rabbitConnection = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTIONSTRING")
-    ?? "host=localhost;username=guest;password=guest";
+    ?? throw new InvalidOperationException("RABBITMQ_CONNECTIONSTRING not set");
 
 var bus = RabbitHutch.CreateBus(rabbitConnection);
 logger.LogInformation("Pharmion Subscriber started...");
@@ -106,11 +106,11 @@ static async Task ExecuteWithRetryAsync(Func<Task> action, ILogger logger,
 static async Task SendEmailAsync(string toEmail, string subject, string body, ILogger logger)
 {
     string fromMail = Environment.GetEnvironmentVariable("SMTP_USERNAME")
-        ?? "pharmion211@gmail.com";
+    ?? throw new InvalidOperationException("SMTP_USERNAME not set");
     string appPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD")
-        ?? "rfoz swcs ikiv vpxg";
+        ?? throw new InvalidOperationException("SMTP_PASSWORD not set");
     string smtpHost = Environment.GetEnvironmentVariable("SMTP_HOST")
-        ?? "smtp.gmail.com";
+        ?? throw new InvalidOperationException("SMTP_HOST not set");
     int smtpPort = int.Parse(
         Environment.GetEnvironmentVariable("SMTP_PORT") ?? "587");
 
