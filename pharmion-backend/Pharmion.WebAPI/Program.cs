@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Pharmion.WebAPI.Filters;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
+using Microsoft.AspNetCore.Mvc;
 
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 var builder = WebApplication.CreateBuilder(args);
@@ -104,6 +105,22 @@ builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDatabaseServices(connectionString);
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(x => x.Value?.Errors.Count > 0)
+            .SelectMany(kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage))
+            .ToList();
+
+        return new BadRequestObjectResult(new
+        {
+            message = "Validation error.",
+            errors
+        });
+    };
+});
 
 
 builder.Services.AddControllers(x =>

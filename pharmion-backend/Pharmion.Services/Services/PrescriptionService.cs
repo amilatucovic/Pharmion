@@ -49,6 +49,21 @@ namespace Pharmion.Services.Services
             };
         }
 
+        private static void ValidateValidityDates(PrescriptionUpsertRequest request)
+        {
+            var today = DateTime.UtcNow.Date;
+
+            if (request.ValidFrom.HasValue && request.ValidFrom.Value.Date < today)
+                throw new UserException("Datum 'Valid From' ne može biti u prošlosti.");
+
+            if (request.ValidTo.HasValue && request.ValidTo.Value.Date < today)
+                throw new UserException("Datum 'Valid To' ne može biti u prošlosti.");
+
+            if (request.ValidFrom.HasValue && request.ValidTo.HasValue &&
+                request.ValidTo.Value.Date < request.ValidFrom.Value.Date)
+                throw new UserException("'Valid To' ne može biti prije 'Valid From'.");
+        }
+
         public override async Task<PrescriptionResponse?> GetByIdAsync(int id)
         {
             var p = await _context.Prescriptions
@@ -82,6 +97,10 @@ namespace Pharmion.Services.Services
             if (search.IssuedTo.HasValue)
                 query = query.Where(p => p.IssuedAt <= search.IssuedTo.Value);
 
+            if (!string.IsNullOrEmpty(search.PatientName))
+                query = query.Where(p =>
+                    (p.Patient.FirstName + " " + p.Patient.LastName).Contains(search.PatientName));
+
             return query;
         }
 
@@ -93,6 +112,7 @@ namespace Pharmion.Services.Services
            
             entity.IssuedAt = DateTime.UtcNow;
             entity.Status = PrescriptionStatus.Active;
+            ValidateValidityDates(request);
 
             entity.Items = request.Items.Select(i => new PrescriptionItem
             {
@@ -115,6 +135,7 @@ namespace Pharmion.Services.Services
             
             var oldItems = _context.PrescriptionItems.Where(i => i.PrescriptionId == entity.Id);
             _context.PrescriptionItems.RemoveRange(oldItems);
+            ValidateValidityDates(request);
 
             entity.Items = request.Items.Select(i => new PrescriptionItem
             {

@@ -11,5 +11,6 @@ namespace Pharmion.Model.SearchObjects
         public PrescriptionStatus? Status { get; set; }
         public DateTime? IssuedFrom { get; set; }
         public DateTime? IssuedTo { get; set; }
+        public string? PatientName { get; set; }
     }
 }

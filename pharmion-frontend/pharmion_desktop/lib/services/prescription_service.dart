@@ -134,12 +134,15 @@ class PrescriptionService {
     int pageSize = 10,
     int? patientId,
     String? status,
+    String? patientName,
   }) async {
     final params =
         StringBuffer('Prescription?includeTotalCount=true&retrieveAll=false');
     params.write('&page=$page&pageSize=$pageSize');
     if (patientId != null) params.write('&patientId=$patientId');
     if (status != null && status.isNotEmpty) params.write('&status=$status');
+    if (patientName != null && patientName.isNotEmpty) 
+    params.write('&patientName=$patientName');
 
     final data =
         await ApiService.get(params.toString()) as Map<String, dynamic>;

@@ -112,8 +112,8 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       if (response.body.isNotEmpty) {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+        final decoded = jsonDecode(response.body);
+        throw Exception(_extractErrorMessage(decoded, response.statusCode));
       }
       throw Exception('Error: ${response.statusCode}');
     }
@@ -147,10 +147,10 @@ class ApiService {
       return null;
     } else {
       if (response.body.isEmpty) {
-       throw Exception('Error: ${response.statusCode}');
+        throw Exception('Error: ${response.statusCode}');
       }
-      final error = jsonDecode(response.body);
-      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+      final decoded = jsonDecode(response.body);
+      throw Exception(_extractErrorMessage(decoded, response.statusCode));
     }
   }
 
@@ -175,8 +175,8 @@ class ApiService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+      final decoded = jsonDecode(response.body);
+      throw Exception(_extractErrorMessage(decoded, response.statusCode));
     }
   }
 
@@ -198,8 +198,8 @@ class ApiService {
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       if (response.body.isNotEmpty) {
-        final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Error: ${response.statusCode}');
+        final decoded = jsonDecode(response.body);
+        throw Exception(_extractErrorMessage(decoded, response.statusCode));
       }
       throw Exception('Error: ${response.statusCode}');
     }
@@ -242,11 +242,38 @@ class ApiService {
     final response = await http.Response.fromStream(streamed);
     if (response.statusCode == 200) return jsonDecode(response.body);
     if (response.body.isNotEmpty) {
-      final error = jsonDecode(response.body);
-      throw Exception(
-        error['message'] ?? 'Upload failed: ${response.statusCode}',
-      );
+      final decoded = jsonDecode(response.body);
+      throw Exception(_extractErrorMessage(decoded, response.statusCode));
     }
     throw Exception('Upload failed: ${response.statusCode}');
+  }
+
+  static String _extractErrorMessage(dynamic decoded, int statusCode) {
+    if (decoded is Map<String, dynamic>) {
+      final errorsList = decoded['errors'];
+      if (errorsList is List && errorsList.isNotEmpty) {
+        return errorsList.join('\n');
+      }
+
+      final errorsMap = decoded['errors'];
+      if (errorsMap is Map) {
+        final messages = <String>[];
+        for (final entry in errorsMap.entries) {
+          final v = entry.value;
+          if (v is List) {
+            messages.addAll(v.map((x) => x.toString()));
+          } else if (v != null) {
+            messages.add(v.toString());
+          }
+        }
+        if (messages.isNotEmpty) return messages.join('\n');
+      }
+
+      if (decoded['message'] != null) return decoded['message'].toString();
+      if (decoded['title'] != null) return decoded['title'].toString();
+      if (decoded['detail'] != null) return decoded['detail'].toString();
+    }
+
+    return 'Error: $statusCode';
   }
 }

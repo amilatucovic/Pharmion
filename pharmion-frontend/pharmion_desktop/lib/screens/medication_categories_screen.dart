@@ -23,19 +23,41 @@ class MedicationCategoryModel {
     this.flatFee,
   });
 
-  factory MedicationCategoryModel.fromJson(Map<String, dynamic> json) =>
-      MedicationCategoryModel(
-        id: json['id'] as int,
-        code: json['code'] is int ? json['code'] as int : 0,
-        codeName: json['codeName'] as String? ?? '',
-        name: json['name'] as String? ?? '',
-        description: json['description'] as String? ?? '',
-        patientPaymentPercentage:
-            (json['patientPaymentPercentage'] as num?)?.toDouble() ?? 0,
-        insurancePaymentPercentage:
-            (json['insurancePaymentPercentage'] as num?)?.toDouble() ?? 0,
-        flatFee: (json['flatFee'] as num?)?.toDouble(),
-      );
+  factory MedicationCategoryModel.fromJson(Map<String, dynamic> json) {
+    int codeInt;
+    final codeVal = json['code'];
+
+    if (codeVal is int) {
+      codeInt = codeVal;
+    } else {
+      switch (codeVal?.toString()) {
+        case 'CategoryA':
+          codeInt = 1;
+          break;
+        case 'CategoryB':
+          codeInt = 2;
+          break;
+        case 'CategoryC':
+          codeInt = 3;
+          break;
+        default:
+          codeInt = 0;
+      }
+    }
+
+    return MedicationCategoryModel(
+      id: json['id'] as int,
+      code: codeInt,
+      codeName: json['codeName'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      patientPaymentPercentage:
+          (json['patientPaymentPercentage'] as num?)?.toDouble() ?? 0,
+      insurancePaymentPercentage:
+          (json['insurancePaymentPercentage'] as num?)?.toDouble() ?? 0,
+      flatFee: (json['flatFee'] as num?)?.toDouble(),
+    );
+  }
 }
 
 class MedicationCategoriesScreen extends StatefulWidget {
@@ -97,10 +119,14 @@ class _MedicationCategoriesScreenState
   int get _totalPages =>
       _totalCount == 0 ? 0 : (_totalCount / _pageSize).ceil();
 
-  void _openCreate() => showDialog(
-    context: context,
-    builder: (_) => _MedicationCategoryDialog(onSaved: _loadData),
-  );
+  void _openCreate() {
+    final usedCodes = _items.map((e) => e.code).toSet();
+    showDialog(
+      context: context,
+      builder: (_) =>
+          _MedicationCategoryDialog(onSaved: _loadData, usedCodes: usedCodes),
+    );
+  }
 
   void _openEdit(MedicationCategoryModel item) => showDialog(
     context: context,
@@ -185,6 +211,8 @@ class _MedicationCategoriesScreenState
 
   @override
   Widget build(BuildContext context) {
+    final usedCodes = _items.map((e) => e.code).toSet();
+    final canCreate = usedCodes.length < 3;
     return Padding(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -267,9 +295,10 @@ class _MedicationCategoriesScreenState
               SizedBox(
                 height: 44,
                 child: ElevatedButton.icon(
-                  onPressed: _openCreate,
+                  onPressed: canCreate ? _openCreate : null,
                   icon: const Icon(Icons.add, size: 16),
                   label: const Text('New Category'),
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.kTeal,
                     foregroundColor: Colors.white,
@@ -671,7 +700,13 @@ class _MedicationCategoryRowState extends State<_MedicationCategoryRow> {
 class _MedicationCategoryDialog extends StatefulWidget {
   final MedicationCategoryModel? item;
   final VoidCallback onSaved;
-  const _MedicationCategoryDialog({this.item, required this.onSaved});
+  final Set<int> usedCodes;
+
+  const _MedicationCategoryDialog({
+    this.item,
+    required this.onSaved,
+    this.usedCodes = const {},
+  });
 
   @override
   State<_MedicationCategoryDialog> createState() =>
@@ -686,6 +721,7 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
   final _patientCtrl = TextEditingController();
   final _insuranceCtrl = TextEditingController();
   final _flatFeeCtrl = TextEditingController();
+
   int _selectedCode = 1;
   bool _hasFlatFee = false;
   bool _saving = false;
@@ -710,6 +746,13 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
       if (item.flatFee != null) {
         _hasFlatFee = true;
         _flatFeeCtrl.text = item.flatFee.toString();
+      }
+    } else {
+      final availableCodes = _codes
+          .where((c) => !widget.usedCodes.contains(c.$1))
+          .toList();
+      if (availableCodes.isNotEmpty) {
+        _selectedCode = availableCodes.first.$1;
       }
     }
   }
@@ -818,6 +861,92 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final availableCodes = _codes
+        .where((c) => !widget.usedCodes.contains(c.$1))
+        .toList();
+    final noMoreCodes = !_isEdit && availableCodes.isEmpty;
+    if (noMoreCodes) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: SizedBox(
+          width: 480,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.kTealLight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.category_rounded,
+                        size: 18,
+                        color: AppColors.kTeal,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'New Medication Category',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.kTextDark,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 18,
+                        color: AppColors.kTextMid,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFFCD34D)),
+                  ),
+                  child: const Text(
+                    'All category codes (A, B, C) already exist. Please edit an existing category.',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF92400E)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.kTeal,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SizedBox(
@@ -905,7 +1034,7 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
                   DropdownButtonFormField<int>(
                     value: _selectedCode,
                     decoration: _inputDeco(hint: ''),
-                    items: _codes
+                    items: availableCodes
                         .map(
                           (c) => DropdownMenuItem(
                             value: c.$1,

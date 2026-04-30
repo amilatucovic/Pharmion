@@ -158,7 +158,9 @@ class ProductService {
       'Product?includeTotalCount=true&retrieveAll=false',
     );
     params.write('&page=$page&pageSize=$pageSize');
-    if (name != null && name.isNotEmpty) params.write('&name=$name');
+    if (name != null && name.isNotEmpty) {
+      params.write('&fts=${Uri.encodeQueryComponent(name)}');
+    }
     if (type != null) params.write('&type=$type');
     if (isActive != null) params.write('&isActive=$isActive');
     if (isPrescriptionRequired != null) {

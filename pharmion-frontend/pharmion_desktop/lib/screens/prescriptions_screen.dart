@@ -40,6 +40,9 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
         page: _currentPage,
         pageSize: _pageSize,
         status: _selectedStatus,
+        patientName: _searchController.text.trim().isEmpty
+            ? null
+            : _searchController.text.trim(),
       );
       if (mounted) {
         setState(() {
@@ -87,8 +90,12 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen> {
                   height: 44,
                   child: TextField(
                     controller: _searchController,
+                    onSubmitted: (_) {
+                      setState(() => _currentPage = 0);
+                      _loadData();
+                    },
                     decoration: InputDecoration(
-                      hintText: 'Search by patient or doctor...',
+                      hintText: 'Search by patient...',
                       hintStyle: const TextStyle(
                         color: AppColors.kTextMid,
                         fontSize: 13,

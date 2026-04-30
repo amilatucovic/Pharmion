@@ -487,8 +487,15 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                               _DatePickerButton(
                                 date: _validFrom,
                                 hint: 'Select date',
-                                onPick: (date) =>
-                                    setState(() => _validFrom = date),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2030),
+                                onPick: (d) => setState(() {
+                                  _validFrom = d;
+                                  if (_validTo != null &&
+                                      _validTo!.isBefore(_validFrom!)) {
+                                    _validTo = null;
+                                  }
+                                }),
                                 onClear: () =>
                                     setState(() => _validFrom = null),
                               ),
@@ -498,8 +505,9 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                               _DatePickerButton(
                                 date: _validTo,
                                 hint: 'Select date',
-                                onPick: (date) =>
-                                    setState(() => _validTo = date),
+                                firstDate: _validFrom ?? DateTime.now(),
+                                lastDate: DateTime(2030),
+                                onPick: (d) => setState(() => _validTo = d),
                                 onClear: () => setState(() => _validTo = null),
                               ),
                             ],
@@ -1080,12 +1088,16 @@ class _StyledTextField extends StatelessWidget {
 class _DatePickerButton extends StatelessWidget {
   final DateTime? date;
   final String hint;
+  final DateTime firstDate;
+  final DateTime lastDate;
   final ValueChanged<DateTime> onPick;
   final VoidCallback onClear;
 
   const _DatePickerButton({
     required this.date,
     required this.hint,
+    required this.firstDate,
+    required this.lastDate,
     required this.onPick,
     required this.onClear,
   });
@@ -1100,8 +1112,8 @@ class _DatePickerButton extends StatelessWidget {
           final picked = await showDatePicker(
             context: context,
             initialDate: date ?? DateTime.now(),
-            firstDate: DateTime(2020),
-            lastDate: DateTime(2030),
+            firstDate: firstDate,
+            lastDate: lastDate,
             builder: (context, child) => Theme(
               data: ThemeData.light().copyWith(
                 colorScheme: const ColorScheme.light(primary: AppColors.kTeal),
@@ -1224,8 +1236,8 @@ class _PatientSearchField extends StatelessWidget {
       children: [
         TextField(
           controller: controller,
-          enabled: selectedPatient == null,
-          onChanged: onSearch,
+          readOnly: selectedPatient != null,
+          onChanged: selectedPatient == null ? onSearch : null,
           style: const TextStyle(fontSize: 13, color: AppColors.kTextDark),
           decoration: InputDecoration(
             hintText: 'Search patient by name...',
