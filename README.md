@@ -34,7 +34,7 @@ Pharmion is a comprehensive digital platform for pharmacy management, designed t
 
 Unpack `.env-tajne.zip` (password provided on DL system) and place the `.env` file in the `pharmion-backend` folder.
 
-> ⚠️ **Important — Stripe Webhook:**
+> ⚠️ **Important - Stripe Webhook:**
 > Every time you start the Stripe CLI, a new webhook secret is generated.
 > You must update `Stripe__WebhookSecret` in `.env` and rebuild the API container.
 > See [Stripe Webhook Setup](#stripe-webhook-setup) section below.
@@ -159,7 +159,7 @@ Password: guest
 - Inventory tracking and stock management
 - Patient management with chronic disease tracking
 - Reservation management with state machine (Draft → Submitted → Approved → Ready → Picked Up)
-- Early dispense exception management — pharmacist reviews and approves/rejects patient requests for early medication refills
+- Early dispense exception management - pharmacist reviews and approves/rejects patient requests for early medication refills
 - Product management
 - Pharmacists management
 - Pharmacy and city management
@@ -169,7 +169,7 @@ Password: guest
 ### Mobile (Patient)
 - Browse and search products with recommendations
 - Create and track reservations
-- Early dispense exception requests — if therapy is still active, patient can submit a justified request for early refill
+- Early dispense exception requests - if therapy is still active, patient can submit a justified request for early refill
 - View prescriptions and therapies
 - Profile management
 - Payment processing via Stripe
