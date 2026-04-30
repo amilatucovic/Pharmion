@@ -1,4 +1,4 @@
-# Pharmion — Pharmacy Management System
+# Pharmion - Pharmacy Management System
 
 Pharmion is a comprehensive digital platform for pharmacy management, designed to modernize and centralize pharmacy operations including prescription management, inventory tracking, patient management, and medication reservations.
 
@@ -13,13 +13,13 @@ Pharmion is a comprehensive digital platform for pharmacy management, designed t
 | Patient | Mobile App (Flutter) | Browse products, create reservations, manage profile |
 
 ### Key Infrastructure
-- **Backend API** — .NET (C#) with REST architecture
-- **Database** — Microsoft SQL Server 2022
-- **Messaging** — RabbitMQ for async notifications (email on reservation events)
-- **Recommendation Engine** — ML.NET collaborative filtering + popularity-based fallback
-- **Containerization** — Docker + Docker Compose
-- **Auth** — JWT Token-based with refresh token support
-- **Payments** — Stripe (sandbox)
+- **Backend API** - .NET (C#) with REST architecture
+- **Database** - Microsoft SQL Server 2022
+- **Messaging** - RabbitMQ for async notifications (email on reservation events)
+- **Recommendation Engine** - ML.NET collaborative filtering + popularity-based fallback
+- **Containerization** - Docker + Docker Compose
+- **Auth** - JWT Token-based with refresh token support
+- **Payments** - Stripe (sandbox)
 
 ---
 
@@ -27,8 +27,8 @@ Pharmion is a comprehensive digital platform for pharmacy management, designed t
 
 ### Prerequisites
 - Docker Desktop
-- Android Emulator (AVD) — for mobile app testing
-- Stripe CLI — for webhook testing
+- Android Emulator (AVD) - for mobile app testing
+- Stripe CLI - for webhook testing
 
 ### 1. Prepare Backend
 
@@ -183,10 +183,10 @@ Password: guest
 See [recommender-dokumentacija.md](./recommender-dokumentacija.md) for full documentation.
 
 **Approach:**
-- **Collaborative filtering** (Matrix Factorization via ML.NET) — recommends supplements 
+- **Collaborative filtering** (Matrix Factorization via ML.NET) - recommends supplements 
   based on co-reservation patterns among patients. If patients with similar histories 
   reserved supplement A and B together, a new patient who reserved A will get B recommended.
-- **Popularity-based fallback** — when a patient has no reservation history, 
+- **Popularity-based fallback** - when a patient has no reservation history, 
   the most frequently reserved supplements across all patients are suggested.
 
 Recommendations include an explanation shown to the user.
