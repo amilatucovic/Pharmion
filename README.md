@@ -159,18 +159,20 @@ Password: guest
 - Inventory tracking and stock management
 - Patient management with chronic disease tracking
 - Reservation management with state machine (Draft → Submitted → Approved → Ready → Picked Up)
+- Early dispense exception management — pharmacist reviews and approves/rejects patient requests for early medication refills
 - Product management
 - Pharmacists management
 - Pharmacy and city management
 - Reports in PDF format
-- Payment processing via Stripe
 - Polling notifications for reservation updates
 
 ### Mobile (Patient)
 - Browse and search products with recommendations
 - Create and track reservations
+- Early dispense exception requests — if therapy is still active, patient can submit a justified request for early refill
 - View prescriptions and therapies
 - Profile management
+- Payment processing via Stripe
 - Polling notifications for reservation updates
 - Discovering pharmacies in your city
 
