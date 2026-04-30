@@ -45,8 +45,8 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
 
             AddNotification(
                              entity.PatientId,
-                             "Rezervacija spremna za preuzimanje",
-                             $"Vaša rezervacija RES-{entity.Id} je spremna. Preuzmite je do {entity.PickupDeadline:dd.MM.yyyy HH:mm}.",
+                             "Reservation ready for pickup",
+                             $"Your reservation RES-{entity.Id} is ready for pickup. Please pick it up by {entity.PickupDeadline:dd.MM.yyyy HH:mm}.",
                              NotificationTemplate.ReservationReadyForPickup, entity.Id);
 
             await _context.SaveChangesAsync();
@@ -76,8 +76,8 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             {
                 var pharmacistName = $"{pharmacist.FirstName} {pharmacist.LastName}";
                 AddNotification(entity.PatientId,
-                    "Rezervacija otkazana od strane farmaceuta",
-                    $"Farmaceut {pharmacistName} je otkazao Vašu rezervaciju RES-{entity.Id}. Razlog: {reason}",
+                    "Reservation cancelled by pharmacist",
+                    $"Pharmacist {pharmacistName} has cancelled your reservation RES-{entity.Id}. Reason: {reason}",
                     NotificationTemplate.ReservationCancelledByPharmacist, entity.Id);
             }
             else
@@ -88,8 +88,8 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
                 foreach (var ph in pharmacists)
                 {
                     AddNotification(ph.Id,
-                        "Rezervacija otkazana",
-                        $"{patientName} je otkazao/la rezervaciju RES-{entity.Id}.",
+                        "Reservation cancelled",
+                        $"{patientName} has cancelled reservation RES-{entity.Id}.",
                         NotificationTemplate.ReservationCancelled, entity.Id);
                 }
             }

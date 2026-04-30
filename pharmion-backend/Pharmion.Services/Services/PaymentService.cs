@@ -75,8 +75,8 @@ namespace Pharmion.Services.Services
                     _context.Notifications.Add(new Notification
                     {
                         UserId = ph.Id,
-                        Title = "Pacijent odabrao metodu plaćanja",
-                        Message = $"{patientNamePop} je odabrao/la Pay on Pickup za rezervaciju RES-{reservation.Id}.",
+                        Title = "Patient has selected payment method",
+                        Message = $"{patientNamePop} has selected Pay on Pickup for reservation RES-{reservation.Id}.",
                         Template = NotificationTemplate.PaymentSelected,
                         Type = NotificationType.InApp,
                         IsRead = false,
@@ -134,8 +134,8 @@ namespace Pharmion.Services.Services
                 _context.Notifications.Add(new Notification
                 {
                     UserId = ph.Id,
-                    Title = "Pacijent odabrao metodu plaćanja",
-                    Message = $"{patientName} je odabrao/la {methodName} za rezervaciju RES-{reservation.Id}.",
+                    Title = "Patient has selected payment method",
+                    Message = $"{patientName} has selected {methodName} for reservation RES-{reservation.Id}.",
                     Template = NotificationTemplate.PaymentSelected,
                     Type = NotificationType.InApp,
                     IsRead = false,

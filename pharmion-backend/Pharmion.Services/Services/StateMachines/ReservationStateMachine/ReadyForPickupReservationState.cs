@@ -92,9 +92,9 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             {
                 var pharmacistName = $"{pharmacist.FirstName} {pharmacist.LastName}";
                 AddNotification(entity.PatientId,
-                    "Rezervacija otkazana od strane farmaceuta",
-                    $"Farmaceut {pharmacistName} je otkazao Vašu rezervaciju RES-{entity.Id}. Razlog: {reason}",
-                    NotificationTemplate.ReservationCancelledByPharmacist, entity.Id);
+                    "Reservation cancelled by pharmacist",
+                    $"Pharmacist {pharmacistName} has cancelled your reservation RES-{entity.Id}. Reason: {reason}",
+                NotificationTemplate.ReservationCancelledByPharmacist, entity.Id);
             }
             
 

@@ -18,7 +18,7 @@ namespace Pharmion.Services.Database.Seed
             var analgesics = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "N02");
             var antiInflammatory = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "M01");
             var bronchodilators = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "R03");
-            var calciumChannelBlockers = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "CCB");
+            var calciumChannelBlockers = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "C08");
             var antidiabetics = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "A10");
 
             var amlodipin = await context.Products.FirstOrDefaultAsync(p => p.Name.Contains("Amlodipin"));

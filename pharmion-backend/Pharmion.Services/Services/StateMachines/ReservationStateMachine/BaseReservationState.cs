@@ -196,20 +196,19 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             
         }
 
-        protected void AddNotification(int userId, string title, string message,
-    NotificationTemplate template, int? reservationId = null)
+        protected void AddNotification(int userId, string title, string message, NotificationTemplate template, int? reservationId = null)
         {
-            _context.Notifications.Add(new Notification
-            {
-                UserId = userId,
-                Title = title,
-                Message = message,
-                Template = template,
-                Type = NotificationType.InApp,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow,
-                ReservationId = reservationId
-            });
+              _context.Notifications.Add(new Notification
+              {
+                   UserId = userId,
+                   Title = title,
+                   Message = message,
+                   Template = template,
+                   Type = NotificationType.InApp,
+                   IsRead = false,
+                   CreatedAt = DateTime.UtcNow,
+                   ReservationId = reservationId
+              });
         }
     }
 }

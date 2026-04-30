@@ -60,8 +60,8 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             foreach (var pharmacist in pharmacists)
             {
                 AddNotification(pharmacist.Id,
-                "Nova rezervacija",
-                $"{patientName} je kreirao/la rezervaciju RES-{entity.Id}.",
+                "New reservation is submitted",
+                $"{patientName} has created reservation RES-{entity.Id}.",
                 NotificationTemplate.NewReservationForPharmacist,
                 entity.Id);
             }

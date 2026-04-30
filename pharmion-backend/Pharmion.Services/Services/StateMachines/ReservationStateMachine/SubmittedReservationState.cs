@@ -38,8 +38,8 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             AddNotification(
                 entity.PatientId,
-                "Rezervacija odobrena",
-                $"Vaša rezervacija RES-{entity.Id} je odobrena. Odaberite metodu plaćanja.",
+                "Reservation approved",
+                $"Your reservation RES-{entity.Id} is approved. Please select payment method.",
                 NotificationTemplate.ReservationApproved,
                 entity.Id);
 
@@ -66,8 +66,8 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
 
             AddNotification(
                 entity.PatientId,
-                "Rezervacija odbijena",
-                $"Vaša rezervacija RES-{entity.Id} je odbijena. Razlog: {reason}",
+                "Reservation rejected",
+                $"Your reservation RES-{entity.Id} is rejected. Reason: {reason}",
                 NotificationTemplate.ReservationRejected,
                 entity.Id);
 
@@ -92,8 +92,8 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             {
                 var pharmacistName = $"{pharmacist.FirstName} {pharmacist.LastName}";
                 AddNotification(entity.PatientId,
-                    "Rezervacija otkazana",
-                    $"Farmaceut {pharmacistName} je otkazao Vašu rezervaciju RES-{entity.Id}. Razlog: {reason}",
+                    "Reservation cancelled",
+                    $"Pharmacist {pharmacistName} has cancelled your reservation RES-{entity.Id}. Reason: {reason}",
                     NotificationTemplate.ReservationCancelledByPharmacist, entity.Id);
             }
             else
@@ -104,8 +104,8 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 foreach (var ph in pharmacists)
                 {
                     AddNotification(ph.Id,
-                        "Rezervacija otkazana",
-                        $"{patientName} je otkazao/la rezervaciju RES-{entity.Id}.",
+                        "Reservation cancelled",
+                        $"{patientName} has cancelled reservation RES-{entity.Id}.",
                         NotificationTemplate.ReservationCancelled, entity.Id);
                 }
             }

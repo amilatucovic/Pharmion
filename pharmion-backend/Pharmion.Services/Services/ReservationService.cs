@@ -152,7 +152,7 @@ namespace Pharmion.Services.Services
                     PatientEmail = result.PatientEmail,
                     PatientName = result.PatientName,
                     PharmacyName = result.PharmacyName,
-                    CreatedAt = result.CreatedAt
+                    CreatedAt = result.SubmittedAt ?? DateTime.UtcNow
                 }, "reservation.submitted");
             }
             catch (Exception ex)
