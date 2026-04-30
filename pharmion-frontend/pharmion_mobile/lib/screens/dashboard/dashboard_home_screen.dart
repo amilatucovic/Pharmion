@@ -144,14 +144,14 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                           label: 'New Reservation',
                           color: AppColors.kTeal,
                           bg: AppColors.kTealLight,
-                          onTap: () => context.go('/reservations'),
+                          onTap: () => context.push('/reservations'),
                         ),
                         _QuickAction(
                           icon: Icons.description_outlined,
                           label: 'My Prescriptions',
                           color: const Color(0xFF6366F1),
                           bg: const Color(0xFFEDE9FE),
-                          onTap: () => context.go('/prescriptions'),
+                          onTap: () => context.push('/prescriptions'),
                         ),
                         _QuickAction(
                           icon: Icons.assignment_outlined,
@@ -390,7 +390,7 @@ class _PrescriptionCard extends StatelessWidget {
     }
 
     return GestureDetector(
-        onTap: () => context.go(
+        onTap: () => context.push(
               '/prescriptions/${prescription.id}',
               extra: prescription,
             ),
@@ -522,7 +522,9 @@ class _ReservationCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: () => context.push('/reservations/${reservation.id}', extra: reservation),
+          child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -589,6 +591,7 @@ class _ReservationCard extends StatelessWidget {
             ),
           ),
         ]),
+          ),
       );
 }
 
@@ -599,7 +602,7 @@ class _PharmacyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: () => context.go('/pharmacy', extra: pharmacy),
+        onTap: () => context.push('/pharmacy', extra: pharmacy),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(16),

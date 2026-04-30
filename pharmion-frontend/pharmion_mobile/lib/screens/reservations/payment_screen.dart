@@ -17,7 +17,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool _loading = false;
   bool _isPaid = false;
   String? _error;
-  int _selectedMethod = 1; 
+  int _selectedMethod = 1;
+  Map<String, dynamic>? _payment;
+  bool _loadingPayment = false;
 
   String _fmtAmount(double amount) => '${amount.toStringAsFixed(2)} KM';
 
@@ -73,9 +75,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
               'Payment/by-reservation/${widget.reservation.id}')
           as Map<String, dynamic>;
       final isPaid = paymentData['isPaid'] as bool? ?? false;
-      if (mounted) setState(() => _isPaid = isPaid);
-    } catch (_) {
-      if (mounted) setState(() => _isPaid = true);
+
+      if (mounted) {
+        if (isPaid) {
+          setState(() => _isPaid = true);
+        } else {
+          setState(() => _error =
+              'Payment is processing. Please wait a moment and try again.');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error =
+            'Payment completed in Stripe, but confirmation failed. Please wait a moment and try again.');
+      }
     }
   }
 
@@ -88,8 +101,45 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadPaymentStatus();
+  }
+
+  Future<void> _loadPaymentStatus() async {
+    setState(() => _loadingPayment = true);
+    try {
+      final data = await ApiService.get(
+        'Payment/by-reservation/${widget.reservation.id}',
+      ) as Map<String, dynamic>;
+
+      final isPaid = data['isPaid'] as bool? ?? false;
+
+      if (mounted) {
+        setState(() {
+          _payment = data;
+          _isPaid = isPaid;
+        });
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loadingPayment = false);
+    }
+  }
+
   Widget build(BuildContext context) {
     final r = widget.reservation;
+    int? _paymentStatusValue() {
+      final s = _payment?['status'];
+      if (s == null) return null;
+
+      if (s is int) return s;
+      return int.tryParse(s.toString());
+    }
+
+    final status = _paymentStatusValue();
+    final paymentIsPaid = _payment?['isPaid'] as bool? ?? false;
+    final hasPendingPayment = !paymentIsPaid && status == 1;
 
     if (_isPaid) {
       return Scaffold(
@@ -187,23 +237,29 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ],
         ),
         child: ElevatedButton.icon(
-          onPressed: _loading ? null : _pay,
-          icon: _loading
+          onPressed: (_loading || _loadingPayment || hasPendingPayment) ? null : _pay,
+          icon: (_loading || _loadingPayment)
               ? const SizedBox(
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white))
+                      strokeWidth: 2, color: Colors.white),
+                )
               : Icon(
                   _selectedMethod == 1
                       ? Icons.lock_outlined
                       : Icons.store_outlined,
-                  size: 18),
-          label: Text(_loading
-              ? 'Processing...'
-              : _selectedMethod == 1
-                  ? 'Pay ${_fmtAmount(r.patientPaysAmount)}'
-                  : 'Confirm Pay on Pickup'),
+                  size: 18,
+                ),
+          label: Text(
+            _loading || _loadingPayment
+                ? 'Processing...'
+                : hasPendingPayment
+                    ? 'Payment is pending...'
+                    : _selectedMethod == 1
+                        ? 'Pay ${_fmtAmount(r.patientPaysAmount)}'
+                        : 'Confirm Pay on Pickup',
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -302,7 +358,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
             const Text('Payment Method',
                 style: TextStyle(
                     fontSize: 15,
@@ -324,7 +379,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               subtitle: 'Pay in cash or card at the pharmacy',
               onTap: () => setState(() => _selectedMethod = 2),
             ),
-
             if (_error != null) ...[
               const SizedBox(height: 16),
               Container(

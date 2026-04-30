@@ -49,8 +49,28 @@ namespace Pharmion.Services.Services
             {
                 if (existing.Status == PaymentStatus.Completed)
                     throw new UserException("This reservation is already paid");
-               
-                return MapToResponse(existing);
+
+                var resp = MapToResponse(existing);
+
+                if (existing.Method == Model.Enums.PaymentMethod.Stripe &&
+                    !string.IsNullOrWhiteSpace(existing.StripePaymentIntentId))
+                {
+                    var intentService = new PaymentIntentService();
+                    var intent2 = await intentService.GetAsync(existing.StripePaymentIntentId);
+
+                    resp.ClientSecret = intent2.ClientSecret;
+
+                    
+                    if (intent2.Status == "succeeded")
+                    {
+                        existing.Status = PaymentStatus.Completed;
+                        existing.PaidAt = DateTime.UtcNow;
+                        await _context.SaveChangesAsync();
+                        resp = MapToResponse(existing);
+                    }
+                }
+
+                return resp;
             }
 
             if (request.Method == Model.Enums.PaymentMethod.PayOnPickup)
@@ -182,13 +202,14 @@ namespace Pharmion.Services.Services
 
                 payment.Status = PaymentStatus.Completed;
                 payment.PaidAt = DateTime.UtcNow;
+                
 
-               
+
                 var reservation = await _context.Reservations
                     .FirstOrDefaultAsync(r => r.Id == payment.ReservationId)
                     ?? throw new UserException("Reservation not found");
 
-               
+                
 
                 await _context.SaveChangesAsync();
                 return MapToResponse(payment);
