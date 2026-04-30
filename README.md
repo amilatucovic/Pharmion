@@ -58,11 +58,7 @@ Verify API is running: [http://localhost:5081/swagger](http://localhost:5081/swa
 
 ### 2. Desktop Application (Windows)
 
-In the extracted ZIP, navigate to:
-```
-pharmion_desktop/build/windows/x64/runner/Release/
-```
-Run `pharmion_desktop.exe`
+Download `fit-build-2026-04-30.zip` from [GitHub Releases](https://github.com/amilatucovic/Pharmion/releases/tag/predaja-2026-04-30) and extract it. Navigate to the `Release/` folder and run `pharmion_desktop.exe`.
 
 **API Base URL:** `http://localhost:5081`
 
@@ -70,13 +66,10 @@ Run `pharmion_desktop.exe`
 
 ### 3. Mobile Application (Android)
 
-Find the APK file:
-```
-pharmion_mobile/build/app/outputs/flutter-apk/app-release.apk
-```
+Download `fit-build-2026-04-30.zip` from [GitHub Releases](https://github.com/amilatucovic/Pharmion/releases/tag/predaja-2026-04-30) and extract it. Find `app-release.apk` in the extracted folder.
 
 - Open Android Emulator (AVD)
-- Drag & drop the APK into the emulator to install
+- Drag & drop `app-release.apk` into the emulator to install
 - Launch the app
 
 **API Base URL:** `http://10.0.2.2:5081`
@@ -192,24 +185,3 @@ See [recommender-dokumentacija.md](./recommender-dokumentacija.md) for full docu
 Recommendations include an explanation shown to the user.
 
 ---
-
-## Running from Source
-
-### Backend
-```bash
-cd pharmion-backend
-# Add .env file (unpack from .env-tajne.zip)
-docker compose up --build
-```
-
-### Desktop
-```bash
-cd pharmion-frontend/pharmion_desktop
-flutter run -d windows --dart-define=API_URL=http://localhost:5081
-```
-
-### Mobile
-```bash
-cd pharmion-frontend/pharmion_mobile
-flutter run -d emulator-5554 --dart-define=API_URL=http://10.0.2.2:5081
-```
