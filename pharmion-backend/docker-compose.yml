@@ -1,0 +1,89 @@
+version: '3'
+services:
+  pharmion-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      TZ: "Europe/Sarajevo"
+    ports:
+      - "1433:1433"
+    networks:
+      - pharmion-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - pharmion-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  pharmion-api:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    image: pharmion.api:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5081:5081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TZ=Europe/Sarajevo
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION}
+      - AppSettings__BaseUrl=http://localhost:5081
+      - JwtSettings__Secret=${JwtSettings__Secret}
+      - JwtSettings__Issuer=${JwtSettings__Issuer}
+      - JwtSettings__Audience=${JwtSettings__Audience}
+      - JwtSettings__AccessTokenExpiryInMinutes=${JwtSettings__AccessTokenExpiryInMinutes}
+      - JwtSettings__RefreshTokenExpiryInDays=${JwtSettings__RefreshTokenExpiryInDays}
+      - RABBITMQ_CONNECTIONSTRING=host=rabbitmq;username=guest;password=guest
+      - Stripe__SecretKey=${Stripe__SecretKey}
+      - Stripe__PublishableKey=${Stripe__PublishableKey}
+      - Stripe__WebhookSecret=${Stripe__WebhookSecret}
+    depends_on:
+      pharmion-sql:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pharmion-network
+
+  pharmion-subscriber:
+    image: pharmion.subscriber:1.0.0
+    build:
+      context: .
+      dockerfile: Pharmion.Subscriber/Dockerfile
+    environment:
+      - TZ=Europe/Sarajevo
+      - RABBITMQ_CONNECTIONSTRING=host=rabbitmq;username=guest;password=guest
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+    networks:
+      - pharmion-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    command: sh -c "sleep 30 && dotnet Pharmion.Subscriber.dll"
+
+networks:
+  pharmion-network:
+    driver: bridge
