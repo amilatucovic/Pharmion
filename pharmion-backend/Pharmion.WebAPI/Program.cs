@@ -89,6 +89,7 @@ builder.Services.AddScoped<IPatientChronicDiseaseService, PatientChronicDiseaseS
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddScoped<InitialReservationState>();
 builder.Services.AddScoped<DraftReservationState>();
@@ -185,8 +186,9 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<PharmionDbContext>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         await context.Database.MigrateAsync();
-        await DatabaseSeeder.SeedAllAsync(context);
+        await DatabaseSeeder.SeedAllAsync(context, passwordHasher);
         logger.LogInformation("Database seeded successfully.");
     }
     catch (Exception ex)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Services.Database.Entities;
+using Pharmion.Services.Interfaces;
 using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
 using Pharmion.Services.StateMachines.ReservationStateMachine;
 

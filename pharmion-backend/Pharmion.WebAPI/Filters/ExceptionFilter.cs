@@ -43,6 +43,11 @@ namespace Pharmion.WebAPI.Filters
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 context.Result = new JsonResult(new { message = notFoundEx.Message });
             }
+            else if (context.Exception is ForbiddenException forbiddenEx)
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                context.Result = new JsonResult(new { message = forbiddenEx.Message });
+            }
             else
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

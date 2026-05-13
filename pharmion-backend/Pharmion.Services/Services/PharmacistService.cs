@@ -15,10 +15,12 @@ namespace Pharmion.Services.Services
     public class PharmacistService : IPharmacistService
     {
         private readonly PharmionDbContext _context;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public PharmacistService(PharmionDbContext context)
+        public PharmacistService(PharmionDbContext context, IPasswordHasher passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<PagedResult<PharmacistResponse>> GetAsync(PharmacistSearchObject search)
@@ -93,7 +95,7 @@ namespace Pharmion.Services.Services
             if (!pharmacyExists)
                 throw new UserException("Pharmacy not found.");
 
-            var (passwordHash, passwordSalt) = CreatePasswordHash(request.Password);
+            var (passwordHash, passwordSalt) = _passwordHasher.CreatePasswordHash(request.Password);
 
             var pharmacist = new Pharmacist
             {
@@ -199,21 +201,32 @@ namespace Pharmion.Services.Services
             LastLoginAt = p.LastLoginAt
         };
 
-        private static (string hash, string salt) CreatePasswordHash(string password)
+        
+        public async Task<PharmacistResponse?> SelfUpdateAsync(int id, PharmacistSelfUpdateRequest request)
         {
-            byte[] saltBytes = new byte[16];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(saltBytes);
-            }
-            string salt = Convert.ToBase64String(saltBytes);
+            var pharmacist = await _context.Pharmacists.FindAsync(id);
+            if (pharmacist == null) return null;
 
-            using (var hmac = new HMACSHA512(saltBytes))
-            {
-                byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string hash = Convert.ToBase64String(hashBytes);
-                return (hash, salt);
-            }
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email && u.Id != id))
+                throw new UserException("Email already in use by another user.");
+
+            if (await _context.Pharmacists.AnyAsync(p => p.LicenseNumber == request.LicenseNumber && p.Id != id))
+                throw new UserException("License number already in use.");
+
+            pharmacist.FirstName = request.FirstName;
+            pharmacist.LastName = request.LastName;
+            pharmacist.Email = request.Email;
+            pharmacist.LicenseNumber = request.LicenseNumber;
+            pharmacist.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            var updated = await _context.Pharmacists
+                .Include(p => p.Pharmacy)
+                    .ThenInclude(ph => ph.City)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            return MapToResponse(updated!);
         }
     }
 }

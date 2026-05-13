@@ -19,11 +19,13 @@ namespace Pharmion.Services.Services
     {
         private readonly PharmionDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public AuthService(PharmionDbContext context, IConfiguration configuration)
+        public AuthService(PharmionDbContext context, IConfiguration configuration, IPasswordHasher passwordHasher)
         {
             _context = context;
             _configuration = configuration;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request, string ipAddress)
@@ -36,7 +38,7 @@ namespace Pharmion.Services.Services
                 throw new UserException("Invalid username or password");
 
             
-            if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            if (!_passwordHasher.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
                 throw new UserException("Invalid username or password");
 
             user.LastLoginAt = DateTime.UtcNow;
@@ -110,7 +112,7 @@ namespace Pharmion.Services.Services
             if (!cityExists)
                 throw new UserException("Invalid city");
 
-            var (passwordHash, passwordSalt) = CreatePasswordHash(request.Password);
+            var (passwordHash, passwordSalt) = _passwordHasher.CreatePasswordHash(request.Password);
             var patient = new Patient
             {
                 FirstName = request.FirstName,
@@ -149,10 +151,10 @@ namespace Pharmion.Services.Services
             if (user == null)
                 throw new UserException("User not found");
 
-            if (!VerifyPasswordHash(oldPassword, user.PasswordHash, user.PasswordSalt))
+            if (!_passwordHasher.VerifyPasswordHash(oldPassword, user.PasswordHash, user.PasswordSalt))
                 throw new UserException("Current password is incorrect");
 
-            var (passwordHash, passwordSalt) = CreatePasswordHash(newPassword);
+            var (passwordHash, passwordSalt) = _passwordHasher.CreatePasswordHash(newPassword);
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -186,13 +188,15 @@ namespace Pharmion.Services.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             bool isAdmin = false;
+            int? pharmacyId = null;
             if (user.Role == Role.Pharmacist)
             {
                 var pharmacist = _context.Pharmacists.Find(user.Id);
                 isAdmin = pharmacist?.IsAdministrator ?? false;
+                pharmacyId = pharmacist?.PharmacyId;
             }
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
@@ -202,6 +206,9 @@ namespace Pharmion.Services.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("IsAdministrator", isAdmin.ToString())
             };
+
+            if (pharmacyId.HasValue)
+                claims.Add(new Claim("PharmacyId", pharmacyId.Value.ToString()));
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
@@ -292,30 +299,5 @@ namespace Pharmion.Services.Services
             return response;
         }
 
-        private (string hash, string salt) CreatePasswordHash(string password)
-        {
-            byte[] saltBytes = new byte[16];
-            using (var rng = RandomNumberGenerator.Create())
-                rng.GetBytes(saltBytes);
-
-            string salt = Convert.ToBase64String(saltBytes);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(
-                password, saltBytes, 100000, HashAlgorithmName.SHA256);
-            string hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
-
-            return (hash, salt);
-        }
-
-        private bool VerifyPasswordHash(string password, string storedHash, string storedSalt)
-        {
-            byte[] saltBytes = Convert.FromBase64String(storedSalt);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(
-                password, saltBytes, 100000, HashAlgorithmName.SHA256);
-            string computedHash = Convert.ToBase64String(pbkdf2.GetBytes(32));
-
-            return computedHash == storedHash;
-        }
     }
 }

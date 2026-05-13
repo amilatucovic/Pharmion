@@ -150,14 +150,28 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
-       
-       
+
+
         [HttpGet("{id}/allowed-actions")]
         [Authorize]
         public async Task<IActionResult> GetAllowedActions(int id)
         {
             try
             {
+                var reservation = await _reservationService.GetByIdAsync(id);
+                var userId = _currentUserService.GetUserId();
+                var role = _currentUserService.GetRole();
+
+                if (role == Roles.Patient && reservation.PatientId != userId)
+                    return Forbid();
+
+                if (role == Roles.Pharmacist)
+                {
+                    var pharmacyId = _currentUserService.GetPharmacyId();
+                    if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
+                        return Forbid();
+                }
+
                 var actions = await _reservationService.GetAllowedActionsAsync(id);
                 return Ok(new { allowedActions = actions });
             }
@@ -167,7 +181,7 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
-       
+
         [HttpGet("by-patient/{patientId}")]
         [Authorize(Roles = $"{Roles.Patient},{Roles.Pharmacist}")]
         public async Task<IActionResult> GetByPatient(int patientId)
@@ -190,13 +204,24 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
-       
+
         [HttpGet("by-pharmacy/{pharmacyId}")]
         [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> GetByPharmacy(int pharmacyId)
         {
             try
             {
+                var isAdmin = _currentUserService.IsAdministrator();
+
+                if (!isAdmin)
+                {
+                    var pharmacyIdFromToken = _currentUserService.GetPharmacyId();
+                    if (pharmacyIdFromToken == null) return Forbid();
+
+                    if (pharmacyIdFromToken.Value != pharmacyId)
+                        return Forbid();
+                }
+
                 var reservations = await _reservationService.GetReservationsByPharmacyAsync(pharmacyId);
                 return Ok(reservations);
             }
@@ -303,7 +328,20 @@ namespace Pharmion.WebAPI.Controllers
         {
             try
             {
+                var reservation = await _reservationService.GetByIdAsync(id);
                 var userId = _currentUserService.GetUserId();
+                var role = _currentUserService.GetRole();
+
+                if (role == Roles.Patient && reservation.PatientId != userId)
+                    return Forbid();
+
+                if (role == Roles.Pharmacist)
+                {
+                    var pharmacyId = _currentUserService.GetPharmacyId();
+                    if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
+                        return Forbid();
+                }
+
                 var result = await _reservationService.CancelAsync(id, userId, request.Reason ?? "Cancelled");
                 return Ok(result);
             }
@@ -313,6 +351,51 @@ namespace Pharmion.WebAPI.Controllers
             }
         }
 
-        
+        [HttpGet]
+        [Authorize]
+        public override async Task<PagedResult<ReservationResponse>> Get([FromQuery] ReservationSearchObject? search = null)
+        {
+            search ??= new ReservationSearchObject();
+
+            var userId = _currentUserService.GetUserId();
+            var role = _currentUserService.GetRole();
+
+            if (role == Roles.Patient)
+                search.PatientId = userId;
+            else if (role == Roles.Pharmacist)
+            {
+                var pharmacyId = _currentUserService.GetPharmacyId();
+                if (pharmacyId == null)
+                    return new PagedResult<ReservationResponse> { Items = new(), TotalCount = 0 };
+                search.PharmacyId = pharmacyId;
+            }
+
+            return await _reservationService.GetAsync(search);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public override async Task<ReservationResponse?> GetById(int id)
+        {
+            var reservation = await _reservationService.GetByIdAsync(id);
+            if (reservation == null) return null;
+
+            var userId = _currentUserService.GetUserId();
+            var role = _currentUserService.GetRole();
+
+            if (role == Roles.Patient && reservation.PatientId != userId)
+                throw new ForbiddenException();
+
+            if (role == Roles.Pharmacist)
+            {
+                var pharmacyId = _currentUserService.GetPharmacyId();
+                if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
+                    throw new ForbiddenException();
+            }
+
+            return reservation;
+        }
+
+
     }
 }

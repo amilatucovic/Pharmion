@@ -49,23 +49,24 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = Policies.AdminOnly)]
+        public async Task<IActionResult> Update(int id, [FromBody] PharmacistUpdateRequest request)
+        {
+            var result = await _pharmacistService.UpdateAsync(id, request);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        [HttpPut("{id}/self")]
         [Authorize(Roles = Roles.Pharmacist)]
-        public async Task<IActionResult> Update(int id, PharmacistUpdateRequest request)
+        public async Task<IActionResult> SelfUpdate(int id, [FromBody] PharmacistSelfUpdateRequest request)
         {
             var userId = _currentUserService.GetUserId();
+            if (userId != id) return Forbid();
 
-            var isAdmin = _currentUserService.IsAdministrator();
-
-            if (!isAdmin && userId != id)
-                return Forbid();
-
-            
-                var result = await _pharmacistService.UpdateAsync(id, request);
-                if (result == null)
-                    return NotFound();
-
-                return Ok(result);
-           
+            var result = await _pharmacistService.SelfUpdateAsync(id, request);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
 
         [HttpPost("{id}/toggle-active")]

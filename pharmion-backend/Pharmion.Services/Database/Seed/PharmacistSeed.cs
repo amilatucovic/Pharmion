@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Model.Enums;
 using Pharmion.Services.Database.Entities;
-using System.Security.Cryptography;
+using Pharmion.Services.Interfaces;
 
 namespace Pharmion.Services.Database.Seed
 {
-    public class PharmacistSeed : IEntitySeeder<Pharmacist>
+    public class PharmacistSeed : IEntitySeederWithAuth<Pharmacist>
     {
-        public async Task SeedAsync(PharmionDbContext context)
+        public async Task SeedAsync(PharmionDbContext context, IPasswordHasher passwordHasher)
         {
             if (await context.Pharmacists.AnyAsync())
                 return;
@@ -18,12 +18,12 @@ namespace Pharmion.Services.Database.Seed
             var luprivBugojno = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 25");
             var luprivGrbavicka = await context.Pharmacies.FirstOrDefaultAsync(p => p.Name == "LUPRIV PHARM 15");
 
-            var (hash1, salt1) = CreatePasswordHash("Pharmacist123!");
-            var (hash2, salt2) = CreatePasswordHash("Pharmacist123!");
-            var (hash3, salt3) = CreatePasswordHash("Pharmacist123!");
-            var (hash4, salt4) = CreatePasswordHash("Pharmacist123!");
-            var (hashAdmin, saltAdmin) = CreatePasswordHash("Test123!");
-            var (hashPharmacist, saltPharmacist) = CreatePasswordHash("Test123!");
+            var (hash1, salt1) = passwordHasher.CreatePasswordHash("Pharmacist123!");
+            var (hash2, salt2) = passwordHasher.CreatePasswordHash("Pharmacist123!");
+            var (hash3, salt3) = passwordHasher.CreatePasswordHash("Pharmacist123!");
+            var (hash4, salt4) = passwordHasher.CreatePasswordHash("Pharmacist123!");
+            var (hashAdmin, saltAdmin) = passwordHasher.CreatePasswordHash("Test123!");
+            var (hashPharmacist, saltPharmacist) = passwordHasher.CreatePasswordHash("Test123!");
 
             var pharmacists = new[]
             {
@@ -127,19 +127,6 @@ namespace Pharmion.Services.Database.Seed
 
             await context.Pharmacists.AddRangeAsync(pharmacists);
             await context.SaveChangesAsync();
-        }
-
-        private static (string hash, string salt) CreatePasswordHash(string password)
-        {
-            byte[] saltBytes = new byte[16];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(saltBytes);
-            string salt = Convert.ToBase64String(saltBytes);
-
-            using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, 100000, HashAlgorithmName.SHA256);
-            string hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
-
-            return (hash, salt);
         }
     }
 }

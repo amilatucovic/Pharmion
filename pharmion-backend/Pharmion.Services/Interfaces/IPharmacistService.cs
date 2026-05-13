@@ -10,6 +10,7 @@ namespace Pharmion.Services.Interfaces
         Task<PharmacistResponse> GetByIdAsync(int id);
         Task<PharmacistResponse> CreateAsync(RegisterPharmacistRequest request);
         Task<PharmacistResponse?> UpdateAsync(int id, PharmacistUpdateRequest request);
+        Task<PharmacistResponse?> SelfUpdateAsync(int id, PharmacistSelfUpdateRequest request);
         Task<PharmacistResponse?> ToggleActiveAsync(int id);
     }
 }

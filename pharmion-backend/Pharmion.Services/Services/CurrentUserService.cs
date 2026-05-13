@@ -17,6 +17,13 @@ public class CurrentUserService : ICurrentUserService
         return int.TryParse(value, out var id) ? id : 0;
     }
 
+    public int? GetPharmacyId()
+    {
+        var value = _httpContextAccessor.HttpContext?.User
+            .FindFirst("PharmacyId")?.Value;
+        return int.TryParse(value, out var id) ? id : null;
+    }
+
     public string GetRole() =>
         _httpContextAccessor.HttpContext?.User
             .FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;

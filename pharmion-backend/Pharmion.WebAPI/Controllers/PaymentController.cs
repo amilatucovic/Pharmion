@@ -59,23 +59,26 @@ namespace Pharmion.WebAPI.Controllers
         }
 
         [HttpPost("refund/{reservationId}")]
-        [Authorize]
+        [Authorize(Roles = $"{Roles.Patient},{Roles.Pharmacist}")]
         public async Task<IActionResult> Refund(int reservationId)
         {
-            
-                var userId = _currentUserService.GetUserId();
-                var result = await _paymentService
-                    .RefundAsync(reservationId, userId);
-                return Ok(result);
-           
+            var userId = _currentUserService.GetUserId();
+            var role = _currentUserService.GetRole();
+            var pharmacyId = _currentUserService.GetPharmacyId();
+
+            var result = await _paymentService.RefundAsync(reservationId, userId, role, pharmacyId);
+            return Ok(result);
         }
 
         [HttpGet("by-reservation/{reservationId}")]
         [Authorize]
         public async Task<IActionResult> GetByReservation(int reservationId)
         {
-            var result = await _paymentService
-                .GetByReservationIdAsync(reservationId);
+            var userId = _currentUserService.GetUserId();
+            var role = _currentUserService.GetRole();
+            var pharmacyId = _currentUserService.GetPharmacyId();
+
+            var result = await _paymentService.GetByReservationIdAsync(reservationId, userId, role, pharmacyId);
             return result == null ? NotFound() : Ok(result);
         }
     }

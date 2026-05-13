@@ -3,4 +3,5 @@
     int GetUserId();
     string GetRole();
     bool IsAdministrator();
+    int? GetPharmacyId();
 }

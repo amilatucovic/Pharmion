@@ -233,16 +233,20 @@ namespace Pharmion.Services.Services
             return new PaymentResponse();
         }
 
-        public async Task<PaymentResponse> ProcessPayOnPickupAsync(
-            int pharmacistId, int reservationId)
+        public async Task<PaymentResponse> ProcessPayOnPickupAsync(int pharmacistId, int reservationId)
         {
             var payment = await _context.Payments
+                .Include(p => p.Reservation) 
                 .FirstOrDefaultAsync(p => p.ReservationId == reservationId
                     && p.Method == Model.Enums.PaymentMethod.PayOnPickup)
                 ?? throw new UserException("Pay on pickup payment not found");
 
             if (payment.Status == PaymentStatus.Completed)
                 throw new UserException("Payment already completed");
+
+            var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
+            if (pharmacist == null || pharmacist.PharmacyId != payment.Reservation!.PharmacyId)
+                throw new UserException("You can only process payments for reservations from your pharmacy");
 
             payment.Status = PaymentStatus.Completed;
             payment.PaidAt = DateTime.UtcNow;
@@ -252,7 +256,7 @@ namespace Pharmion.Services.Services
             return MapToResponse(payment);
         }
 
-        public async Task<PaymentResponse> RefundAsync(int reservationId, int userId)
+        public async Task<PaymentResponse> RefundAsync(int reservationId, int userId, string userRole, int? pharmacyId)
         {
             var payment = await _context.Payments
                 .Include(p => p.Reservation)
@@ -260,13 +264,18 @@ namespace Pharmion.Services.Services
                     && p.Status == PaymentStatus.Completed)
                 ?? throw new UserException("No completed payment found for this reservation");
 
+            if (userRole == "Patient" && payment.Reservation!.PatientId != userId)
+                throw new ForbiddenException();
+
+            if (userRole == "Pharmacist" && (pharmacyId == null || payment.Reservation!.PharmacyId != pharmacyId))
+                throw new ForbiddenException();
+
             if (payment.Method == Model.Enums.PaymentMethod.PayOnPickup)
                 throw new UserException("Pay on pickup payments cannot be refunded through the system");
 
             if (string.IsNullOrEmpty(payment.StripePaymentIntentId))
                 throw new UserException("No Stripe payment intent found");
 
-            
             var intentService = new PaymentIntentService();
             var intent = await intentService.GetAsync(payment.StripePaymentIntentId);
 
@@ -274,12 +283,7 @@ namespace Pharmion.Services.Services
             if (string.IsNullOrEmpty(chargeId))
                 throw new UserException("No charge found for this payment");
 
-            
-            var refundOptions = new RefundCreateOptions
-            {
-                Charge = chargeId,
-            };
-
+            var refundOptions = new RefundCreateOptions { Charge = chargeId };
             var refundService = new RefundService();
             await refundService.CreateAsync(refundOptions);
 
@@ -290,12 +294,21 @@ namespace Pharmion.Services.Services
             return MapToResponse(payment);
         }
 
-        public async Task<PaymentResponse?> GetByReservationIdAsync(int reservationId)
+        public async Task<PaymentResponse?> GetByReservationIdAsync(int reservationId, int userId, string userRole, int? pharmacyId)
         {
             var payment = await _context.Payments
+                .Include(p => p.Reservation)
                 .FirstOrDefaultAsync(p => p.ReservationId == reservationId);
 
-            return payment == null ? null : MapToResponse(payment);
+            if (payment == null) return null;
+
+            if (userRole == "Patient" && payment.Reservation!.PatientId != userId)
+                throw new ForbiddenException();
+
+            if (userRole == "Pharmacist" && (pharmacyId == null || payment.Reservation!.PharmacyId != pharmacyId))
+                throw new ForbiddenException();
+
+            return MapToResponse(payment);
         }
 
         private static PaymentResponse MapToResponse(Payment p) => new()
