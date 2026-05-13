@@ -842,7 +842,8 @@ namespace Pharmion.Services.Services
                 ApprovedByPharmacistId = r.ApprovedByPharmacistId,
                 MarkedReadyByPharmacistId = r.MarkedReadyByPharmacistId,
                 MarkedPickedUpByPharmacistId = r.MarkedPickedUpByPharmacistId,
-                PaymentMethodSelected = payment != null,
+                PaymentMethodSelected = payment != null && ((payment.Method == PaymentMethod.PayOnPickup && payment.Status == PaymentStatus.Pending)
+                || payment.Status == PaymentStatus.Completed),
                 IsPaid = payment != null && payment.Status == PaymentStatus.Completed,
                 PaymentMethod = payment?.Method.ToString(),
                 IsRefunded = payments?.Any(p => p.ReservationId == r.Id

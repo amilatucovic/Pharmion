@@ -74,10 +74,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   );
 
   final clientSecret = data['clientSecret'] as String?;
-  if (clientSecret == null) {
+  if (clientSecret == null)
     throw Exception('Failed to create payment intent');
-  }
-    
 
   await Stripe.instance.initPaymentSheet(
     paymentSheetParameters: SetupPaymentSheetParameters(
@@ -91,6 +89,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
   );
 
   await Stripe.instance.presentPaymentSheet();
+
+  try {
+    final checkData = await PaymentService.createPaymentIntent(
+      reservationId: widget.reservation.id,
+      method: 1,
+    );
+    final alreadyPaid = checkData['isPaid'] as bool? ?? false;
+    if (alreadyPaid && mounted) {
+      setState(() => _isPaid = true);
+      return;
+    }
+  } catch (_) {}
 
   bool confirmed = false;
   for (int i = 0; i < 5; i++) {
