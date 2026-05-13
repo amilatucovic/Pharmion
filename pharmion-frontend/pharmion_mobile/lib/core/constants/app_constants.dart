@@ -1,6 +1,9 @@
 class AppConstants {
  
-  static const String baseUrl = 'http://10.0.2.2:5081'; 
+  static const String baseUrl = String.fromEnvironment(
+  'API_URL',
+  defaultValue: 'http://10.0.2.2:5081', 
+); 
   
   static const String keyAccessToken  = 'access_token';
   static const String keyRefreshToken = 'refresh_token';

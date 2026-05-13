@@ -8,5 +8,6 @@
         public string ProductName { get; set; } = string.Empty;
         public string? ProductImageUrl { get; set; }
         public bool IsAvailable { get; set; }
+        public int AvailableQuantity { get; set; }
     }
 }

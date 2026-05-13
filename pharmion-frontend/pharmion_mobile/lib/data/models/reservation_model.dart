@@ -24,6 +24,7 @@ class ReservationModel {
   final bool isRefunded;
   final bool hasEarlyDispenseException;
   final int? earlyDispenseExceptionStatus;
+  final bool paymentMethodSelected;
 
   const ReservationModel({
     required this.id,
@@ -51,6 +52,7 @@ class ReservationModel {
     this.isRefunded = false,
     this.hasEarlyDispenseException = false,
     this.earlyDispenseExceptionStatus,
+    required this.paymentMethodSelected,
   });
 
   bool get isDraft => reservationState.contains('Draft');
@@ -102,6 +104,7 @@ class ReservationModel {
             json['hasEarlyDispenseException'] as bool? ?? false,
         earlyDispenseExceptionStatus:
             json['earlyDispenseExceptionStatus'] as int?,
+        paymentMethodSelected: json['paymentMethodSelected'] as bool? ?? false,
       );
 
   static DateTime? _parseDate(dynamic raw) {

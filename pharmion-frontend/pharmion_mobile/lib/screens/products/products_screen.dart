@@ -126,8 +126,8 @@ class _ProductsScreenState extends State<ProductsScreen>
       _recsError = null;
     });
     try {
-      final data =
-          await ApiService.get('Recommendation/$patientId?count=4') as List<dynamic>;
+      final data = await ApiService.get('Recommendation/$patientId?count=4')
+          as List<dynamic>;
       final items = data
           .map((r) => RecommendationModel.fromJson(r as Map<String, dynamic>))
           .toList();
@@ -574,14 +574,14 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
     final cityId = auth.cityId;
 
     try {
-      String url =
-          'InventoryItem?productId=${widget.product.id}&retrieveAll=true';
+      String url = 'InventoryItem/public?productId=${widget.product.id}';
       if (cityId != null) url += '&cityId=$cityId';
 
-      final data = await ApiService.get(url) as Map<String, dynamic>;
-      final items = ((data['items'] as List?) ?? [])
+      final data = await ApiService.get(url) as List<dynamic>;
+
+      final items = data
           .map((e) => InventoryItemModel.fromJson(e as Map<String, dynamic>))
-          .where((e) => e.availableQuantity > 0)
+          .where((e) => e.isAvailable)
           .toList();
 
       if (mounted) setState(() => _pharmacies = items);
@@ -683,7 +683,6 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
                     const SizedBox(height: 20),
                     const Divider(color: AppColors.kBorder),
                     const SizedBox(height: 12),
-
                     Row(children: [
                       const Icon(Icons.local_pharmacy_outlined,
                           size: 16, color: AppColors.kTeal),
@@ -697,7 +696,6 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
                       ),
                     ]),
                     const SizedBox(height: 12),
-
                     if (_loading)
                       const Center(
                         child: Padding(
@@ -795,21 +793,15 @@ class _PharmacyAvailabilityCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: inventoryItem.isLowStock
-                    ? const Color(0xFFFEF3C7)
-                    : const Color(0xFFD1FAE5),
+                color: const Color(0xFFD1FAE5),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                inventoryItem.isLowStock
-                    ? 'Low (${inventoryItem.availableQuantity})'
-                    : '${inventoryItem.availableQuantity} in stock',
+              child: const Text(
+                'Available',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: inventoryItem.isLowStock
-                        ? AppColors.kWarning
-                        : AppColors.kSuccess),
+                    color: AppColors.kSuccess),
               ),
             ),
             const SizedBox(width: 6),

@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "pharmion_mobile",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define=API_URL=http://10.0.2.2:5081",
+        "--dart-define=STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here"
+      ]
+    }
+  ]
+}

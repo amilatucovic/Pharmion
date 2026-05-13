@@ -201,8 +201,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     final r = _reservation;
     final canSubmit = r.isDraft && r.items.isNotEmpty;
     final canCancel = r.isDraft || r.isSubmitted || r.isApproved;
-    final canPay = r.isApproved && !r.isPaid;
-
+    final canPay = r.isApproved && !r.isPaid && !r.paymentMethodSelected;
     return Scaffold(
       backgroundColor: AppColors.kBg,
       appBar: AppBar(
@@ -388,7 +387,10 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 message:
                     'Your payment has been refunded. Please allow 5-10 business days for the funds to appear.',
               ),
-            if (r.isPaid && !r.isReadyForPickup && !r.isPickedUp && !r.isCancelled)
+            if (r.isPaid &&
+                !r.isReadyForPickup &&
+                !r.isPickedUp &&
+                !r.isCancelled)
               _Banner(
                 color: AppColors.kSuccess,
                 bg: const Color(0xFFD1FAE5),
@@ -397,7 +399,14 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                     ? 'Payment completed via Stripe. Awaiting pharmacy preparation.'
                     : 'Pay on pickup selected. Please pay when collecting.',
               ),
-
+            if (r.paymentMethodSelected && !r.isPaid && !r.isCancelled)
+              _Banner(
+                color: const Color(0xFF2563EB),
+                bg: const Color(0xFFDBEAFE),
+                icon: Icons.store_outlined,
+                message:
+                    'Pay on Pickup selected. Please pay when collecting your medications.',
+              ),
             _InfoCard(children: [
               _DetailRow(
                 icon: Icons.local_pharmacy_outlined,
@@ -429,7 +438,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 ),
             ]),
             const SizedBox(height: 16),
-
             const Text('Medication Items',
                 style: TextStyle(
                     fontSize: 15,
@@ -509,7 +517,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                   )),
             ],
             const SizedBox(height: 16),
-
             if (r.items.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(16),
@@ -549,7 +556,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               ),
             ],
             const SizedBox(height: 16),
-
             const Text('Timeline',
                 style: TextStyle(
                     fontSize: 15,
@@ -759,7 +765,6 @@ class _ItemCard extends StatelessWidget {
                 ],
               ]),
             ]),
-
             if (isDraft) ...[
               const SizedBox(height: 10),
               const Divider(height: 1, color: AppColors.kBorder),

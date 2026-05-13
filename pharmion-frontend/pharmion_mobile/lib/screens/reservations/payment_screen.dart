@@ -24,81 +24,106 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String _fmtAmount(double amount) => '${amount.toStringAsFixed(2)} KM';
 
   Future<void> _pay() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      if (_selectedMethod == 1) {
-        await _payWithStripe();
-      } else {
-        await _payOnPickup();
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Payment'),
+      content: Text(
+        _selectedMethod == 1
+            ? 'You will be charged ${_fmtAmount(widget.reservation.patientPaysAmount)} via Stripe. Proceed?'
+            : 'You confirm to pay ${_fmtAmount(widget.reservation.patientPaysAmount)} at the pharmacy on pickup. Proceed?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Confirm'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed != true) return;
+
+  setState(() {
+    _loading = true;
+    _error = null;
+  });
+  try {
+    if (_selectedMethod == 1) {
+      await _payWithStripe();
+    } else {
+      await _payOnPickup();
     }
+  } catch (e) {
+    if (mounted) {
+      setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+    }
+  } finally {
+    if (mounted) setState(() => _loading = false);
   }
+}
 
   Future<void> _payWithStripe() async {
-    final data = await PaymentService.createPaymentIntent(
-      reservationId: widget.reservation.id,
-      method: 1,
-    );
+  final data = await PaymentService.createPaymentIntent(
+    reservationId: widget.reservation.id,
+    method: 1,
+  );
 
-    final clientSecret = data['clientSecret'] as String?;
-    if (clientSecret == null)
-      throw Exception('Failed to create payment intent');
+  final clientSecret = data['clientSecret'] as String?;
+  if (clientSecret == null) {
+    throw Exception('Failed to create payment intent');
+  }
+    
 
-    await Stripe.instance.initPaymentSheet(
-      paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: 'Pharmion',
-        style: ThemeMode.light,
-        appearance: PaymentSheetAppearance(
-          colors: PaymentSheetAppearanceColors(
-            primary: AppColors.kTeal,
-          ),
-        ),
+  await Stripe.instance.initPaymentSheet(
+    paymentSheetParameters: SetupPaymentSheetParameters(
+      paymentIntentClientSecret: clientSecret,
+      merchantDisplayName: 'Pharmion',
+      style: ThemeMode.light,
+      appearance: PaymentSheetAppearance(
+        colors: PaymentSheetAppearanceColors(primary: AppColors.kTeal),
       ),
-    );
+    ),
+  );
 
-    await Stripe.instance.presentPaymentSheet();
+  await Stripe.instance.presentPaymentSheet();
 
+  bool confirmed = false;
+  for (int i = 0; i < 5; i++) {
     await Future.delayed(const Duration(seconds: 2));
-
     try {
       final paymentData = await ApiService.get(
-              'Payment/by-reservation/${widget.reservation.id}')
-          as Map<String, dynamic>;
+        'Payment/by-reservation/${widget.reservation.id}',
+      ) as Map<String, dynamic>;
       final isPaid = paymentData['isPaid'] as bool? ?? false;
+      if (isPaid) {
+        confirmed = true;
+        break;
+      }
+    } catch (_) {}
+  }
 
-      if (mounted) {
-        if (isPaid) {
-          setState(() => _isPaid = true);
-        } else {
-          setState(() => _error =
-              'Payment is processing. Please wait a moment and try again.');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _error =
-            'Payment completed in Stripe, but confirmation failed. Please wait a moment and try again.');
-      }
+  if (mounted) {
+    if (confirmed) {
+      setState(() => _isPaid = true);
+    } else {
+      setState(() => _error =
+          'Payment is still processing. Please wait a moment and check again.');
     }
   }
+}
 
   Future<void> _payOnPickup() async {
-    await PaymentService.createPaymentIntent(
-      reservationId: widget.reservation.id,
-      method: 2,
-    );
-    if (mounted) setState(() => _isPaid = true);
-  }
+  await PaymentService.createPaymentIntent(
+    reservationId: widget.reservation.id,
+    method: 2,
+  );
+  if (mounted) setState(() => _isPaid = true);
+}
 
   @override
   void initState() {

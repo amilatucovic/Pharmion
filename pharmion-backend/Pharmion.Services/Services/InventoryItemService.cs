@@ -150,7 +150,8 @@ namespace Pharmion.Services.Services
                 ProductId = i.ProductId,
                 ProductName = i.Product?.Name ?? string.Empty,
                 ProductImageUrl = i.Product?.ImageUrl,
-                IsAvailable = (i.QuantityOnHand - i.ReservedQuantity) > 0
+                IsAvailable = (i.QuantityOnHand - i.ReservedQuantity) > 0,
+                AvailableQuantity = Math.Max(0, i.QuantityOnHand - i.ReservedQuantity)
             }).ToList();
         }
     }

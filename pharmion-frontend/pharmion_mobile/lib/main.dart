@@ -7,7 +7,10 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = 'pk_test_51TQU70Bhdu9acYngXnYLDNSaKkjcPz7awniPOhqdhSCRLLcYbfObuDkFda9aFzMUKSNKFdSHcxEEUhpUD5a4jE6O009tiS5pho'; 
+ Stripe.publishableKey = const String.fromEnvironment(
+  'STRIPE_PUBLISHABLE_KEY',
+  defaultValue: '',
+);
   await Stripe.instance.applySettings();
   runApp(const PharmionApp());
 }

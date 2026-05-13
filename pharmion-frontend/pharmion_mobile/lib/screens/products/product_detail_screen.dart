@@ -37,8 +37,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  String _fmtDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +135,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ),
         ),
-
         SliverToBoxAdapter(
           child: Container(
             decoration: const BoxDecoration(
@@ -189,7 +186,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ],
                       ),
                       const SizedBox(height: 6),
-
                       Text(
                         [
                           product.typeName,
@@ -200,7 +196,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             fontSize: 13, color: AppColors.kTextMid),
                       ),
                       const SizedBox(height: 16),
-
                       Row(children: [
                         _StatChip(
                           icon: Icons.payments_outlined,
@@ -219,22 +214,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                         const SizedBox(width: 8),
                         _StatChip(
-                          icon: item.availableQuantity > 5
+                          icon: item.isAvailable
                               ? Icons.check_circle_outline
                               : Icons.warning_amber_outlined,
-                          label: item.isLowStock ? 'Low stock' : 'In stock',
-                          color: item.isLowStock
-                              ? AppColors.kWarning
-                              : AppColors.kSuccess,
-                          bg: item.isLowStock
-                              ? const Color(0xFFFEF3C7)
-                              : const Color(0xFFD1FAE5),
+                          label:
+                              item.isAvailable ? 'In stock' : 'Not available',
+                          color: item.isAvailable
+                              ? AppColors.kSuccess
+                              : AppColors.kError,
+                          bg: item.isAvailable
+                              ? const Color(0xFFD1FAE5)
+                              : const Color(0xFFFEE2E2),
                         ),
                       ]),
                     ],
                   ),
                 ),
-
                 if (product.description != null &&
                     product.description!.isNotEmpty)
                   _InfoCard(
@@ -249,7 +244,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ],
                   ),
                 const SizedBox(height: 12),
-
                 _InfoCard(
                   title: 'Availability',
                   icon: Icons.local_pharmacy_outlined,
@@ -257,19 +251,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     _DetailRow(label: 'Pharmacy', value: item.pharmacyName),
                     _DetailRow(
                         label: 'Available',
-                        value: '${item.availableQuantity} units',
-                        valueColor: item.isLowStock
-                            ? AppColors.kWarning
-                            : AppColors.kSuccess),
-                    _DetailRow(
-                        label: 'Expires',
-                        value: _fmtDate(item.expirationDate),
-                        valueColor:
-                            item.isExpiringSoon ? AppColors.kWarning : null),
+                        value: item.isAvailable ? 'In stock' : 'Not available',
+                        valueColor: item.isAvailable
+                            ? AppColors.kSuccess
+                            : AppColors.kError),
                   ],
                 ),
                 const SizedBox(height: 12),
-
                 if (product.instructionsForUse.isNotEmpty)
                   _ExpandableCard(
                     title: 'Instructions for Use',
@@ -294,8 +282,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     iconColor: AppColors.kError,
                     iconBg: AppColors.kErrorLight,
                   ),
-
-                const SizedBox(height: 100), 
+                const SizedBox(height: 100),
               ],
             ),
           ),

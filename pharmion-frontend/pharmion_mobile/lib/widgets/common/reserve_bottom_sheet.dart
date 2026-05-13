@@ -178,7 +178,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
             ),
           ),
           const SizedBox(height: 20),
-
           Row(children: [
             Container(
               width: 40,
@@ -221,7 +220,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
           const SizedBox(height: 20),
           const Divider(height: 1, color: AppColors.kBorder),
           const SizedBox(height: 20),
-
           if (_loading)
             const Center(
               child: Padding(
@@ -251,7 +249,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
               ),
               const SizedBox(height: 16),
             ],
-
             if (widget.isPrescriptionRequired &&
                 _prescriptionItems.isEmpty) ...[
               Container(
@@ -310,8 +307,7 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                   ),
                 ),
               ),
-                ]
-            else if (_earlyDispenseRequired) ...[
+            ] else if (_earlyDispenseRequired) ...[
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -344,7 +340,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-
               const Text('Reason for early pickup',
                   style: TextStyle(
                       fontSize: 13,
@@ -384,7 +379,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                 onChanged: (v) => setState(() => _selectedReasonType = v),
               ),
               const SizedBox(height: 12),
-
               if (_selectedReasonType == 99) ...[
                 TextField(
                   controller: _earlyReasonController,
@@ -412,7 +406,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                 ),
                 const SizedBox(height: 12),
               ],
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -511,7 +504,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                     )),
                 const SizedBox(height: 16),
               ],
-
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -540,7 +532,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                 ]),
               ),
               const SizedBox(height: 16),
-
               Row(children: [
                 const Text('Quantity',
                     style: TextStyle(
@@ -588,7 +579,6 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
                 ),
               ]),
               const SizedBox(height: 20),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

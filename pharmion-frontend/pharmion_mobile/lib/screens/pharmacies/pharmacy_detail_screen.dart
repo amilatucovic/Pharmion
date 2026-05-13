@@ -42,17 +42,17 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
     });
 
     try {
-      final data =
-          await ApiService.get('InventoryItem?pharmacyId=${widget.pharmacy.id}'
-              '&productName=${Uri.encodeComponent(query.trim())}'
-              '&pageSize=20') as Map<String, dynamic>;
+      final data = await ApiService.get(
+        'InventoryItem/public?pharmacyId=${widget.pharmacy.id}'
+        '&productName=${Uri.encodeComponent(query.trim())}'
+        '&pageSize=20',
+      ) as List<dynamic>;
 
       if (mounted) {
         setState(() {
-          _results = ((data['items'] as List?) ?? [])
+          _results = data
               .map(
                   (i) => InventoryItemModel.fromJson(i as Map<String, dynamic>))
-              .where((i) => !i.isExpired && i.availableQuantity > 0)
               .toList();
         });
       }
@@ -125,7 +125,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
               ),
             ),
           ),
-
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -193,7 +192,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-
                   const Text('Available Products',
                       style: TextStyle(
                           fontSize: 16,
@@ -247,7 +245,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   if (_loading)
                     const Center(
                       child: Padding(
@@ -273,7 +270,6 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                   else
                     ..._results.map(
                         (item) => _ProductCard(item: item, fmtDate: _fmtDate)),
-
                   const SizedBox(height: 16),
                 ],
               ),
@@ -407,7 +403,6 @@ class _ProductCard extends StatelessWidget {
               child: _ProductImage(imageUrl: item.productImageUrl),
             ),
             const SizedBox(width: 12),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,19 +424,21 @@ class _ProductCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: item.isLowStock
-                            ? const Color(0xFFFEF3C7)
-                            : AppColors.kTealLight,
+                        color: item.availableQuantity > 0
+                            ? AppColors.kTealLight
+                            : const Color(0xFFFEE2E2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        '${item.availableQuantity} available',
+                        item.availableQuantity > 0
+                            ? 'Available'
+                            : 'Not available',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: item.isLowStock
-                              ? AppColors.kWarning
-                              : AppColors.kTeal,
+                          color: item.availableQuantity > 0
+                              ? AppColors.kTeal
+                              : AppColors.kError,
                         ),
                       ),
                     ),
@@ -459,7 +456,6 @@ class _ProductCard extends StatelessWidget {
                 ],
               ),
             ),
-
             if (item.isLowStock)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
