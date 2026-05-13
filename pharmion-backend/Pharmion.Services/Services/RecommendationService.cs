@@ -17,6 +17,7 @@ public class RecommendationService : IRecommendationService
     private readonly MLContext _mlContext;
     private ITransformer? _model;
     private PredictionEngine<SupplementEntry, SupplementPrediction>? _predictionEngine;
+    private readonly object _predictionLock = new object();
     private readonly string _modelFilePath = "supplement_model.zip";
     private readonly ILogger<RecommendationService> _logger;
 
@@ -27,7 +28,6 @@ public class RecommendationService : IRecommendationService
         _logger = logger;
     }
 
-   
     private async Task LoadOrTrainModelAsync()
     {
         if (File.Exists(_modelFilePath))
@@ -35,8 +35,11 @@ public class RecommendationService : IRecommendationService
             using var stream = new FileStream(_modelFilePath, FileMode.Open,
                 FileAccess.Read, FileShare.Read);
             _model = _mlContext.Model.Load(stream, out _);
-            _predictionEngine = _mlContext.Model
-                .CreatePredictionEngine<SupplementEntry, SupplementPrediction>(_model);
+            lock (_predictionLock)
+            {
+                _predictionEngine = _mlContext.Model
+                    .CreatePredictionEngine<SupplementEntry, SupplementPrediction>(_model);
+            }
             _logger.LogInformation("ML model loaded from file");
         }
         else
@@ -110,8 +113,11 @@ public class RecommendationService : IRecommendationService
             FileAccess.Write, FileShare.Write);
         _mlContext.Model.Save(_model, trainData.Schema, fs);
 
-        _predictionEngine = _mlContext.Model
-            .CreatePredictionEngine<SupplementEntry, SupplementPrediction>(_model);
+        lock (_predictionLock)
+        {
+            _predictionEngine = _mlContext.Model
+                .CreatePredictionEngine<SupplementEntry, SupplementPrediction>(_model);
+        }
 
         _logger.LogInformation("ML model trained with {Count} records and saved", data.Count);
     }
@@ -157,16 +163,21 @@ public class RecommendationService : IRecommendationService
         {
             foreach (var candidate in candidates)
             {
-                var prediction = _predictionEngine!.Predict(new SupplementEntry
+                float score;
+                lock (_predictionLock)
                 {
-                    SupplementId = (uint)reservedId,
-                    CoReservedSupplementId = (uint)candidate.Id
-                });
+                    var prediction = _predictionEngine!.Predict(new SupplementEntry
+                    {
+                        SupplementId = (uint)reservedId,
+                        CoReservedSupplementId = (uint)candidate.Id
+                    });
+                    score = prediction.Score;
+                }
 
                 if (scores.ContainsKey(candidate.Id))
-                    scores[candidate.Id] += prediction.Score;
+                    scores[candidate.Id] += score;
                 else
-                    scores[candidate.Id] = prediction.Score;
+                    scores[candidate.Id] = score;
             }
         }
 
@@ -189,7 +200,7 @@ public class RecommendationService : IRecommendationService
     }
 
     private async Task<List<RecommendationResponse>> GetFallbackRecommendationsAsync(
-        PharmionDbContext context, List<Product> supplements, List<int> reservedIds, int count=3)
+        PharmionDbContext context, List<Product> supplements, List<int> reservedIds, int count = 3)
     {
         var popular = await context.ReservationItems
             .Where(ri => ri.Product.Type == ProductType.Supplement
@@ -238,5 +249,4 @@ public class RecommendationService : IRecommendationService
     {
         return "Recommended because it is frequently reserved together with similar users";
     }
-
 }

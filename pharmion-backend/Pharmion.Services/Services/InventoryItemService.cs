@@ -92,7 +92,7 @@ namespace Pharmion.Services.Services
             var baseQuery = _context.Set<InventoryItem>()
                 .Include(i => i.Product)
                 .Include(i => i.Pharmacy)
-                .ThenInclude(p=>p.City)
+                    .ThenInclude(p => p.City)
                 .AsQueryable();
 
             baseQuery = ApplyFilter(baseQuery, search);
@@ -101,37 +101,57 @@ namespace Pharmion.Services.Services
             if (search.IncludeTotalCount)
                 totalCount = await baseQuery.CountAsync();
 
+            if (!search.RetrieveAll && search.Page.HasValue && search.PageSize.HasValue)
+            {
+                var pageSize = Math.Min(search.PageSize.Value, 100);
+                baseQuery = baseQuery
+                    .Skip(search.Page.Value * pageSize)
+                    .Take(pageSize);
+            }
+
             var entities = await baseQuery.ToListAsync();
 
-            var responseList = entities.Select(i => new InventoryItemResponse
+            return new PagedResult<InventoryItemResponse>
             {
-                Id = i.Id,
+                Items = entities.Select(i => new InventoryItemResponse
+                {
+                    Id = i.Id,
+                    PharmacyId = i.PharmacyId,
+                    PharmacyName = i.Pharmacy?.Name ?? string.Empty,
+                    ProductId = i.ProductId,
+                    ProductName = i.Product?.Name ?? string.Empty,
+                    ProductSku = i.Product?.SKU,
+                    ProductImageUrl = i.Product?.ImageUrl,
+                    QuantityOnHand = i.QuantityOnHand,
+                    ReservedQuantity = i.ReservedQuantity,
+                    ReorderLevel = i.ReorderLevel,
+                    ExpirationDate = i.ExpirationDate,
+                    UpdatedAt = i.UpdatedAt,
+                }).ToList(),
+                TotalCount = totalCount
+            };
+        }
+
+        public async Task<List<PublicInventoryItemResponse>> GetPublicAsync(InventoryItemSearchObject search)
+        {
+            var query = _context.Set<InventoryItem>()
+                .Include(i => i.Product)
+                .Include(i => i.Pharmacy)
+                .AsQueryable();
+
+            query = ApplyFilter(query, search);
+
+            var entities = await query.ToListAsync();
+
+            return entities.Select(i => new PublicInventoryItemResponse
+            {
                 PharmacyId = i.PharmacyId,
                 PharmacyName = i.Pharmacy?.Name ?? string.Empty,
                 ProductId = i.ProductId,
                 ProductName = i.Product?.Name ?? string.Empty,
-                ProductSku = i.Product?.SKU,
                 ProductImageUrl = i.Product?.ImageUrl,
-                QuantityOnHand = i.QuantityOnHand,
-                ReservedQuantity = i.ReservedQuantity,
-                ReorderLevel = i.ReorderLevel,
-                ExpirationDate = i.ExpirationDate,
-                UpdatedAt = i.UpdatedAt,
+                IsAvailable = (i.QuantityOnHand - i.ReservedQuantity) > 0
             }).ToList();
-
-            if (!search.RetrieveAll && search.Page.HasValue && search.PageSize.HasValue)
-            {
-                responseList = responseList
-                    .Skip(search.Page.Value * search.PageSize.Value)
-                    .Take(search.PageSize.Value)
-                    .ToList();
-            }
-
-            return new PagedResult<InventoryItemResponse>
-            {
-                Items = responseList,
-                TotalCount = totalCount
-            };
         }
     }
 }

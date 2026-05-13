@@ -132,22 +132,57 @@ namespace Pharmion.Services.Services
             if (entity.Status != PrescriptionStatus.Active)
                 throw new UserException("Nije moguće izmijeniti recept koji nije aktivan.");
 
-            
-            var oldItems = _context.PrescriptionItems.Where(i => i.PrescriptionId == entity.Id);
-            _context.PrescriptionItems.RemoveRange(oldItems);
             ValidateValidityDates(request);
 
-            entity.Items = request.Items.Select(i => new PrescriptionItem
+            var existingItems = await _context.PrescriptionItems
+                .Include(i => i.DispenseEvents)
+                .Where(i => i.PrescriptionId == entity.Id)
+                .ToListAsync();
+
+            foreach (var requestItem in request.Items)
             {
-                ProductId = i.ProductId,
-                Dosage = i.Dosage,
-                QuantityPerPeriod = i.QuantityPerPeriod,
-                PeriodDays = i.PeriodDays,
-                Repeats = i.Repeats,
-                RepeatsUsed = 0,
-                TherapyType = i.TherapyType,
-                NextEligibleDispenseAt = DateTime.UtcNow
-            }).ToList();
+                var existing = existingItems.FirstOrDefault(i => i.ProductId == requestItem.ProductId);
+
+                if (existing != null)
+                {
+                    existing.Dosage = requestItem.Dosage;
+                    existing.QuantityPerPeriod = requestItem.QuantityPerPeriod;
+                    existing.PeriodDays = requestItem.PeriodDays;
+                    existing.Repeats = requestItem.Repeats;
+                    existing.TherapyType = requestItem.TherapyType;
+                }
+                else
+                {
+                    entity.Items.Add(new PrescriptionItem
+                    {
+                        ProductId = requestItem.ProductId,
+                        Dosage = requestItem.Dosage,
+                        QuantityPerPeriod = requestItem.QuantityPerPeriod,
+                        PeriodDays = requestItem.PeriodDays,
+                        Repeats = requestItem.Repeats,
+                        RepeatsUsed = 0,
+                        TherapyType = requestItem.TherapyType,
+                        NextEligibleDispenseAt = DateTime.UtcNow
+                    });
+                }
+            }
+
+            var requestProductIds = request.Items.Select(i => i.ProductId).ToHashSet();
+            foreach (var existing in existingItems)
+            {
+                if (!requestProductIds.Contains(existing.ProductId))
+                {
+                    var hasDispense = existing.DispenseEvents?.Any() ?? false;
+                    var hasReservation = await _context.ReservationItems
+                        .AnyAsync(r => r.PrescriptionItemId == existing.Id);
+
+                    if (hasDispense || hasReservation)
+                        throw new UserException(
+                            $"Cannot remove item '{existing.ProductId}' — it already has dispensing history or active reservations.");
+
+                    _context.PrescriptionItems.Remove(existing);
+                }
+            }
         }
 
         protected override void MapUpdateToEntity(Prescription entity, PrescriptionUpsertRequest request)

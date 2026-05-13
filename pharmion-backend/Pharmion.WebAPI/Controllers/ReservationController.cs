@@ -368,6 +368,7 @@ namespace Pharmion.WebAPI.Controllers
                 if (pharmacyId == null)
                     return new PagedResult<ReservationResponse> { Items = new(), TotalCount = 0 };
                 search.PharmacyId = pharmacyId;
+                search.ExcludeDraft = true;
             }
 
             return await _reservationService.GetAsync(search);

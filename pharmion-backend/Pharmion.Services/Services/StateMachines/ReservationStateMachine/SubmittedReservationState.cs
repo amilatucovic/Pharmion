@@ -32,6 +32,12 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             if (!entity.Items.Any())
                 throw new UserException("Cannot approve reservation with no items");
 
+            var hasPendingException = await _context.EarlyDispenseExceptions
+        .AnyAsync(e => e.ReservationId == id && e.Status == ExceptionStatus.Pending);
+            if (hasPendingException)
+                throw new UserException("Reservation cannot be approved while there are pending early dispense exceptions.");
+
+
             entity.ReservationState = nameof(ApprovedReservationState);
             entity.ApprovedAt = DateTime.UtcNow;
             entity.ApprovedByPharmacistId = pharmacistId;
@@ -78,6 +84,8 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
         public override async Task<ReservationResponse> CancelAsync(int id, int userId, string reason)
         {
             var entity = await _context.Reservations.FindAsync(id);
+            if (entity == null)                          
+                throw new UserException("Reservation not found");
             await ReturnReservedInventoryAsync(entity);
 
             entity.ReservationState = nameof(CancelledReservationState);

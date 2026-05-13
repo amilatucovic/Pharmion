@@ -12,6 +12,7 @@ namespace Pharmion.Services.Services
     {
         protected readonly PharmionDbContext _context;
         protected readonly IMapper _mapper;
+        private const int MaxPageSize = 100;
 
         public BaseService(PharmionDbContext context, IMapper mapper)
         {
@@ -32,14 +33,18 @@ namespace Pharmion.Services.Services
 
             if (!search.RetrieveAll)
             {
-                if (search.Page.HasValue)
-                {
-                    query = query.Skip(search.Page.Value * search.PageSize.Value);
-                }
-                if (search.PageSize.HasValue)
-                {
+                if (search.PageSize.HasValue && search.PageSize.Value > MaxPageSize)
+                    search.PageSize = MaxPageSize;
+
+                if (search.Page.HasValue && search.PageSize.HasValue)
+                    query = query.Skip(search.Page.Value * search.PageSize.Value)
+                                 .Take(search.PageSize.Value);
+                else if (search.PageSize.HasValue)
                     query = query.Take(search.PageSize.Value);
-                }
+            }
+            else
+            {
+                query = query.Take(MaxPageSize);
             }
 
             if (!string.IsNullOrWhiteSpace(search.OrderBy))

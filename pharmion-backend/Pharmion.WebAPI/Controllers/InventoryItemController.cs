@@ -11,14 +11,36 @@ namespace Pharmion.WebAPI.Controllers
     [Route("[controller]")]
     [Authorize]
     public class InventoryItemController
-        : BaseCRUDController<InventoryItemResponse, InventoryItemSearchObject, InventoryItemInsertRequest, InventoryItemUpdateRequest>
+    : BaseCRUDController<InventoryItemResponse, InventoryItemSearchObject, InventoryItemInsertRequest, InventoryItemUpdateRequest>
     {
+        private readonly IInventoryItemService _inventoryItemService;
+
         public InventoryItemController(IInventoryItemService service) : base(service)
         {
+            _inventoryItemService = service;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Roles.Pharmacist)]
+        public override Task<PagedResult<InventoryItemResponse>> Get(
+            [FromQuery] InventoryItemSearchObject? search = null)
+            => base.Get(search);
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = Roles.Pharmacist)]
+        public override Task<InventoryItemResponse?> GetById(int id)
+            => base.GetById(id);
+
+        [HttpGet("public")]
+        [Authorize(Roles = Roles.Patient)]
+        public async Task<IActionResult> GetPublic([FromQuery] InventoryItemSearchObject search)
+        {
+            var result = await _inventoryItemService.GetPublicAsync(search);
+            return Ok(result);
         }
 
         [HttpPost]
-        [Authorize(Policies.AdminOnly)]
+        [Authorize(Policy = Policies.AdminOnly)]
         public override Task<IActionResult> Create([FromBody] InventoryItemInsertRequest request)
             => base.Create(request);
 

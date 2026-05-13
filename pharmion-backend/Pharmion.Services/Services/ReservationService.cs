@@ -390,6 +390,8 @@ namespace Pharmion.Services.Services
             {
                 query = query.Where(r => r.CreatedAt <= search.CreatedTo.Value);
             }
+            if (search.ExcludeDraft)
+                query = query.Where(r => r.ReservationState != nameof(DraftReservationState));
 
             if (!string.IsNullOrEmpty(search.PatientName))
             {
@@ -536,10 +538,20 @@ namespace Pharmion.Services.Services
             int reservationId, int itemId, int patientId, ReservationItemUpdateRequest request)
         {
             var item = await GetAndValidateItemAsync(reservationId, itemId, patientId);
+            var patient = await _context.Patients.FindAsync(patientId) ?? throw new UserException("Patient not found");
+
+            var product = await _context.Products
+                .Include(p => p.MedicationDetails)
+                    .ThenInclude(md => md.MedicationCategory)
+                .FirstOrDefaultAsync(p => p.Id == item.ProductId)
+                ?? throw new UserException("Product not found");
+
+            var (patientPart, insurancePart) = CalculateParticipation(product, patient.IsInsured);
 
             item.Quantity = request.Quantity;
             item.LineTotal = item.Quantity * item.UnitPrice;
-            item.PatientPart = item.LineTotal;
+            item.PatientPart = item.Quantity * patientPart;       
+            item.InsurancePart = item.Quantity * insurancePart;   
 
             RecalculateTotals(item.Reservation!);
             await _context.SaveChangesAsync();
@@ -550,6 +562,18 @@ namespace Pharmion.Services.Services
         public async Task DeleteItemAsync(int reservationId, int itemId, int patientId)
         {
             var item = await GetAndValidateItemAsync(reservationId, itemId, patientId);
+
+            if (item.PrescriptionItemId.HasValue)
+            {
+                var pendingException = await _context.EarlyDispenseExceptions
+                    .FirstOrDefaultAsync(e =>
+                        e.ReservationId == reservationId &&
+                        e.PrescriptionItemId == item.PrescriptionItemId.Value &&
+                        e.Status == ExceptionStatus.Pending);
+
+                if (pendingException != null)
+                    _context.EarlyDispenseExceptions.Remove(pendingException);
+            }
 
             _context.ReservationItems.Remove(item);
             await _context.SaveChangesAsync();
@@ -737,11 +761,12 @@ namespace Pharmion.Services.Services
             if (category == null)
                 return (product.Price, 0);
 
-            
             if (category.FlatFee.HasValue)
-                return (category.FlatFee.Value, product.Price - category.FlatFee.Value);
+            {
+                var flatFee = Math.Min(category.FlatFee.Value, product.Price);
+                return (flatFee, product.Price - flatFee);
+            }
 
-           
             var patientPart = product.Price * (category.PatientPaymentPercentage / 100);
             var insurancePart = product.Price * (category.InsurancePaymentPercentage / 100);
 
@@ -817,11 +842,8 @@ namespace Pharmion.Services.Services
                 ApprovedByPharmacistId = r.ApprovedByPharmacistId,
                 MarkedReadyByPharmacistId = r.MarkedReadyByPharmacistId,
                 MarkedPickedUpByPharmacistId = r.MarkedPickedUpByPharmacistId,
-                IsPaid = payment != null && (
-                        payment.Method == PaymentMethod.Stripe
-                        ? payment.Status == PaymentStatus.Completed
-                        : true  
-                       ),
+                PaymentMethodSelected = payment != null,
+                IsPaid = payment != null && payment.Status == PaymentStatus.Completed,
                 PaymentMethod = payment?.Method.ToString(),
                 IsRefunded = payments?.Any(p => p.ReservationId == r.Id
                     && p.Status == PaymentStatus.Refunded) ?? false,

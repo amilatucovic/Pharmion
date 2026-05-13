@@ -39,5 +39,6 @@ namespace Pharmion.Model.Responses
         public bool IsRefunded { get; set; }
         public bool HasEarlyDispenseException { get; set; }
         public int? EarlyDispenseExceptionStatus { get; set; }
+        public bool PaymentMethodSelected { get; set; }
     }
 }

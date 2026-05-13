@@ -114,7 +114,7 @@ namespace Pharmion.Services.Services
         }
 
         public async Task<EarlyDispenseExceptionResponse> RejectAsync(
-          int id, int pharmacistId, RejectExceptionRequest request)
+    int id, int pharmacistId, RejectExceptionRequest request)
         {
             var exception = await _context.EarlyDispenseExceptions
                 .Include(e => e.PrescriptionItem)
@@ -129,39 +129,6 @@ namespace Pharmion.Services.Services
             exception.ApprovedByPharmacistId = pharmacistId;
             exception.Note = request.Note;
 
-            
-            var reservationItem = await _context.ReservationItems
-                .Include(ri => ri.Reservation)
-                    .ThenInclude(r => r.Items)
-                .FirstOrDefaultAsync(ri =>
-                    ri.ReservationId == exception.ReservationId &&
-                    ri.PrescriptionItemId == exception.PrescriptionItemId);
-
-            if (reservationItem != null)
-            {
-                _context.ReservationItems.Remove(reservationItem);
-
-               
-                var reservation = reservationItem.Reservation!;
-                reservation.Items.Remove(reservationItem);
-                reservation.TotalAmount = reservation.Items.Sum(i => i.LineTotal);
-                reservation.PatientPaysAmount = reservation.Items.Sum(i => i.PatientPart);
-                reservation.InsurancePaysAmount = reservation.Items.Sum(i => i.InsurancePart);
-                reservation.UpdatedAt = DateTime.UtcNow;
-
-           
-                var inventoryItem = await _context.InventoryItems
-                    .FirstOrDefaultAsync(inv =>
-                        inv.PharmacyId == reservation.PharmacyId &&
-                        inv.ProductId == reservationItem.ProductId);
-
-                if (inventoryItem != null)
-                {
-                    inventoryItem.ReservedQuantity -= reservationItem.Quantity;
-                    if (inventoryItem.ReservedQuantity < 0)
-                        inventoryItem.ReservedQuantity = 0;
-                }
-            }
 
             await _context.SaveChangesAsync();
             return (await GetByIdAsync(id))!;

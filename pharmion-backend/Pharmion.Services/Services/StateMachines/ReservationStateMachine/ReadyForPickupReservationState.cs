@@ -81,6 +81,7 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             }
 
             await ReturnReservedInventoryAsync(entity);
+            await HandleStripeRefundOnCancelAsync(id);
 
             entity.ReservationState = nameof(CancelledReservationState);
             entity.CancellationReason = reason;      

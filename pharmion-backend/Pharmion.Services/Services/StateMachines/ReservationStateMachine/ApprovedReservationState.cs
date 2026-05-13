@@ -32,11 +32,15 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
                 throw new UserException("You can only mark reservations from your pharmacy as ready");
 
             var payment = await _context.Payments
-                .FirstOrDefaultAsync(p => p.ReservationId == id
-                && (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Completed));
+                 .FirstOrDefaultAsync(p => p.ReservationId == id
+                  && (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Completed));
 
             if (payment == null)
                 throw new UserException("Patient hasn't selected a payment method yet");
+
+            
+            if (payment.Method == PaymentMethod.Stripe && payment.Status != PaymentStatus.Completed)
+                throw new UserException("Stripe payment must be completed before marking reservation as ready");
 
             entity.ReservationState = nameof(ReadyForPickupReservationState);
             entity.ReadyForPickupAt = DateTime.UtcNow;
@@ -62,6 +66,8 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
                 throw new UserException("Reservation not found");
 
             await ReturnReservedInventoryAsync(entity);
+
+            await HandleStripeRefundOnCancelAsync(id);
 
             entity.ReservationState = nameof(CancelledReservationState);
             entity.CancellationReason = reason;

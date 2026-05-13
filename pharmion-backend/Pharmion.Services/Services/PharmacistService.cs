@@ -7,8 +7,7 @@ using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
-using System.Security.Cryptography;
-using System.Text;
+
 
 namespace Pharmion.Services.Services
 {

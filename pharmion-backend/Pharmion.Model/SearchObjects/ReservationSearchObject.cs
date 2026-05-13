@@ -10,5 +10,6 @@ namespace Pharmion.Model.SearchObjects
         public string? ReservationState { get; set; }
         public DateTime? CreatedFrom { get; set; }
         public DateTime? CreatedTo { get; set; }
+        public bool ExcludeDraft { get; set; } = false;
     }
 }

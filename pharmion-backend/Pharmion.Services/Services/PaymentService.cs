@@ -38,39 +38,44 @@ namespace Pharmion.Services.Services
             if (!reservation.ReservationState.Contains("Approved"))
                 throw new UserException("Reservation must be approved before payment");
 
-            
+
             var existing = await _context.Payments
-                .FirstOrDefaultAsync(p => p.ReservationId == request.ReservationId
-                && p.Method == request.Method
-                    && (p.Status == PaymentStatus.Pending
-                        || p.Status == PaymentStatus.Completed));
+               .FirstOrDefaultAsync(p => p.ReservationId == request.ReservationId
+               && (p.Status == PaymentStatus.Pending
+               || p.Status == PaymentStatus.Completed));
 
             if (existing != null)
             {
                 if (existing.Status == PaymentStatus.Completed)
                     throw new UserException("This reservation is already paid");
 
-                var resp = MapToResponse(existing);
-
-                if (existing.Method == Model.Enums.PaymentMethod.Stripe &&
-                    !string.IsNullOrWhiteSpace(existing.StripePaymentIntentId))
+                if (existing.Method != request.Method)
                 {
-                    var intentService = new PaymentIntentService();
-                    var intent2 = await intentService.GetAsync(existing.StripePaymentIntentId);
-
-                    resp.ClientSecret = intent2.ClientSecret;
-
-                    
-                    if (intent2.Status == "succeeded")
-                    {
-                        existing.Status = PaymentStatus.Completed;
-                        existing.PaidAt = DateTime.UtcNow;
-                        await _context.SaveChangesAsync();
-                        resp = MapToResponse(existing);
-                    }
+                    existing.Status = PaymentStatus.Failed; 
+                    await _context.SaveChangesAsync();
                 }
+                else
+                {
+                    var resp = MapToResponse(existing);
 
-                return resp;
+                    if (existing.Method == Model.Enums.PaymentMethod.Stripe &&
+                        !string.IsNullOrWhiteSpace(existing.StripePaymentIntentId))
+                    {
+                        var intentService = new PaymentIntentService();
+                        var intent2 = await intentService.GetAsync(existing.StripePaymentIntentId);
+                        resp.ClientSecret = intent2.ClientSecret;
+
+                        if (intent2.Status == "succeeded")
+                        {
+                            existing.Status = PaymentStatus.Completed;
+                            existing.PaidAt = DateTime.UtcNow;
+                            await _context.SaveChangesAsync();
+                            resp = MapToResponse(existing);
+                        }
+                    }
+
+                    return resp;
+                }
             }
 
             if (request.Method == Model.Enums.PaymentMethod.PayOnPickup)
@@ -116,7 +121,7 @@ namespace Pharmion.Services.Services
             {
                 Amount = amountInCents,
                 Currency = "eur",
-                Metadata = new System.Collections.Generic.Dictionary<string, string>
+                Metadata = new Dictionary<string, string>
                 {
                     { "reservationId", reservation.Id.ToString() },
                     { "patientId", patientId.ToString() }

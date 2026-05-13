@@ -15,20 +15,48 @@ using Microsoft.AspNetCore.Mvc;
 
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 var builder = WebApplication.CreateBuilder(args);
-Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+var jwtSecret = builder.Configuration["JwtSettings:Secret"]
+    ?? throw new InvalidOperationException("JwtSettings:Secret is not configured.");
+if (jwtSecret.Length < 32)
+    throw new InvalidOperationException("JwtSettings:Secret must be at least 32 characters.");
+
+var jwtIssuer = builder.Configuration["JwtSettings:Issuer"]
+    ?? throw new InvalidOperationException("JwtSettings:Issuer is not configured.");
+
+var jwtAudience = builder.Configuration["JwtSettings:Audience"]
+    ?? throw new InvalidOperationException("JwtSettings:Audience is not configured.");
+
+var stripeKey = builder.Configuration["Stripe:SecretKey"]
+    ?? throw new InvalidOperationException("Stripe:SecretKey is not configured.");
+if (!stripeKey.StartsWith("sk_"))
+    throw new InvalidOperationException("Stripe:SecretKey has invalid format.");
+Stripe.StripeConfiguration.ApiKey = stripeKey;
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    if (builder.Environment.IsDevelopment())
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+        options.AddPolicy("CorsPolicy", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    }
+    else
+    {
+        options.AddPolicy("CorsPolicy", policy =>
+        {
+            var origins = builder.Configuration["AllowedOrigins"]
+                ?.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                ?? Array.Empty<string>();
+            policy.WithOrigins(origins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    }
 });
 
-var jwtSecret = builder.Configuration["JwtSettings:Secret"];
-var jwtIssuer = builder.Configuration["JwtSettings:Issuer"];
-var jwtAudience = builder.Configuration["JwtSettings:Audience"];
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -193,7 +221,8 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Error seeding database: {Message}", ex.Message);
+        logger.LogCritical(ex, "FATAL: Database migration/seed failed. Application cannot start.");
+        throw; 
     }
 }
 
@@ -202,7 +231,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowAll");
+app.UseCors("CorsPolicy"); 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 

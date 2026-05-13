@@ -27,17 +27,27 @@ namespace Pharmion.WebAPI.Controllers
 
         [HttpGet]
         [Authorize(Roles = Roles.Pharmacist)]
-        public override Task<PagedResult<PrescriptionResponse>> Get(
-        [FromQuery] PrescriptionSearchObject? search = null)
+        public override async Task<PagedResult<PrescriptionResponse>> Get([FromQuery] PrescriptionSearchObject? search = null)
         {
-            return base.Get(search);
+            search ??= new PrescriptionSearchObject();
+            var isAdmin = _currentUserService.IsAdministrator();
+            if (!isAdmin)
+                search.CreatedByPharmacistId = _currentUserService.GetUserId();
+            return await _prescriptionService.GetAsync(search);
         }
 
         [HttpGet("{id}")]
         [Authorize(Roles = Roles.Pharmacist)]
-        public override Task<PrescriptionResponse?> GetById(int id)
+        public override async Task<PrescriptionResponse?> GetById(int id)
         {
-            return base.GetById(id);
+            var prescription = await _prescriptionService.GetByIdAsync(id);
+            if (prescription == null) return null;
+
+            var isAdmin = _currentUserService.IsAdministrator();
+            if (!isAdmin && prescription.CreatedByPharmacistId != _currentUserService.GetUserId())
+                throw new ForbiddenException();
+
+            return prescription;
         }
 
         [HttpPost]
@@ -53,31 +63,45 @@ namespace Pharmion.WebAPI.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = Roles.Pharmacist)]
-        public override Task<IActionResult> Update(int id, [FromBody] PrescriptionUpsertRequest request)
+        public override async Task<IActionResult> Update(int id, [FromBody] PrescriptionUpsertRequest request)
         {
-            return base.Update(id, request);
+            var prescription = await _prescriptionService.GetByIdAsync(id);
+            if (prescription == null) return NotFound();
+
+            var isAdmin = _currentUserService.IsAdministrator();
+            if (!isAdmin && prescription.CreatedByPharmacistId != _currentUserService.GetUserId())
+                return Forbid();
+
+            return await base.Update(id, request);
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = Roles.Pharmacist)]
-        public override Task<IActionResult> Delete(int id)
+        public override async Task<IActionResult> Delete(int id)
         {
-            return base.Delete(id);
+            var prescription = await _prescriptionService.GetByIdAsync(id);
+            if (prescription == null) return NotFound();
+
+            var isAdmin = _currentUserService.IsAdministrator();
+            if (!isAdmin && prescription.CreatedByPharmacistId != _currentUserService.GetUserId())
+                return Forbid();
+
+            return await base.Delete(id);
         }
 
         [HttpPost("{id}/cancel")]
         [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> Cancel(int id)
         {
-            try
-            {
-                await _prescriptionService.CancelAsync(id);
-                return Ok(new { message = "Prescription cancelled successfully." });
-            }
-            catch (UserException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var prescription = await _prescriptionService.GetByIdAsync(id);
+            if (prescription == null) return NotFound();
+
+            var isAdmin = _currentUserService.IsAdministrator();
+            if (!isAdmin && prescription.CreatedByPharmacistId != _currentUserService.GetUserId())
+                return Forbid();
+
+            await _prescriptionService.CancelAsync(id);
+            return Ok(new { message = "Prescription cancelled successfully." });
         }
 
         [HttpGet("my")]

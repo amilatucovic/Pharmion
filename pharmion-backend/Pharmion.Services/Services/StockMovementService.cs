@@ -28,7 +28,13 @@ namespace Pharmion.Services.Services
             if (item == null)
                 throw new UserException("Inventory item not found.");
 
-            
+            var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
+            if (pharmacist == null)
+                throw new UserException("Pharmacist not found.");
+            if (pharmacist.PharmacyId != item.PharmacyId)
+                throw new UserException("You can only manage inventory for your own pharmacy.");
+
+
             if ((request.Type == StockMovementType.Out || request.Type == StockMovementType.Adjustment)
                 && string.IsNullOrWhiteSpace(request.Reason))
                 throw new UserException("Reason is required for Out and Adjustment movements.");

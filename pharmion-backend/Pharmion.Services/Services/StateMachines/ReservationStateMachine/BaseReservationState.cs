@@ -196,6 +196,40 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             
         }
 
+        protected async Task HandleStripeRefundOnCancelAsync(int reservationId)
+        {
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.ReservationId == reservationId
+                    && p.Status == PaymentStatus.Completed
+                    && p.Method == PaymentMethod.Stripe);
+
+            if (payment == null) return; 
+
+            if (string.IsNullOrEmpty(payment.StripePaymentIntentId))
+                throw new UserException("Stripe payment found but no payment intent ID. Please contact support for manual refund.");
+
+            try
+            {
+                var intentService = new Stripe.PaymentIntentService();
+                var intent = await intentService.GetAsync(payment.StripePaymentIntentId);
+
+                var chargeId = intent.LatestChargeId;
+                if (string.IsNullOrEmpty(chargeId))
+                    throw new UserException("No charge found for Stripe payment. Please contact support for manual refund.");
+
+                var refundService = new Stripe.RefundService();
+                await refundService.CreateAsync(new Stripe.RefundCreateOptions { Charge = chargeId });
+
+                payment.Status = PaymentStatus.Refunded;
+                payment.RefundedAt = DateTime.UtcNow;
+                payment.RefundReason = "Reservation cancelled";
+            }
+            catch (Stripe.StripeException ex)
+            {
+                throw new UserException($"Stripe refund failed: {ex.Message}. Please contact support.");
+            }
+        }
+
         protected void AddNotification(int userId, string title, string message, NotificationTemplate template, int? reservationId = null)
         {
               _context.Notifications.Add(new Notification
