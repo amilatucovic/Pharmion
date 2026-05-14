@@ -87,7 +87,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   Future<void> _markReady() async {
-    if (!_reservation!.isPaid && _reservation!.paymentMethod == null) {
+    if (!_reservation!.isPaid && !_reservation!.paymentMethodSelected) {
       _showError(
         'Cannot mark as ready: patient has not selected a payment method yet.',
       );
@@ -413,13 +413,17 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                       _InfoRow(
                         icon: Icons.payment_outlined,
                         label: 'Payment',
-                        value: !r.isPaid
-                            ? 'Not paid yet'
-                            : r.paymentMethod == 'PayOnPickup'
+                        value: r.isPaid
+                            ? (r.paymentMethod == 'PayOnPickup'
+                                  ? 'Paid on Pickup'
+                                  : 'Paid via Stripe')
+                            : r.paymentMethodSelected
                             ? 'Pay on Pickup selected'
-                            : 'Paid via Stripe',
+                            : 'Not paid yet',
                         valueColor: r.isPaid
                             ? const Color(0xFF059669)
+                            : r.paymentMethodSelected
+                            ? const Color(0xFF2563EB)
                             : const Color(0xFFD97706),
                       ),
                       if (r.hasEarlyDispenseException) ...[

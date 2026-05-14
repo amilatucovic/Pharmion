@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import 'pdf_generators/inventory_pdf.dart';
 import 'pdf_generators/reservations_pdf.dart';
+import 'package:pdf/pdf.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -132,20 +133,23 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
   Future<void> _generate() async {
     setState(() => _generating = true);
     try {
-      final result = await InventoryService.getItems(
-        page: 0,
-        pageSize: 1000,
-        pharmacyId: _selectedPharmacyId,
-        lowStock: _statusFilter == 'lowStock' ? true : null,
-        expiringSoon: _statusFilter == 'expiringSoon' ? true : null,
-      );
+      String url = 'Report/inventory?includeTotalCount=false';
+      if (_selectedPharmacyId != null)
+        url += '&pharmacyId=$_selectedPharmacyId';
+      if (_statusFilter == 'lowStock') url += '&lowStock=true';
+      if (_statusFilter == 'expiringSoon') url += '&expiringSoon=true';
+
+      final data = await ApiService.get(url) as Map<String, dynamic>;
+      final items = ((data['items'] as List?) ?? [])
+          .map((e) => InventoryItemModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       String filterLabel = '';
       if (_statusFilter == 'lowStock') filterLabel = 'Low Stock Only';
       if (_statusFilter == 'expiringSoon') filterLabel = 'Expiring Soon Only';
 
       final pdfBytes = await InventoryPdfGenerator.generate(
-        items: result.items,
+        items: items,
         pharmacyName: _selectedPharmacyName,
         filterLabel: filterLabel,
         showPharmacyColumn: _selectedPharmacyId == null,
@@ -558,14 +562,18 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
   Future<void> _generate() async {
     setState(() => _generating = true);
     try {
-      final result = await ReservationService.getReservations(
-        page: 0,
-        pageSize: 1000,
-        state: _selectedState,
-        pharmacyId: _selectedPharmacyId,
-        dateFrom: _dateFrom,
-        dateTo: _dateTo,
-      );
+      String url = 'Report/reservations?includeTotalCount=false';
+      if (_selectedPharmacyId != null)
+        url += '&pharmacyId=$_selectedPharmacyId';
+      if (_selectedState != null) url += '&reservationState=$_selectedState';
+      if (_dateFrom != null)
+        url += '&createdFrom=${_dateFrom!.toIso8601String()}';
+      if (_dateTo != null) url += '&createdTo=${_dateTo!.toIso8601String()}';
+
+      final data = await ApiService.get(url) as Map<String, dynamic>;
+      final reservations = ((data['items'] as List?) ?? [])
+          .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
+          .toList();
 
       String periodLabel = '';
       if (_dateFrom != null && _dateTo != null) {
@@ -581,13 +589,17 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
           : 'All Statuses';
 
       final pdfBytes = await ReservationsPdfGenerator.generate(
-        reservations: result.items,
+        reservations: reservations,
         pharmacyName: _selectedPharmacyName,
         periodLabel: periodLabel,
         statusLabel: statusLabel,
       );
 
-      await Printing.layoutPdf(onLayout: (_) => pdfBytes, name: '...');
+      await Printing.layoutPdf(
+        onLayout: (_) => pdfBytes,
+        name: 'reservations_report',
+        format: PdfPageFormat.a4.landscape,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

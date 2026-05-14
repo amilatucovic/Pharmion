@@ -86,7 +86,7 @@ namespace Pharmion.Services.Services
                     Method = Model.Enums.PaymentMethod.PayOnPickup,
                     Status = PaymentStatus.Pending,
                     Amount = reservation.PatientPaysAmount,
-                    Currency = "EUR",
+                    Currency = "BAM",
                     CreatedAt = DateTime.UtcNow
                 };
                 _context.Payments.Add(payOnPickupPayment);
@@ -141,7 +141,7 @@ namespace Pharmion.Services.Services
                 Method = Model.Enums.PaymentMethod.Stripe,
                 Status = PaymentStatus.Pending,
                 Amount = reservation.PatientPaysAmount,
-                Currency = "EUR",
+                Currency = "BAM",
                 StripePaymentIntentId = intent.Id,
                 CreatedAt = DateTime.UtcNow
             };

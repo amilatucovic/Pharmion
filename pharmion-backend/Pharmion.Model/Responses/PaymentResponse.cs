@@ -13,7 +13,7 @@ namespace Pharmion.Model.Responses
         public string StatusDisplay { get; set; } = string.Empty;
         public decimal Amount { get; set; }          
         public decimal AmountInEur { get; set; }     
-        public string Currency { get; set; } = "EUR";
+        public string Currency { get; set; } = "BAM";
         public string? ClientSecret { get; set; }
         public string? StripePaymentIntentId { get; set; }
         public bool IsPaid { get; set; }

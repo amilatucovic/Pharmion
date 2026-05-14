@@ -111,6 +111,7 @@ class ReservationModel {
   final bool isRefunded;
   final bool hasEarlyDispenseException;
   final int? earlyDispenseExceptionStatus;
+  final bool paymentMethodSelected;
 
   const ReservationModel({
     required this.id,
@@ -140,6 +141,7 @@ class ReservationModel {
     this.isRefunded = false,
     this.hasEarlyDispenseException = false,
     this.earlyDispenseExceptionStatus,
+    required this.paymentMethodSelected,
   });
 
   factory ReservationModel.fromJson(Map<String, dynamic> json) {
@@ -196,6 +198,7 @@ class ReservationModel {
               ?.map((a) => a as String)
               .toList() ??
           [],
+      paymentMethodSelected: json['paymentMethodSelected'] as bool? ?? false,
     );
   }
 }
@@ -287,6 +290,7 @@ class ReservationService {
       isRefunded: reservation.isRefunded,
       hasEarlyDispenseException: reservation.hasEarlyDispenseException,
       earlyDispenseExceptionStatus: reservation.earlyDispenseExceptionStatus,
+      paymentMethodSelected: reservation.paymentMethodSelected,
     );
   }
 

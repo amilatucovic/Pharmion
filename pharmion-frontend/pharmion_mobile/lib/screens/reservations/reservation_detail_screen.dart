@@ -95,12 +95,13 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   Future<void> _cancel() async {
-    final confirmed = await _showCancelDialog();
-    if (!confirmed) return;
+    final reason = await _showCancelDialog();
+    if (reason == null) return; // korisnik odustao
+
     setState(() => _actionLoading = true);
     try {
-      await ApiService.post('Reservation/${_reservation.id}/cancel',
-          {'reason': 'Cancelled by patient'});
+      await ApiService.post(
+          'Reservation/${_reservation.id}/cancel', {'reason': reason});
       if (_reservation.isPaid && _reservation.paymentMethod == 'Stripe') {
         try {
           await ApiService.post('Payment/refund/${_reservation.id}', {});
@@ -119,39 +120,104 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     }
   }
 
-  Future<bool> _showCancelDialog() async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text('Cancel Reservation',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            content: const Text(
-                'Are you sure you want to cancel this reservation? This action cannot be undone.',
-                style: TextStyle(
-                    fontSize: 13, color: AppColors.kTextMid, height: 1.4)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Keep',
-                    style: TextStyle(color: AppColors.kTextMid)),
+  Future<String?> _showCancelDialog() async {
+    String? _selectedReason = 'Changed my mind';
+    final reasons = [
+      'Changed my mind',
+      'Found medication elsewhere',
+      'Doctor changed prescription',
+      'No longer needed',
+      'Other',
+    ];
+    final otherController = TextEditingController();
+
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Cancel Reservation',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please select a reason for cancellation:',
+                style: TextStyle(fontSize: 13, color: AppColors.kTextMid),
               ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.kError,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+              const SizedBox(height: 12),
+              ...reasons.map((r) => RadioListTile<String>(
+                    value: r,
+                    groupValue: _selectedReason,
+                    title: Text(r, style: const TextStyle(fontSize: 13)),
+                    activeColor: AppColors.kTeal,
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    onChanged: (val) =>
+                        setDialogState(() => _selectedReason = val),
+                  )),
+              if (_selectedReason == 'Other') ...[
+                const SizedBox(height: 8),
+                TextField(
+                  controller: otherController,
+                  maxLines: 2,
+                  style: const TextStyle(fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: 'Please describe your reason...',
+                    hintStyle: const TextStyle(
+                        fontSize: 13, color: AppColors.kTextMid),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: AppColors.kBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: AppColors.kBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                          const BorderSide(color: AppColors.kTeal, width: 2),
+                    ),
+                  ),
                 ),
-                child: const Text('Cancel Reservation'),
-              ),
+              ],
             ],
           ),
-        ) ??
-        false;
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Keep',
+                  style: TextStyle(color: AppColors.kTextMid)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final reason = _selectedReason == 'Other'
+                    ? otherController.text.trim().isEmpty
+                        ? 'Other'
+                        : otherController.text.trim()
+                    : _selectedReason!;
+                Navigator.pop(ctx, reason);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.kError,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Cancel Reservation'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSuccess(String msg) {
