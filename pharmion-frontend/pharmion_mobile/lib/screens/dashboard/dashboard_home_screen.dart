@@ -9,6 +9,7 @@ import '../../data/models/reservation_model.dart';
 import '../../data/services/dashboard_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/mobile_notification_bell.dart';
+import '../../core/errors/app_exception.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
   const DashboardHomeScreen({super.key});
@@ -32,7 +33,22 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
     try {
       final data = await DashboardService.getData();
       if (mounted) setState(() => _data = data);
-    } catch (_) {
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -116,7 +132,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                 ),
               ),
             ),
-
             if (_loading)
               const SliverFillRemaining(
                 child: Center(
@@ -170,7 +185,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-
                     _SectionHeader(
                       title: 'Active Prescriptions',
                       onSeeAll: () => context.go('/prescriptions'),
@@ -185,7 +199,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                       ..._data!.activePrescriptions
                           .map((p) => _PrescriptionCard(prescription: p)),
                     const SizedBox(height: 24),
-
                     _SectionHeader(
                       title: 'Recent Reservations',
                       onSeeAll: () => context.go('/reservations'),
@@ -203,7 +216,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
                             child: _ReservationCard(reservation: r),
                           )),
                     const SizedBox(height: 24),
-
                     _SectionHeader(
                       title: 'Pharmacies Near You',
                       onSeeAll: null,
@@ -227,7 +239,6 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
     );
   }
 }
-
 
 class _SectionTitle extends StatelessWidget {
   final String title;
@@ -302,7 +313,6 @@ class _EmptyCard extends StatelessWidget {
       );
 }
 
-
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -360,7 +370,6 @@ class _QuickAction extends StatelessWidget {
         ),
       );
 }
-
 
 class _PrescriptionCard extends StatelessWidget {
   final PrescriptionModel prescription;
@@ -478,7 +487,6 @@ class _PrescriptionCard extends StatelessWidget {
   }
 }
 
-
 class _ReservationCard extends StatelessWidget {
   final ReservationModel reservation;
   const _ReservationCard({required this.reservation});
@@ -523,78 +531,80 @@ class _ReservationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => context.push('/reservations/${reservation.id}', extra: reservation),
-          child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.kBorder),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.assignment_outlined,
-                color: Color(0xFFD97706), size: 20),
+        onTap: () =>
+            context.push('/reservations/${reservation.id}', extra: reservation),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.kBorder),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                reservation.pharmacyName,
-                style: const TextStyle(
-                  fontSize: 14,
+          child: Row(children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.assignment_outlined,
+                  color: Color(0xFFD97706), size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      reservation.pharmacyName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.kTextDark,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${reservation.items.length} item${reservation.items.length != 1 ? 's' : ''}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.kTextMid),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      AppDateUtils.formatDate(reservation.createdAt),
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.kTextLight),
+                    ),
+                  ]),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _statusBg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                reservation.reservationStateDisplay,
+                style: TextStyle(
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.kTextDark,
+                  color: _statusColor,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                '${reservation.items.length} item${reservation.items.length != 1 ? 's' : ''}',
-                style: const TextStyle(fontSize: 12, color: AppColors.kTextMid),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                AppDateUtils.formatDate(reservation.createdAt),
-                style:
-                    const TextStyle(fontSize: 11, color: AppColors.kTextLight),
-              ),
-            ]),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _statusBg,
-              borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              reservation.reservationStateDisplay,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: _statusColor,
-              ),
-            ),
-          ),
-        ]),
-          ),
+          ]),
+        ),
       );
 }
-
 
 class _PharmacyCard extends StatelessWidget {
   final PharmacyModel pharmacy;

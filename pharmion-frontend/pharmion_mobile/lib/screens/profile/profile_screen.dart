@@ -4,6 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/date_utils.dart';
 import '../../data/services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/errors/app_exception.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,22 +27,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
-    try {
-      final patient =
-          await ApiService.get('Patient/me') as Map<String, dynamic>;
-      final diseases =
-          await ApiService.get('PatientChronicDisease') as List<dynamic>;
-      if (mounted)
-        setState(() {
-          _patient = patient;
-          _myDiseases = diseases;
-        });
-    } catch (_) {
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
+  setState(() => _loading = true);
+  try {
+    final patient = await ApiService.get('Patient/me') as Map<String, dynamic>;
+    final diseases = await ApiService.get('PatientChronicDisease') as List<dynamic>;
+    if (mounted) setState(() {
+      _patient = patient;
+      _myDiseases = diseases;
+    });
+  } on UnauthorizedException {
+    if (mounted) context.read<AuthProvider>().logout();
+  } on NetworkException catch (e) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(e.message),
+      backgroundColor: AppColors.kError,
+      behavior: SnackBarBehavior.floating,
+    ));
+  } catch (e) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(e.toString().replaceAll('Exception: ', '')),
+      backgroundColor: AppColors.kError,
+      behavior: SnackBarBehavior.floating,
+    ));
+  } finally {
+    if (mounted) setState(() => _loading = false);
   }
+}
 
   Future<void> _loadAllDiseases() async {
     setState(() => _diseasesLoading = true);
@@ -51,7 +62,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               as Map<String, dynamic>;
       final items = (data['items'] as List?) ?? [];
       if (mounted) setState(() => _allDiseases = items);
-    } catch (_) {
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.message),
+        backgroundColor: AppColors.kError,
+        behavior: SnackBarBehavior.floating,
+      ));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString().replaceAll('Exception: ', '')),
+        backgroundColor: AppColors.kError,
+        behavior: SnackBarBehavior.floating,
+      ));
     } finally {
       if (mounted) setState(() => _diseasesLoading = false);
     }
@@ -109,6 +133,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       await ApiService.delete('PatientChronicDisease/$chronicDiseaseId');
       await _load();
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.message),
+        backgroundColor: AppColors.kError,
+        behavior: SnackBarBehavior.floating,
+      ));
     } catch (e) {
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

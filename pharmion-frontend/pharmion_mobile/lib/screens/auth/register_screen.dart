@@ -9,6 +9,7 @@ import '../../widgets/forms/app_text_field.dart';
 import '../../widgets/forms/form_card.dart';
 import '../../widgets/forms/form_field_wrapper.dart';
 import '../../widgets/forms/gender_chip.dart';
+import '../../core/errors/app_exception.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -63,22 +64,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _loadCities() async {
-    setState(() => _loadingCities = true);
-    try {
-      final data = await ApiService.get('City?pageSize=100&retrieveAll=true', auth: false)
-          as Map<String, dynamic>;
-      if (mounted) {
-        setState(() {
-          _cities = ((data['items'] as List?) ?? [])
-              .map((c) => {'id': c['id'], 'name': c['name']})
-              .toList();
-        });
-      }
-    } catch (_) {
-    } finally {
-      if (mounted) setState(() => _loadingCities = false);
+  setState(() => _loadingCities = true);
+  try {
+    final data = await ApiService.get('City?pageSize=100&retrieveAll=true', auth: false)
+        as Map<String, dynamic>;
+    if (mounted) {
+      setState(() {
+        _cities = ((data['items'] as List?) ?? [])
+            .map((c) => {'id': c['id'], 'name': c['name']})
+            .toList();
+      });
     }
+  } on NetworkException catch (e) {
+    if (mounted) setState(() => _errors['city'] = e.message);
+  } catch (e) {
+    if (mounted) setState(() => _errors['city'] = 'Failed to load cities. Please try again.');
+  } finally {
+    if (mounted) setState(() => _loadingCities = false);
   }
+}
 
 
   bool _validatePage1() {

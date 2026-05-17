@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/pharmacy_model.dart';
 import '../../data/services/api_service.dart';
+import '../../core/errors/app_exception.dart';
+import '../../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class PharmaciesScreen extends StatefulWidget {
   const PharmaciesScreen({super.key});
@@ -44,6 +47,13 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
           .where((p) => p.isActive)
           .toList();
       if (mounted) setState(() => _all = items);
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted)
+        setState(() {
+          _error = e.message;
+        });
     } catch (e) {
       if (mounted)
         setState(() => _error = e.toString().replaceAll('Exception: ', ''));
@@ -144,8 +154,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                               ),
                             ),
                             const SizedBox(height: 10),
-
-                          
                             if (_cities.length > 1)
                               DropdownButtonFormField<String>(
                                 value: _selectedCity,
@@ -190,7 +198,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                           ],
                         ),
                       ),
-
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                         child: Row(children: [
@@ -201,7 +208,6 @@ class _PharmaciesScreenState extends State<PharmaciesScreen> {
                           ),
                         ]),
                       ),
-
                       Expanded(
                         child: _filtered.isEmpty
                             ? _EmptyState(

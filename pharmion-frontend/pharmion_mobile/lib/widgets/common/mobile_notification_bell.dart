@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/services/api_service.dart';
+import '../../core/errors/app_exception.dart';
 
 class MobileNotificationBell extends StatefulWidget {
   const MobileNotificationBell();
@@ -17,7 +18,7 @@ class _MobileNotificationBellState extends State<MobileNotificationBell> {
   @override
   void initState() {
     super.initState();
-    _fetchCount();  
+    _fetchCount();
     _timer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => _fetchCount(),
@@ -35,6 +36,8 @@ class _MobileNotificationBellState extends State<MobileNotificationBell> {
       final data = await ApiService.get('Notification/my/unread-count')
           as Map<String, dynamic>;
       if (mounted) setState(() => _unreadCount = data['count'] as int? ?? 0);
+    } on UnauthorizedException {
+      if (mounted) context.go('/auth/login');
     } catch (_) {}
   }
 

@@ -8,6 +8,7 @@ import '../../data/models/recommendation_model.dart';
 import '../../data/services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/models/inventory_item_model.dart';
+import '../../core/errors/app_exception.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -89,6 +90,10 @@ class _ProductsScreenState extends State<ProductsScreen>
           _hasMore = _products.length < totalCount;
         });
       }
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted) setState(() => _productsError = e.message);
     } catch (e) {
       if (mounted)
         setState(
@@ -132,6 +137,10 @@ class _ProductsScreenState extends State<ProductsScreen>
           .map((r) => RecommendationModel.fromJson(r as Map<String, dynamic>))
           .toList();
       if (mounted) setState(() => _recommendations = items);
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted) setState(() => _productsError = e.message);
     } catch (e) {
       if (mounted)
         setState(() => _recsError = e.toString().replaceAll('Exception: ', ''));
@@ -578,14 +587,26 @@ class _ProductInfoSheetState extends State<_ProductInfoSheet> {
       if (cityId != null) url += '&cityId=$cityId';
 
       final data = await ApiService.get(url) as List<dynamic>;
-
       final items = data
           .map((e) => InventoryItemModel.fromJson(e as Map<String, dynamic>))
           .where((e) => e.isAvailable)
           .toList();
 
       if (mounted) setState(() => _pharmacies = items);
-    } catch (_) {
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
     } finally {
       if (mounted) setState(() => _loading = false);
     }

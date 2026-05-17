@@ -6,6 +6,7 @@ import '../../data/models/inventory_item_model.dart';
 import '../../data/models/product_model.dart';
 import '../../data/services/api_service.dart';
 import '../../widgets/common/reserve_bottom_sheet.dart';
+import '../../core/errors/app_exception.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final InventoryItemModel inventoryItem;
@@ -31,12 +32,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           await ApiService.get('Product/${widget.inventoryItem.productId}')
               as Map<String, dynamic>;
       if (mounted) setState(() => _product = ProductModel.fromJson(data));
-    } catch (_) {
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

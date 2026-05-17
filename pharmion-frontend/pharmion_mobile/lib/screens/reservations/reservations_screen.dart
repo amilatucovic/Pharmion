@@ -6,6 +6,9 @@ import '../../core/utils/date_utils.dart';
 import '../../data/models/reservation_model.dart';
 import '../../data/services/api_service.dart';
 import 'reservation_detail_screen.dart';
+import '../../core/errors/app_exception.dart';
+import '../../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ReservationsScreen extends StatefulWidget {
   const ReservationsScreen({super.key});
@@ -18,6 +21,7 @@ class _ReservationsScreenState extends State<ReservationsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _loading = true;
+  String? _error;
   List<ReservationModel> _active = [];
   List<ReservationModel> _history = [];
 
@@ -35,17 +39,19 @@ class _ReservationsScreenState extends State<ReservationsScreen>
   }
 
   Future<void> _loadData() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt(AppConstants.keyUserId) ?? 0;
 
-      final data = await ApiService.get(
-          'Reservation/by-patient/$userId') as List<dynamic>;
+      final data = await ApiService.get('Reservation/by-patient/$userId')
+          as List<dynamic>;
 
       final all = data
-          .map((r) =>
-              ReservationModel.fromJson(r as Map<String, dynamic>))
+          .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
           .toList();
 
       if (mounted) {
@@ -54,7 +60,13 @@ class _ReservationsScreenState extends State<ReservationsScreen>
           _history = all.where((r) => r.isHistory).toList();
         });
       }
-    } catch (_) {
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } catch (e) {
+      if (mounted)
+        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -116,31 +128,51 @@ class _ReservationsScreenState extends State<ReservationsScreen>
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.kTeal))
-          : RefreshIndicator(
-              color: AppColors.kTeal,
-              onRefresh: _loadData,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _ReservationList(
-                    reservations: _active,
-                    emptyIcon: Icons.assignment_outlined,
-                    emptyTitle: 'No active reservations',
-                    emptySubtitle:
-                        'Add medications to your reservation from the pharmacy screen.',
-                    onTap: _openDetail,
+          : _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      const Icon(Icons.error_outline,
+                          size: 48, color: AppColors.kError),
+                      const SizedBox(height: 12),
+                      Text(_error!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: AppColors.kTextMid)),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: _loadData,
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: const Text('Try Again'),
+                      ),
+                    ]),
                   ),
-                  _ReservationList(
-                    reservations: _history,
-                    emptyIcon: Icons.history_rounded,
-                    emptyTitle: 'No reservation history',
-                    emptySubtitle:
-                        'Your completed and cancelled reservations will appear here.',
-                    onTap: _openDetail,
+                )
+              : RefreshIndicator(
+                  color: AppColors.kTeal,
+                  onRefresh: _loadData,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _ReservationList(
+                        reservations: _active,
+                        emptyIcon: Icons.assignment_outlined,
+                        emptyTitle: 'No active reservations',
+                        emptySubtitle:
+                            'Add medications to your reservation from the pharmacy screen.',
+                        onTap: _openDetail,
+                      ),
+                      _ReservationList(
+                        reservations: _history,
+                        emptyIcon: Icons.history_rounded,
+                        emptyTitle: 'No reservation history',
+                        emptySubtitle:
+                            'Your completed and cancelled reservations will appear here.',
+                        onTap: _openDetail,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }
@@ -174,8 +206,7 @@ class _ReservationList extends StatelessWidget {
                 color: AppColors.kTealLight,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Icon(emptyIcon,
-                  color: AppColors.kTeal, size: 32),
+              child: Icon(emptyIcon, color: AppColors.kTeal, size: 32),
             ),
             const SizedBox(height: 16),
             Text(emptyTitle,
@@ -187,9 +218,7 @@ class _ReservationList extends StatelessWidget {
             Text(emptySubtitle,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.kTextMid,
-                    height: 1.4)),
+                    fontSize: 13, color: AppColors.kTextMid, height: 1.4)),
           ]),
         ),
       );
@@ -210,8 +239,7 @@ class _ReservationList extends StatelessWidget {
 class _ReservationCard extends StatelessWidget {
   final ReservationModel reservation;
   final VoidCallback onTap;
-  const _ReservationCard(
-      {required this.reservation, required this.onTap});
+  const _ReservationCard({required this.reservation, required this.onTap});
 
   Color get _statusColor {
     if (reservation.isDraft) return AppColors.kTextMid;
@@ -273,22 +301,22 @@ class _ReservationCard extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Text(reservation.pharmacyName,
-                        style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.kTextDark)),
-                    const SizedBox(height: 2),
-                    Text(
-                      AppDateUtils.formatDate(reservation.createdAt),
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.kTextMid),
-                    ),
-                  ]),
+                        Text(reservation.pharmacyName,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.kTextDark)),
+                        const SizedBox(height: 2),
+                        Text(
+                          AppDateUtils.formatDate(reservation.createdAt),
+                          style: const TextStyle(
+                              fontSize: 12, color: AppColors.kTextMid),
+                        ),
+                      ]),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _statusBg,
                     borderRadius: BorderRadius.circular(8),
@@ -305,7 +333,6 @@ class _ReservationCard extends StatelessWidget {
               const SizedBox(height: 12),
               const Divider(height: 1, color: AppColors.kBorder),
               const SizedBox(height: 10),
-
               ...reservation.items.take(2).map((item) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Row(children: [
@@ -316,8 +343,7 @@ class _ReservationCard extends StatelessWidget {
                         child: Text(
                           '${item.productName} x${item.quantity}',
                           style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.kTextMid),
+                              fontSize: 12, color: AppColors.kTextMid),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -335,7 +361,6 @@ class _ReservationCard extends StatelessWidget {
                       fontSize: 11, color: AppColors.kTextLight),
                 ),
               const SizedBox(height: 8),
-
               Row(children: [
                 const Spacer(),
                 Text(
@@ -349,13 +374,12 @@ class _ReservationCard extends StatelessWidget {
                 const Icon(Icons.chevron_right,
                     size: 18, color: AppColors.kTextLight),
               ]),
-
               if (reservation.isReadyForPickup) ...[
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0xFFDBEAFE),
                     borderRadius: BorderRadius.circular(8),
@@ -374,8 +398,7 @@ class _ReservationCard extends StatelessWidget {
                       Text(
                         'Until ${AppDateUtils.formatDate(reservation.pickupDeadline)}',
                         style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF2563EB)),
+                            fontSize: 11, color: Color(0xFF2563EB)),
                       ),
                     ],
                   ]),

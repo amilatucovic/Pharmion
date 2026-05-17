@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/inventory_item_model.dart';
 import '../../data/models/pharmacy_model.dart';
 import '../../data/services/api_service.dart';
+import '../../core/errors/app_exception.dart';
 
 class PharmacyDetailScreen extends StatefulWidget {
   final PharmacyModel pharmacy;
@@ -20,6 +21,7 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
   bool _loading = false;
   List<InventoryItemModel> _results = [];
   bool _hasSearched = false;
+  String? _searchError;
 
   @override
   void dispose() {
@@ -32,6 +34,7 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
       setState(() {
         _results = [];
         _hasSearched = false;
+        _searchError = null;
       });
       return;
     }
@@ -39,6 +42,7 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
     setState(() {
       _loading = true;
       _hasSearched = true;
+      _searchError = null;
     });
 
     try {
@@ -56,7 +60,12 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
               .toList();
         });
       }
-    } catch (_) {
+    } on NetworkException catch (e) {
+      if (mounted) setState(() => _searchError = e.message);
+    } catch (e) {
+      if (mounted)
+        setState(
+            () => _searchError = e.toString().replaceAll('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -245,6 +254,26 @@ class _PharmacyDetailScreenState extends State<PharmacyDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (_searchError != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.kErrorLight,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: AppColors.kError.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(children: [
+                        const Icon(Icons.error_outline,
+                            size: 16, color: AppColors.kError),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: Text(_searchError!,
+                                style: const TextStyle(
+                                    fontSize: 13, color: AppColors.kError))),
+                      ]),
+                    ),
                   if (_loading)
                     const Center(
                       child: Padding(

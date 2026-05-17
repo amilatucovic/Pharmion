@@ -4,6 +4,9 @@ import '../../core/utils/date_utils.dart';
 import '../../data/models/prescription_model.dart';
 import '../../data/services/api_service.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/errors/app_exception.dart';
+import '../../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class PrescriptionsScreen extends StatefulWidget {
   const PrescriptionsScreen({super.key});
@@ -44,10 +47,13 @@ class _PrescriptionsScreenState extends State<PrescriptionsScreen>
           .map((p) => PrescriptionModel.fromJson(p as Map<String, dynamic>))
           .toList();
       if (mounted) setState(() => _prescriptions = items);
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted) setState(() => _error = e.message);
     } catch (e) {
-      if (mounted) {
-       setState(() => _error = e.toString().replaceAll('Exception: ', ''));
-      }
+      if (mounted)
+        setState(() => _error = e.toString().replaceAll('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -318,7 +324,6 @@ class _PrescriptionCard extends StatelessWidget {
             const SizedBox(height: 12),
             const Divider(height: 1, color: AppColors.kBorder),
             const SizedBox(height: 12),
-
             ...p.items.take(2).map((item) => Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(children: [
@@ -352,11 +357,9 @@ class _PrescriptionCard extends StatelessWidget {
                 '+${p.items.length - 2} more items',
                 style: const TextStyle(fontSize: 11, color: AppColors.kTextMid),
               ),
-
             const SizedBox(height: 10),
             const Divider(height: 1, color: AppColors.kBorder),
             const SizedBox(height: 10),
-
             Row(children: [
               const Icon(Icons.calendar_today_outlined,
                   size: 12, color: AppColors.kTextLight),

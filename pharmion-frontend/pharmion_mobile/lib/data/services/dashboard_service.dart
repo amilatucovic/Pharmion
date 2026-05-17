@@ -38,42 +38,30 @@ class DashboardService {
 
   static Future<List<ReservationModel>> _getRecentReservations(
       int userId) async {
-    try {
-      final data = await ApiService.get('Reservation/by-patient/$userId')
-          as List<dynamic>;
-      final all = data
-          .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
-          .toList();
-      return all.take(3).toList();
-    } catch (_) {
-      return [];
-    }
+    final data =
+        await ApiService.get('Reservation/by-patient/$userId') as List<dynamic>;
+    final all = data
+        .map((r) => ReservationModel.fromJson(r as Map<String, dynamic>))
+        .toList();
+    return all.take(3).toList();
   }
 
   static Future<List<PrescriptionModel>> _getActivePrescriptions(
       int userId) async {
-    try {
-      final data = await ApiService.get('Prescription/my?pageSize=5&status=1')
-          as Map<String, dynamic>;
-      return ((data['items'] as List?) ?? [])
-          .map((p) => PrescriptionModel.fromJson(p as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      return [];
-    }
+    final data = await ApiService.get('Prescription/my?pageSize=5&status=1')
+        as Map<String, dynamic>;
+    return ((data['items'] as List?) ?? [])
+        .map((p) => PrescriptionModel.fromJson(p as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<List<PharmacyModel>> _getNearbyPharmacies(int? cityId) async {
-    try {
-      final url = cityId != null
-          ? 'Pharmacy?pageSize=10&cityId=$cityId'
-          : 'Pharmacy?pageSize=10';
-      final data = await ApiService.get(url) as Map<String, dynamic>;
-      return ((data['items'] as List?) ?? [])
-          .map((p) => PharmacyModel.fromJson(p as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      return [];
-    }
+    final url = cityId != null
+        ? 'Pharmacy?pageSize=10&cityId=$cityId'
+        : 'Pharmacy?pageSize=10';
+    final data = await ApiService.get(url) as Map<String, dynamic>;
+    return ((data['items'] as List?) ?? [])
+        .map((p) => PharmacyModel.fromJson(p as Map<String, dynamic>))
+        .toList();
   }
 }

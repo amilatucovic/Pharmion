@@ -96,7 +96,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
 
   Future<void> _cancel() async {
     final reason = await _showCancelDialog();
-    if (reason == null) return; // korisnik odustao
+    if (reason == null) return;
 
     setState(() => _actionLoading = true);
     try {
@@ -106,7 +106,9 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
         try {
           await ApiService.post('Payment/refund/${_reservation.id}', {});
         } catch (e) {
-          debugPrint('Refund error: $e');
+          if (mounted)
+            _showError(
+                'Refund failed: ${e.toString().replaceAll('Exception: ', '')}');
         }
       }
       if (mounted) {
@@ -338,8 +340,8 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                               if (mounted)
                                 setState(() => _reservation =
                                     ReservationModel.fromJson(data));
-                            } catch (_) {
-                              Navigator.pop(context, true);
+                            } catch (e) {
+                              if (mounted) Navigator.pop(context, true);
                             }
                           }
                         },

@@ -93,7 +93,10 @@ class _ReserveBottomSheetState extends State<ReserveBottomSheet> {
             }
           });
         }
-      } catch (_) {}
+      } catch (e) {
+        if (mounted)
+          setState(() => _error = e.toString().replaceAll('Exception: ', ''));
+      }
     }
     if (mounted) setState(() => _loading = false);
   }

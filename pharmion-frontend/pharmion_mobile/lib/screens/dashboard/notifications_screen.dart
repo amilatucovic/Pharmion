@@ -4,6 +4,9 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/notification_model.dart';
 import '../../data/services/api_service.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/errors/app_exception.dart';
+import '../../providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -46,13 +49,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           _error = null;
         });
       }
+    } on UnauthorizedException {
+      if (mounted) context.read<AuthProvider>().logout();
+    } on NetworkException catch (e) {
+      if (mounted)
+        setState(() {
+          _error = e.message;
+          _loading = false;
+        });
     } catch (e) {
-      if (mounted) {
+      if (mounted)
         setState(() {
           _error = e.toString().replaceAll('Exception: ', '');
           _loading = false;
         });
-      }
     }
   }
 
@@ -60,7 +70,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       await ApiService.put('Notification/$id/read', {});
       await _loadNotifications();
-    } catch (_) {}
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    }
   }
 
   Future<void> _markAllAsRead() async {
@@ -74,7 +98,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           behavior: SnackBarBehavior.floating,
         ));
       }
-    } catch (_) {}
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: AppColors.kError,
+          behavior: SnackBarBehavior.floating,
+        ));
+    }
   }
 
   String _formatDate(DateTime dt) {
