@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/inventory_service.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../core/errors/app_exception.dart';
+import 'login_screen.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -57,9 +59,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
               .toList();
         });
       }
-    } catch (e) {
-      debugPrint('Pharmacies load error: $e');
-    }
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
+    } catch (e) {}
   }
 
   Future<void> _loadData() async {
@@ -81,8 +90,39 @@ class _InventoryScreenState extends State<InventoryScreen> {
           _totalCount = result.totalCount;
         });
       }
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
     } catch (e) {
-      debugPrint('Inventory load error: $e');
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -1454,7 +1494,7 @@ class _InventoryItemDialogState extends State<_InventoryItemDialog> {
         });
       }
     } catch (e) {
-      debugPrint('Dropdown load error: $e');
+      if (mounted) setState(() => _error = e.toString().replaceAll('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loadingDropdowns = false);
     }

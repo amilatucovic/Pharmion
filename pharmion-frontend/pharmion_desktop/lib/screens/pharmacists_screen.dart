@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/pharmacist_service.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../core/errors/app_exception.dart';
+import 'login_screen.dart';
 
 class PharmacistsScreen extends StatefulWidget {
   const PharmacistsScreen({super.key});
@@ -44,7 +46,7 @@ class _PharmacistsScreenState extends State<PharmacistsScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Pharmacies load error: $e');
+      
     }
   }
 
@@ -66,8 +68,39 @@ class _PharmacistsScreenState extends State<PharmacistsScreen> {
           _totalCount = result.totalCount;
         });
       }
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
     } catch (e) {
-      debugPrint('Pharmacists load error: $e');
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
     } finally {
       if (mounted) setState(() => _loading = false);
     }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../core/errors/app_exception.dart';
+import 'login_screen.dart';
 
 class MyAccountScreen extends StatefulWidget {
   const MyAccountScreen({super.key});
@@ -65,6 +67,15 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
           _gender = data['gender']?.toString() ?? '';
           _loading = false;
         });
+      }
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
       }
     } catch (e) {
       if (mounted) {

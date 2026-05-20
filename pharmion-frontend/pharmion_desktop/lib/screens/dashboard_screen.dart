@@ -19,6 +19,8 @@ import 'pharmacists_screen.dart';
 import '../widgets/notification_bell.dart';
 import 'medication_categories_screen.dart';
 import 'pharmacological_categories_screen.dart';
+import '../core/errors/app_exception.dart';
+
 
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -32,7 +34,6 @@ class PlaceholderScreen extends StatelessWidget {
   );
 }
 
-// ─── Sidebar item model ───────────────────────────────────────────────────────
 class _NavItem {
   final String label;
   final IconData icon;
@@ -40,7 +41,6 @@ class _NavItem {
   const _NavItem(this.label, this.icon, {this.adminOnly = false});
 }
 
-//  Dashboard Screen
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
   @override
@@ -54,7 +54,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _lastName = '';
   bool _loading = true;
 
-  // Nav items
   final List<_NavItem> _adminItems = const [
     _NavItem('Dashboard', Icons.dashboard_rounded),
     _NavItem('Reservations', Icons.assignment_rounded),
@@ -201,7 +200,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: AppColors.kBg,
       body: Row(
         children: [
-          // Sidebar
           Container(
             width: 240,
             color: AppColors.kSidebar,
@@ -265,7 +263,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Nav items
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(
@@ -285,19 +282,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                // Divider
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Divider(color: Colors.white12, height: 1),
                 ),
 
-                // My Account + Sign Out
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
                       const SizedBox(height: 4),
-                      // User info
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -363,11 +357,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          // ── Main content ─────────────────────────────────────────────────
           Expanded(
             child: Column(
               children: [
-                // Top bar
                 Container(
                   height: 64,
                   padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -388,7 +380,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       const Spacer(),
-                      // Notification bell
                       const NotificationBell(),
                       const SizedBox(width: 8),
                       GestureDetector(
@@ -415,7 +406,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                // Page content
                 Expanded(child: _buildContent()),
               ],
             ),
@@ -426,7 +416,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// ─── Sidebar Item Widget ──────────────────────────────────────────────────────
 class _SidebarItem extends StatefulWidget {
   final _NavItem item;
   final bool selected;
@@ -490,7 +479,6 @@ class _SidebarItemState extends State<_SidebarItem> {
   }
 }
 
-// ─── Dashboard Home Page ──────────────────────────────────────────────────────
 class _DashboardHome extends StatefulWidget {
   final bool isAdmin;
   const _DashboardHome({required this.isAdmin});
@@ -510,15 +498,23 @@ class _DashboardHomeState extends State<_DashboardHome> {
   }
 
   Future<void> _loadData() async {
-    try {
-      final stats = await DashboardService.getStats();
-      if (mounted) setState(() => _stats = stats);
-    } catch (e) {
-      debugPrint('Dashboard load error: $e');
-    } finally {
-      if (mounted) setState(() => _loading = false);
+  try {
+    final stats = await DashboardService.getStats();
+    if (mounted) setState(() => _stats = stats);
+  } on UnauthorizedException {
+    if (mounted) {
+      await ApiService.clearToken();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
     }
+  } catch (e) {
+  } finally {
+    if (mounted) setState(() => _loading = false);
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -578,7 +574,6 @@ class _DashboardHomeState extends State<_DashboardHome> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top 5 products
               Expanded(
                 flex: 2,
                 child: _Card(
@@ -733,7 +728,6 @@ class _DashboardHomeState extends State<_DashboardHome> {
               ),
               const SizedBox(width: 16),
 
-              // Recent reservations
               Expanded(
                 flex: 3,
                 child: _Card(

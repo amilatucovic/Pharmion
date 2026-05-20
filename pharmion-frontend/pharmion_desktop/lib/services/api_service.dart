@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'dart:async';
+import '../core/errors/app_exception.dart';
 
 class ApiService {
   static const String baseUrl = String.fromEnvironment(
@@ -93,29 +96,37 @@ class ApiService {
   }
 
   static Future<dynamic> get(String endpoint) async {
-    var headers = await getHeaders();
-    var response = await http.get(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: headers,
-    );
-
-    if (response.statusCode == 401) {
-      await _refreshToken();
-      headers = await getHeaders();
-      response = await http.get(
+    try {
+      var headers = await getHeaders();
+      var response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
         headers: headers,
       );
-    }
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      if (response.body.isNotEmpty) {
-        final decoded = jsonDecode(response.body);
-        throw Exception(_extractErrorMessage(decoded, response.statusCode));
+      if (response.statusCode == 401) {
+        await _refreshToken();
+        headers = await getHeaders();
+        response = await http.get(
+          Uri.parse('$baseUrl/$endpoint'),
+          headers: headers,
+        );
       }
-      throw Exception('Error: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        if (response.body.isNotEmpty) {
+          final decoded = jsonDecode(response.body);
+          throw Exception(_extractErrorMessage(decoded, response.statusCode));
+        }
+        throw Exception('Error: ${response.statusCode}');
+      }
+    } on AppException {
+      rethrow;
+    } on SocketException {
+      throw const NetworkException();
+    } on TimeoutException {
+      throw const NetworkException();
     }
   }
 
@@ -123,85 +134,109 @@ class ApiService {
     String endpoint,
     Map<String, dynamic> body,
   ) async {
-    var headers = await getHeaders();
-    var response = await http.post(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: headers,
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 401) {
-      await _refreshToken();
-      headers = await getHeaders();
-      response = await http.post(
+    try {
+      var headers = await getHeaders();
+      var response = await http.post(
         Uri.parse('$baseUrl/$endpoint'),
         headers: headers,
         body: jsonEncode(body),
       );
-    }
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (response.body.isEmpty) return null;
-      return jsonDecode(response.body);
-    } else if (response.statusCode == 204) {
-      return null;
-    } else {
-      if (response.body.isEmpty) {
-        throw Exception('Error: ${response.statusCode}');
+      if (response.statusCode == 401) {
+        await _refreshToken();
+        headers = await getHeaders();
+        response = await http.post(
+          Uri.parse('$baseUrl/$endpoint'),
+          headers: headers,
+          body: jsonEncode(body),
+        );
       }
-      final decoded = jsonDecode(response.body);
-      throw Exception(_extractErrorMessage(decoded, response.statusCode));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.body.isEmpty) return null;
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 204) {
+        return null;
+      } else {
+        if (response.body.isEmpty) {
+          throw Exception('Error: ${response.statusCode}');
+        }
+        final decoded = jsonDecode(response.body);
+        throw Exception(_extractErrorMessage(decoded, response.statusCode));
+      }
+    } on AppException {
+      rethrow;
+    } on SocketException {
+      throw const NetworkException();
+    } on TimeoutException {
+      throw const NetworkException();
     }
   }
 
   static Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
-    var headers = await getHeaders();
-    var response = await http.put(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: headers,
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 401) {
-      await _refreshToken();
-      headers = await getHeaders();
-      response = await http.put(
+    try {
+      var headers = await getHeaders();
+      var response = await http.put(
         Uri.parse('$baseUrl/$endpoint'),
         headers: headers,
         body: jsonEncode(body),
       );
-    }
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      final decoded = jsonDecode(response.body);
-      throw Exception(_extractErrorMessage(decoded, response.statusCode));
+      if (response.statusCode == 401) {
+        await _refreshToken();
+        headers = await getHeaders();
+        response = await http.put(
+          Uri.parse('$baseUrl/$endpoint'),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+      }
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        final decoded = jsonDecode(response.body);
+        throw Exception(_extractErrorMessage(decoded, response.statusCode));
+      }
+    } on AppException {
+      rethrow;
+    } on SocketException {
+      throw const NetworkException();
+    } on TimeoutException {
+      throw const NetworkException();
     }
   }
 
   static Future<void> delete(String endpoint) async {
-    var headers = await getHeaders();
-    var response = await http.delete(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: headers,
-    );
-
-    if (response.statusCode == 401) {
-      await _refreshToken();
-      headers = await getHeaders();
-      response = await http.delete(
+    try {
+      var headers = await getHeaders();
+      var response = await http.delete(
         Uri.parse('$baseUrl/$endpoint'),
         headers: headers,
       );
-    }
 
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      if (response.body.isNotEmpty) {
-        final decoded = jsonDecode(response.body);
-        throw Exception(_extractErrorMessage(decoded, response.statusCode));
+      if (response.statusCode == 401) {
+        await _refreshToken();
+        headers = await getHeaders();
+        response = await http.delete(
+          Uri.parse('$baseUrl/$endpoint'),
+          headers: headers,
+        );
       }
-      throw Exception('Error: ${response.statusCode}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        if (response.body.isNotEmpty) {
+          final decoded = jsonDecode(response.body);
+          throw Exception(_extractErrorMessage(decoded, response.statusCode));
+        }
+        throw Exception('Error: ${response.statusCode}');
+      }
+    } on AppException {
+      rethrow;
+    } on SocketException {
+      throw const NetworkException();
+    } on TimeoutException {
+      throw const NetworkException();
     }
   }
 
@@ -222,7 +257,7 @@ class ApiService {
       await prefs.setString('refresh_token', data['refreshToken']);
     } else {
       await prefs.clear();
-      throw Exception('Session expired');
+      throw const UnauthorizedException();
     }
   }
 

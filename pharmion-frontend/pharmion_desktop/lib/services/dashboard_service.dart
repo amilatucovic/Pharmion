@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
+import '../core/errors/app_exception.dart';
 
 class DashboardStats {
   final int reservationsToday;
@@ -64,6 +65,8 @@ class DashboardService {
                   as Map<String, dynamic>;
           cityId = pharmacy['cityId'] as int?;
           if (cityId != null) await prefs.setInt('cityId', cityId);
+        } on NetworkException {
+          rethrow;
         } catch (_) {}
       }
     }
