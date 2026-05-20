@@ -29,6 +29,14 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
             if (entity == null)
                 throw new UserException("Reservation not found");
 
+            var payment = await _context.Payments
+                   .FirstOrDefaultAsync(p => p.ReservationId == id);
+
+            if (payment != null &&
+                payment.Method == PaymentMethod.PayOnPickup &&
+                payment.Status != PaymentStatus.Completed)
+                throw new UserException("Cannot mark as picked up: cash payment has not been confirmed yet.");
+
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
             if (pharmacist == null || pharmacist.PharmacyId != entity.PharmacyId)
                 throw new UserException("You can only dispense reservations from your pharmacy");

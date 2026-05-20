@@ -96,7 +96,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Categories load error: $e');
+      if (mounted) setState(() => _error = 'Failed to load categories.');
     } finally {
       if (mounted) setState(() => _loadingCategories = false);
     }

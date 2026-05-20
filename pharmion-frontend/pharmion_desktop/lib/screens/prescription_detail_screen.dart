@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/prescription_service.dart';
 import '../theme/app_theme.dart';
 import 'prescription_form_screen.dart';
+import '../core/errors/app_exception.dart';
+import 'login_screen.dart';
+import '../services/api_service.dart';
 
 class PrescriptionDetailScreen extends StatefulWidget {
   final int prescriptionId;
@@ -31,6 +34,15 @@ class _PrescriptionDetailScreenState extends State<PrescriptionDetailScreen> {
     try {
       final p = await PrescriptionService.getById(widget.prescriptionId);
       if (mounted) setState(() => _prescription = p);
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _error = e.toString().replaceAll('Exception: ', ''));

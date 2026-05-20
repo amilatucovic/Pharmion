@@ -252,7 +252,6 @@ class ReservationService {
         await ApiService.get('Reservation/$id') as Map<String, dynamic>;
     final reservation = ReservationModel.fromJson(data);
 
-    
     final actionsData =
         await ApiService.get('Reservation/$id/allowed-actions')
             as Map<String, dynamic>;
@@ -300,6 +299,10 @@ class ReservationService {
     return getById(id);
   }
 
+  static Future<void> confirmCashPayment(int reservationId) async {
+  await ApiService.post('Payment/pay-on-pickup/$reservationId', {});
+}
+
   static Future<ReservationModel> approve(int id) async {
     await ApiService.post('Reservation/$id/approve', {});
     return getById(id);
@@ -339,9 +342,6 @@ class ReservationService {
   ];
 
   static String stateDisplayName(String state) => state
-    .replaceAll('ReservationState', '')
-    .replaceAllMapped(
-      RegExp(r'(?<=[a-z])(?=[A-Z])'),
-      (match) => ' ',
-    );
+      .replaceAll('ReservationState', '')
+      .replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (match) => ' ');
 }

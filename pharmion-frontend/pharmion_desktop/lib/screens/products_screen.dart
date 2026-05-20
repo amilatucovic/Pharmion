@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/product_service.dart';
 import '../theme/app_theme.dart';
 import 'product_form_screen.dart';
+import '../core/errors/app_exception.dart';
+import '../services/api_service.dart';
+import 'login_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -49,8 +52,39 @@ class _ProductsScreenState extends State<ProductsScreen> {
           _totalCount = result.totalCount;
         });
       }
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
+    } on NetworkException catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
     } catch (e) {
-      debugPrint('Products load error: $e');
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
     } finally {
       if (mounted) setState(() => _loading = false);
     }

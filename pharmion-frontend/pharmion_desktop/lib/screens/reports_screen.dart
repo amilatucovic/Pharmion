@@ -124,7 +124,20 @@ class _InventoryReportTabState extends State<_InventoryReportTab> {
         });
       }
     } catch (e) {
-      debugPrint('Pharmacies load error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error: ${e.toString().replaceAll('Exception: ', '')}',
+            ),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loadingPharmacies = false);
     }
@@ -524,7 +537,20 @@ class _ReservationsReportTabState extends State<_ReservationsReportTab> {
         });
       }
     } catch (e) {
-      debugPrint('Pharmacies load error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error: ${e.toString().replaceAll('Exception: ', '')}',
+            ),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loadingPharmacies = false);
     }

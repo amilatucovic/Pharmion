@@ -112,6 +112,23 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
   }
 
   Future<void> _markPickedUp() async {
+    if (_reservation!.paymentMethod == 'PayOnPickup' && !_reservation!.isPaid) {
+      _showError(
+        'Cannot mark as picked up: cash payment has not been confirmed yet.',
+      );
+      return;
+    }
+    if (_reservation!.pickupDeadline != null &&
+        DateTime.now().isAfter(_reservation!.pickupDeadline!)) {
+      final proceed = await _showConfirmDialog(
+        title: 'Pickup Deadline Expired',
+        message:
+            'The pickup deadline for this reservation has expired (${_formatDateTime(_reservation!.pickupDeadline!)}). Do you still want to mark it as picked up?',
+        confirmLabel: 'Mark Anyway',
+        confirmColor: const Color(0xFFD97706),
+      );
+      if (!proceed) return;
+    }
     final confirmed = await _showConfirmDialog(
       title: 'Mark as Picked Up',
       message: 'Confirm that the patient has picked up their medications?',
@@ -475,7 +492,18 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                           icon: Icons.timer_outlined,
                           label: 'Pickup deadline',
                           value: _formatDateTime(r.pickupDeadline!),
-                          valueColor: const Color(0xFFD97706),
+                          valueColor: DateTime.now().isAfter(r.pickupDeadline!)
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFFD97706),
+                        ),
+                      ],
+                      if (r.pickedUpAt != null) ...[
+                        const SizedBox(height: 8),
+                        _InfoRow(
+                          icon: Icons.done_all,
+                          label: 'Picked up',
+                          value: _formatDateTime(r.pickedUpAt!),
+                          valueColor: AppColors.kTeal,
                         ),
                       ],
                     ],
@@ -843,9 +871,109 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 ],
               ),
             ),
+          if (_reservation != null &&
+              _reservation!.reservationState ==
+                  'ReadyForPickupReservationState' &&
+              _reservation!.paymentMethod == 'PayOnPickup' &&
+              !_reservation!.isPaid)
+            Container(
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD1FAE5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.payments_outlined,
+                      size: 18,
+                      color: Color(0xFF059669),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Cash Payment Pending',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.kTextDark,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Patient should pay ${_reservation!.patientPaysAmount.toStringAsFixed(2)} KM in cash. Confirm once received.',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.kTextMid,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: _confirmCashPayment,
+                    icon: const Icon(Icons.check_circle_outline, size: 15),
+                    label: const Text(
+                      'Confirm Cash Received',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF059669),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmCashPayment() async {
+    final confirmed = await _showConfirmDialog(
+      title: 'Confirm Cash Payment',
+      message:
+          'Confirm that you received ${_reservation!.patientPaysAmount.toStringAsFixed(2)} KM in cash from the patient?',
+      confirmLabel: 'Confirm',
+      confirmColor: const Color(0xFF059669),
+    );
+    if (!confirmed) return;
+
+    try {
+      await ReservationService.confirmCashPayment(widget.reservationId);
+      await _refreshReservation();
+      if (mounted) _showSuccess('Cash payment confirmed successfully.');
+    } catch (e) {
+      if (mounted) _showError(e.toString().replaceAll('Exception: ', ''));
+    }
   }
 
   Future<void> _cancel() async {
