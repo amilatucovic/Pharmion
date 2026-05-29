@@ -6,8 +6,8 @@ namespace Pharmion.Model.Responses
     public class MedicationCategoryResponse
     {
         public int Id { get; set; }
-        public CategoryCode Code { get; set; }
-        public string CodeName { get; set; } = string.Empty;
+        public int Code { get; set; }
+        public string CodeName { get; set; } = string.Empty; 
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal PatientPaymentPercentage { get; set; }

@@ -6,21 +6,25 @@ namespace Pharmion.Model.Requests
     public class MedicationCategoryUpdateRequest
     {
         [Required]
-        [MaxLength(200, ErrorMessage = "Name must not exceed 200 characters.")]
+        [MaxLength(50)]
+        public string CodeLabel { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(200)]
         public string Name { get; set; } = string.Empty;
 
-        [MaxLength(500, ErrorMessage = "Description must not exceed 500 characters.")]
+        [MaxLength(500)]
         public string Description { get; set; } = string.Empty;
 
         [Required]
-        [Range(0, 100, ErrorMessage = "Patient payment percentage must be between 0 and 100.")]
+        [Range(0, 100)]
         public decimal PatientPaymentPercentage { get; set; }
 
         [Required]
-        [Range(0, 100, ErrorMessage = "Insurance payment percentage must be between 0 and 100.")]
+        [Range(0, 100)]
         public decimal InsurancePaymentPercentage { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Flat fee must be a positive value.")]
+        [Range(0, double.MaxValue)]
         public decimal? FlatFee { get; set; }
     }
 }

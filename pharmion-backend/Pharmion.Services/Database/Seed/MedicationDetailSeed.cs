@@ -12,9 +12,9 @@ namespace Pharmion.Services.Database.Seed
             if (await context.MedicationDetails.AnyAsync())
                 return;
 
-            var categoryA = await context.MedicationCategories.FirstOrDefaultAsync(mc => mc.Code == CategoryCode.CategoryA);
-            var categoryB = await context.MedicationCategories.FirstOrDefaultAsync(mc => mc.Code == CategoryCode.CategoryB);
-            var categoryC = await context.MedicationCategories.FirstOrDefaultAsync(mc => mc.Code == CategoryCode.CategoryC);
+            var categoryA = await context.MedicationCategories.FirstOrDefaultAsync(mc => mc.CodeLabel == "CategoryA");
+            var categoryB = await context.MedicationCategories.FirstOrDefaultAsync(mc => mc.CodeLabel == "CategoryB");
+            var categoryC = await context.MedicationCategories.FirstOrDefaultAsync(mc => mc.CodeLabel == "CategoryC");
 
             var analgesics = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "N02");
             var antiInflammatory = await context.PharmacologicalCategories.FirstOrDefaultAsync(pc => pc.Code == "M01");

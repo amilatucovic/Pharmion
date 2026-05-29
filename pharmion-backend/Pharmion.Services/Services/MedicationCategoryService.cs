@@ -21,20 +21,17 @@ namespace Pharmion.Services.Services
         protected override IQueryable<MedicationCategory> ApplyFilter(IQueryable<MedicationCategory> query, MedicationCategorySearchObject search)
         {
             if (search.Code.HasValue)
-            {
                 query = query.Where(mc => mc.Code == search.Code.Value);
-            }
+
+            if (!string.IsNullOrEmpty(search.CodeLabel))
+                query = query.Where(mc => mc.CodeLabel.Contains(search.CodeLabel));
 
             if (!string.IsNullOrEmpty(search.Name))
-            {
                 query = query.Where(mc => mc.Name.Contains(search.Name));
-            }
 
             if (!string.IsNullOrEmpty(search.FTS))
-            {
                 query = query.Where(mc => mc.Name.Contains(search.FTS)
                                        || mc.Description.Contains(search.FTS));
-            }
 
             return query;
         }
@@ -66,9 +63,14 @@ namespace Pharmion.Services.Services
             if (await _context.MedicationCategories.AnyAsync(mc => mc.Code == request.Code))
                 throw new UserException("Medication category with this code already exists.");
 
-            await ValidateNameUnique(request.Name);
+            if (await _context.MedicationCategories.AnyAsync(mc => mc.CodeLabel == request.CodeLabel))
+                throw new UserException("Medication category with this code label already exists.");
 
-            ValidatePaymentPercentages(request.PatientPaymentPercentage, request.InsurancePaymentPercentage, request.FlatFee);
+            await ValidateNameUnique(request.Name);
+            ValidatePaymentPercentages(
+                request.PatientPaymentPercentage,
+                request.InsurancePaymentPercentage,
+                request.FlatFee);
 
             entity.CreatedAt = DateTime.UtcNow;
         }
@@ -76,9 +78,15 @@ namespace Pharmion.Services.Services
 
         protected override async Task BeforeUpdate(MedicationCategory entity, MedicationCategoryUpdateRequest request)
         {
-            await ValidateNameUnique(request.Name, entity.Id);
+            if (await _context.MedicationCategories.AnyAsync(
+                mc => mc.CodeLabel == request.CodeLabel && mc.Id != entity.Id))
+                throw new UserException("Medication category with this code label already exists.");
 
-            ValidatePaymentPercentages(request.PatientPaymentPercentage, request.InsurancePaymentPercentage, request.FlatFee);
+            await ValidateNameUnique(request.Name, entity.Id);
+            ValidatePaymentPercentages(
+                request.PatientPaymentPercentage,
+                request.InsurancePaymentPercentage,
+                request.FlatFee);
 
             entity.UpdatedAt = DateTime.UtcNow;
         }
@@ -86,6 +94,7 @@ namespace Pharmion.Services.Services
 
         protected override void MapUpdateToEntity(MedicationCategory entity, MedicationCategoryUpdateRequest request)
         {
+            entity.CodeLabel = request.CodeLabel;
             entity.Name = request.Name;
             entity.Description = request.Description;
             entity.PatientPaymentPercentage = request.PatientPaymentPercentage;
@@ -119,7 +128,7 @@ namespace Pharmion.Services.Services
             {
                 Id = mc.Id,
                 Code = mc.Code,
-                CodeName = mc.Code.ToString(),
+                CodeName = mc.CodeLabel,  
                 Name = mc.Name,
                 Description = mc.Description,
                 PatientPaymentPercentage = mc.PatientPaymentPercentage,

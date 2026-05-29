@@ -17,7 +17,8 @@ namespace Pharmion.Services.Database.Seed
             {
                 new MedicationCategory
                 {
-                    Code = CategoryCode.CategoryA,
+                    Code = 1,
+                    CodeLabel = "CategoryA",
                     Name = "List A – Essential Medicines",
                     Description = "Medicines fully covered by health insurance with a flat co-payment of 1 KM.",
                     PatientPaymentPercentage = 0,
@@ -27,7 +28,8 @@ namespace Pharmion.Services.Database.Seed
                 },
                 new MedicationCategory
                 {
-                    Code = CategoryCode.CategoryB,
+                    Code = 2,
+                    CodeLabel = "CategoryB",
                     Name = "List B – Standard Medicines",
                     Description = "Insurance covers 60%, patient pays 40%.",
                     PatientPaymentPercentage = 40,
@@ -37,7 +39,8 @@ namespace Pharmion.Services.Database.Seed
                 },
                 new MedicationCategory
                 {
-                    Code = CategoryCode.CategoryC,
+                    Code = 3,
+                    CodeLabel = "CategoryC",
                     Name = "List C – Commercial Medicines",
                     Description = "Patient pays the full price.",
                     PatientPaymentPercentage = 100,

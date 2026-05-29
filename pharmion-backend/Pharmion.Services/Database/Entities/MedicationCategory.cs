@@ -9,10 +9,15 @@ namespace Pharmion.Services.Database.Entities
         public int Id { get; set; }
 
         [Required]
-        public CategoryCode Code { get; set; }
+        public int Code { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string CodeLabel { get; set; } = string.Empty; 
 
         [Required]
         public string Name { get; set; } = string.Empty;
+
         public string Description { get; set; } = string.Empty;
 
         [Required]
@@ -20,6 +25,7 @@ namespace Pharmion.Services.Database.Entities
 
         [Required]
         public decimal InsurancePaymentPercentage { get; set; }
+
         public decimal? FlatFee { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
