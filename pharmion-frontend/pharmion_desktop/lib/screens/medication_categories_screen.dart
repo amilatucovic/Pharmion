@@ -13,6 +13,7 @@ class MedicationCategoryModel {
   final double patientPaymentPercentage;
   final double insurancePaymentPercentage;
   final double? flatFee;
+  final String codeLabel;
 
   MedicationCategoryModel({
     required this.id,
@@ -23,6 +24,7 @@ class MedicationCategoryModel {
     required this.patientPaymentPercentage,
     required this.insurancePaymentPercentage,
     this.flatFee,
+    required this.codeLabel,
   });
 
   factory MedicationCategoryModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class MedicationCategoryModel {
       insurancePaymentPercentage:
           (json['insurancePaymentPercentage'] as num?)?.toDouble() ?? 0,
       flatFee: (json['flatFee'] as num?)?.toDouble(),
+      codeLabel: json['codeName'] as String? ?? '',
     );
   }
 }
@@ -153,11 +156,9 @@ class _MedicationCategoriesScreenState
       _totalCount == 0 ? 0 : (_totalCount / _pageSize).ceil();
 
   void _openCreate() {
-    final usedCodes = _items.map((e) => e.code).toSet();
     showDialog(
       context: context,
-      builder: (_) =>
-          _MedicationCategoryDialog(onSaved: _loadData, usedCodes: usedCodes),
+      builder: (_) => _MedicationCategoryDialog(onSaved: _loadData),
     );
   }
 
@@ -244,8 +245,6 @@ class _MedicationCategoriesScreenState
 
   @override
   Widget build(BuildContext context) {
-    final usedCodes = _items.map((e) => e.code).toSet();
-    final canCreate = usedCodes.length < 3;
     return Padding(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -328,7 +327,7 @@ class _MedicationCategoriesScreenState
               SizedBox(
                 height: 44,
                 child: ElevatedButton.icon(
-                  onPressed: canCreate ? _openCreate : null,
+                  onPressed: _openCreate,
                   icon: const Icon(Icons.add, size: 16),
                   label: const Text('New Category'),
 
@@ -733,12 +732,10 @@ class _MedicationCategoryRowState extends State<_MedicationCategoryRow> {
 class _MedicationCategoryDialog extends StatefulWidget {
   final MedicationCategoryModel? item;
   final VoidCallback onSaved;
-  final Set<int> usedCodes;
 
   const _MedicationCategoryDialog({
     this.item,
-    required this.onSaved,
-    this.usedCodes = const {},
+    required this.onSaved
   });
 
   @override
@@ -754,41 +751,33 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
   final _patientCtrl = TextEditingController();
   final _insuranceCtrl = TextEditingController();
   final _flatFeeCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController();       
+final _codeLabelCtrl = TextEditingController();  
 
-  int _selectedCode = 1;
+  
   bool _hasFlatFee = false;
   bool _saving = false;
   String? _error;
 
-  static const _codes = [
-    (1, 'Category A - Fixed fee 1 KM'),
-    (2, 'Category B - 40% patient, 60% insurance'),
-    (3, 'Category C - 100% patient'),
-  ];
+  
 
   @override
-  void initState() {
-    super.initState();
-    if (_isEdit) {
-      final item = widget.item!;
-      _selectedCode = item.code;
-      _nameCtrl.text = item.name;
-      _descCtrl.text = item.description;
-      _patientCtrl.text = item.patientPaymentPercentage.toString();
-      _insuranceCtrl.text = item.insurancePaymentPercentage.toString();
-      if (item.flatFee != null) {
-        _hasFlatFee = true;
-        _flatFeeCtrl.text = item.flatFee.toString();
-      }
-    } else {
-      final availableCodes = _codes
-          .where((c) => !widget.usedCodes.contains(c.$1))
-          .toList();
-      if (availableCodes.isNotEmpty) {
-        _selectedCode = availableCodes.first.$1;
-      }
+void initState() {
+  super.initState();
+  if (_isEdit) {
+    final item = widget.item!;
+    _codeCtrl.text = item.code.toString();
+    _codeLabelCtrl.text = item.codeLabel;
+    _nameCtrl.text = item.name;
+    _descCtrl.text = item.description;
+    _patientCtrl.text = item.patientPaymentPercentage.toString();
+    _insuranceCtrl.text = item.insurancePaymentPercentage.toString();
+    if (item.flatFee != null) {
+      _hasFlatFee = true;
+      _flatFeeCtrl.text = item.flatFee.toString();
     }
   }
+}
 
   @override
   void dispose() {
@@ -797,6 +786,8 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
     _patientCtrl.dispose();
     _insuranceCtrl.dispose();
     _flatFeeCtrl.dispose();
+    _codeCtrl.dispose();      
+  _codeLabelCtrl.dispose();
     super.dispose();
   }
 
@@ -829,6 +820,7 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
     try {
       final body = <String, dynamic>{
         'name': _nameCtrl.text.trim(),
+        'codeLabel': _codeLabelCtrl.text.trim(),
         'description': _descCtrl.text.trim(),
         'patientPaymentPercentage':
             double.tryParse(_patientCtrl.text.trim()) ?? 0,
@@ -840,9 +832,22 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
       };
 
       if (_isEdit) {
+        if (_codeCtrl.text.trim().isEmpty) {
+    setState(() => _error = 'Code is required.');
+    return;
+  }
+  if (_codeLabelCtrl.text.trim().isEmpty) {
+    setState(() => _error = 'Code label is required.');
+    return;
+  }
+  if (int.tryParse(_codeCtrl.text.trim()) == null) {
+    setState(() => _error = 'Code must be a valid number.');
+    return;
+  }
         await ApiService.put('MedicationCategory/${widget.item!.id}', body);
       } else {
-        body['code'] = _selectedCode;
+        body['code'] = int.parse(_codeCtrl.text.trim());  
+  body['codeLabel'] = _codeLabelCtrl.text.trim();
         await ApiService.post('MedicationCategory', body);
       }
 
@@ -894,92 +899,6 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final availableCodes = _codes
-        .where((c) => !widget.usedCodes.contains(c.$1))
-        .toList();
-    final noMoreCodes = !_isEdit && availableCodes.isEmpty;
-    if (noMoreCodes) {
-      return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: SizedBox(
-          width: 480,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: AppColors.kTealLight,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.category_rounded,
-                        size: 18,
-                        color: AppColors.kTeal,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'New Medication Category',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.kTextDark,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
-                        Icons.close,
-                        size: 18,
-                        color: AppColors.kTextMid,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Divider(height: 1),
-                const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFFCD34D)),
-                  ),
-                  child: const Text(
-                    'All category codes (A, B, C) already exist. Please edit an existing category.',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF92400E)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.kTeal,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SizedBox(
@@ -1064,22 +983,39 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
                 if (!_isEdit) ...[
                   _Label('Category Code *'),
                   const SizedBox(height: 6),
-                  DropdownButtonFormField<int>(
-                    value: _selectedCode,
-                    decoration: _inputDeco(hint: ''),
-                    items: availableCodes
-                        .map(
-                          (c) => DropdownMenuItem(
-                            value: c.$1,
-                            child: Text(
-                              c.$2,
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (v) => setState(() => _selectedCode = v ?? 1),
-                  ),
+                  // Umjesto dropdowna:
+Row(
+  children: [
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Label('Code (number) *'),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _codeCtrl,
+            keyboardType: TextInputType.number,
+            decoration: _inputDeco(hint: 'e.g. 4'),
+          ),
+        ],
+      ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Label('Code Label *'),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _codeLabelCtrl,
+            decoration: _inputDeco(hint: 'e.g. CategoryD'),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
                   const SizedBox(height: 14),
                 ],
                 _Label('Name *'),
