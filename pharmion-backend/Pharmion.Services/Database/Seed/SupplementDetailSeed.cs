@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmion.Model.Enums;
 using Pharmion.Services.Database.Entities;
-using Pharmion.Services.Interfaces;
 
 namespace Pharmion.Services.Database.Seed
 {

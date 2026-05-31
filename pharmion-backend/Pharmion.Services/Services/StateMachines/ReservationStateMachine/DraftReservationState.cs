@@ -45,15 +45,6 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
             if (!entity.Items.Any())
                 throw new UserException("Cannot submit empty reservation");
 
-            var hasPendingException = await _context.EarlyDispenseExceptions
-                                           .AnyAsync(e => e.ReservationId == id && e.Status == ExceptionStatus.Pending);
-            if (hasPendingException)
-                throw new UserException("Reservation cannot be submitted while there are pending early dispense exceptions awaiting pharmacist approval.");
-
-            var hasRejectedException = await _context.EarlyDispenseExceptions
-                                     .AnyAsync(e => e.ReservationId == id && e.Status == ExceptionStatus.Rejected);
-            if (hasRejectedException)
-                throw new UserException("Reservation cannot be submitted because one or more early dispense exceptions have been rejected. Please remove the affected items.");
 
             await ReserveInventoryAsync(entity);
 

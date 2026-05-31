@@ -7,6 +7,8 @@ using Pharmion.Model.SearchObjects;
 using Pharmion.Services.Database;
 using Pharmion.Services.Database.Entities;
 using Pharmion.Services.Interfaces;
+using Pharmion.Services.Services.StateMachines.ReservationStateMachine;
+using Pharmion.Services.StateMachines.ReservationStateMachine;
 
 namespace Pharmion.Services.Services
 {
@@ -113,11 +115,11 @@ namespace Pharmion.Services.Services
             return (await GetByIdAsync(id))!;
         }
 
-        public async Task<EarlyDispenseExceptionResponse> RejectAsync(
-    int id, int pharmacistId, RejectExceptionRequest request)
+        public async Task<EarlyDispenseExceptionResponse> RejectAsync(int id, int pharmacistId, RejectExceptionRequest request)
         {
             var exception = await _context.EarlyDispenseExceptions
                 .Include(e => e.PrescriptionItem)
+                .Include(e => e.Reservation) 
                 .FirstOrDefaultAsync(e => e.Id == id)
                 ?? throw new UserException("Exception not found.");
 
@@ -129,6 +131,46 @@ namespace Pharmion.Services.Services
             exception.ApprovedByPharmacistId = pharmacistId;
             exception.Note = request.Note;
 
+            var reservation = exception.Reservation;
+          
+            if (reservation != null &&
+                reservation.ReservationState == nameof(SubmittedReservationState))
+            {
+                var items = await _context.ReservationItems
+                    .Where(i => i.ReservationId == reservation.Id)
+                    .ToListAsync();
+
+                foreach (var item in items)
+                {
+                    var inventoryItem = await _context.InventoryItems
+                        .FirstOrDefaultAsync(i =>
+                            i.PharmacyId == reservation.PharmacyId &&
+                            i.ProductId == item.ProductId);
+                    if (inventoryItem != null)
+                    {
+                        inventoryItem.ReservedQuantity -= item.Quantity;
+                        if (inventoryItem.ReservedQuantity < 0)
+                            inventoryItem.ReservedQuantity = 0;
+                    }
+                }
+
+                reservation.ReservationState = nameof(RejectedReservationState);
+                reservation.RejectionReason = $"Early dispense request rejected. Reason: {request.Note}";
+                reservation.RejectedAt = DateTime.UtcNow;
+                reservation.RejectedByPharmacistId = pharmacistId;
+
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = reservation.PatientId,
+                    Title = "Reservation rejected",
+                    Message = $"Your reservation RES-{reservation.Id} was rejected because the early dispense request was denied. Reason: {request.Note}",
+                    Template = NotificationTemplate.ReservationRejected,
+                    Type = NotificationType.InApp,
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow,
+                    ReservationId = reservation.Id
+                });
+            }
 
             await _context.SaveChangesAsync();
             return (await GetByIdAsync(id))!;

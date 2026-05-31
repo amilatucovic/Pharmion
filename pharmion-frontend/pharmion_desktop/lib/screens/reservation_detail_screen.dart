@@ -4,7 +4,12 @@ import '../theme/app_theme.dart';
 
 class ReservationDetailScreen extends StatefulWidget {
   final int reservationId;
-  const ReservationDetailScreen({super.key, required this.reservationId});
+  final VoidCallback? onNavigateToExceptions;
+  const ReservationDetailScreen({
+    super.key,
+    required this.reservationId,
+    this.onNavigateToExceptions,
+  });
 
   @override
   State<ReservationDetailScreen> createState() =>
@@ -549,7 +554,111 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             ),
           ),
           const SizedBox(height: 20),
-
+          // Nakon zatvaranja prve Container kartice i SizedBox(height: 20):
+          if (r.hasEarlyDispenseException) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: r.earlyDispenseExceptionStatus == 2
+                    ? const Color(0xFFD1FAE5)
+                    : r.earlyDispenseExceptionStatus == 3
+                    ? const Color(0xFFFEE2E2)
+                    : const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: r.earlyDispenseExceptionStatus == 2
+                      ? const Color(0xFF059669).withValues(alpha: 0.3)
+                      : r.earlyDispenseExceptionStatus == 3
+                      ? const Color(0xFFDC2626).withValues(alpha: 0.3)
+                      : const Color(0xFFD97706).withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    r.earlyDispenseExceptionStatus == 2
+                        ? Icons.check_circle_outline
+                        : r.earlyDispenseExceptionStatus == 3
+                        ? Icons.cancel_outlined
+                        : Icons.schedule_outlined,
+                    size: 18,
+                    color: r.earlyDispenseExceptionStatus == 2
+                        ? const Color(0xFF059669)
+                        : r.earlyDispenseExceptionStatus == 3
+                        ? const Color(0xFFDC2626)
+                        : const Color(0xFFD97706),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          r.earlyDispenseExceptionStatus == 2
+                              ? 'Early Dispense Request - Approved'
+                              : r.earlyDispenseExceptionStatus == 3
+                              ? 'Early Dispense Request - Rejected'
+                              : 'Early Dispense Request - Pending Your Review',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: r.earlyDispenseExceptionStatus == 2
+                                ? const Color(0xFF059669)
+                                : r.earlyDispenseExceptionStatus == 3
+                                ? const Color(0xFFDC2626)
+                                : const Color(0xFFD97706),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          r.earlyDispenseExceptionStatus == 2
+                              ? 'The early dispense exception has been approved. You may proceed with approving this reservation.'
+                              : r.earlyDispenseExceptionStatus == 3
+                              ? 'The early dispense exception was rejected. Reservation is automatically rejected. No further action needed.'
+                              : 'This reservation contains a medication requested earlier than scheduled. Please review the exception before approving.',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.kTextMid,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Dugme samo za pending
+                  if (r.earlyDispenseExceptionStatus == null ||
+                      r.earlyDispenseExceptionStatus == 1) ...[
+                    const SizedBox(width: 16),
+                    OutlinedButton.icon(
+                      onPressed: widget.onNavigateToExceptions != null
+                          ? () {
+                              Navigator.pop(context);
+                              widget.onNavigateToExceptions!();
+                            }
+                          : null,
+                      icon: const Icon(Icons.open_in_new, size: 14),
+                      label: const Text(
+                        'View Exception',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFD97706),
+                        side: const BorderSide(color: Color(0xFFD97706)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -749,7 +858,9 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
           ),
           const SizedBox(height: 20),
 
-          if (r.allowedActions.isNotEmpty)
+          if (r.allowedActions.isNotEmpty &&
+              !(r.hasEarlyDispenseException &&
+                  r.earlyDispenseExceptionStatus == 1))
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -976,20 +1087,71 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     }
   }
 
-  Future<void> _cancel() async {
-    final confirmed = await _showConfirmDialog(
-      title: 'Cancel Reservation',
-      message: 'Are you sure you want to cancel this reservation?',
-      confirmLabel: 'Cancel Reservation',
-      confirmColor: const Color(0xFFDC2626),
+  Future<String?> _showCancelDialog() async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Cancel Reservation',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Please provide a reason for cancellation:'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Enter reason...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: AppColors.kTeal,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Back',
+              style: TextStyle(color: AppColors.kTextMid),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Cancel Reservation'),
+          ),
+        ],
+      ),
     );
-    if (!confirmed) return;
+  }
+
+  Future<void> _cancel() async {
+    final reason = await _showCancelDialog();
+    if (reason == null || reason.isEmpty) return;
 
     try {
-      await ReservationService.cancel(
-        widget.reservationId,
-        'Cancelled by pharmacist',
-      );
+      await ReservationService.cancel(widget.reservationId, reason);
       await _refreshReservation();
       if (mounted) _showSuccess('Reservation cancelled.');
     } catch (e) {

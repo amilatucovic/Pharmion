@@ -6,9 +6,11 @@ import '../theme/app_theme.dart';
 import 'reservation_detail_screen.dart';
 import '../core/errors/app_exception.dart';
 import 'login_screen.dart';
+import '../widgets/pagination_widget.dart';
 
 class ReservationsScreen extends StatefulWidget {
-  const ReservationsScreen({super.key});
+  final VoidCallback? onNavigateToExceptions;
+  const ReservationsScreen({super.key, this.onNavigateToExceptions});
 
   @override
   State<ReservationsScreen> createState() => _ReservationsScreenState();
@@ -123,7 +125,10 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ReservationDetailScreen(reservationId: reservation.id),
+        builder: (_) => ReservationDetailScreen(
+          reservationId: reservation.id,
+          onNavigateToExceptions: widget.onNavigateToExceptions,
+        ),
       ),
     ).then((_) => _loadData());
   }
@@ -560,87 +565,16 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                   ),
 
                   if (!_loading && _totalCount > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Showing ${_currentPage * _pageSize + 1}–${(_currentPage * _pageSize + _reservations.length)} of $_totalCount',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.kTextMid,
-                            ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            onPressed: _currentPage > 0
-                                ? () {
-                                    setState(() => _currentPage--);
-                                    _loadData();
-                                  }
-                                : null,
-                            icon: const Icon(Icons.chevron_left),
-                            color: AppColors.kTextMid,
-                            disabledColor: const Color(0xFFCBD5E1),
-                          ),
-                          ...List.generate(_totalPages.clamp(0, 5), (i) {
-                            final page = i;
-                            final isSelected = page == _currentPage;
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() => _currentPage = page);
-                                _loadData();
-                              },
-                              child: Container(
-                                width: 32,
-                                height: 32,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.kTeal
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${page + 1}',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : AppColors.kTextMid,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
-                          IconButton(
-                            onPressed: _currentPage < _totalPages - 1
-                                ? () {
-                                    setState(() => _currentPage++);
-                                    _loadData();
-                                  }
-                                : null,
-                            icon: const Icon(Icons.chevron_right),
-                            color: AppColors.kTextMid,
-                            disabledColor: const Color(0xFFCBD5E1),
-                          ),
-                        ],
-                      ),
+                    PaginationWidget(
+                      currentPage: _currentPage,
+                      totalPages: _totalPages,
+                      totalCount: _totalCount,
+                      pageSize: _pageSize,
+                      itemCount: _reservations.length,
+                      onPageChanged: (page) {
+                        setState(() => _currentPage = page);
+                        _loadData();
+                      },
                     ),
                 ],
               ),

@@ -316,6 +316,31 @@ namespace Pharmion.Services.Services
             return MapToResponse(payment);
         }
 
+        public async Task<PaymentResponse> CheckStripeStatusAsync(int patientId, int reservationId)
+        {
+            var payment = await _context.Payments.Include(p => p.Reservation)
+                                        .FirstOrDefaultAsync(p => p.ReservationId == reservationId && p.Method == Model.Enums.PaymentMethod.Stripe)
+                                        ?? throw new UserException("Payment not found");
+
+            if (payment.Reservation!.PatientId != patientId)
+                throw new ForbiddenException();
+
+            if (payment.Status == PaymentStatus.Completed)
+                return MapToResponse(payment);
+
+            var intentService = new PaymentIntentService();
+            var intent = await intentService.GetAsync(payment.StripePaymentIntentId);
+
+            if (intent.Status == "succeeded")
+            {
+                payment.Status = PaymentStatus.Completed;
+                payment.PaidAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+
+            return MapToResponse(payment);
+        }
+
         private static PaymentResponse MapToResponse(Payment p) => new()
         {
             Id = p.Id,

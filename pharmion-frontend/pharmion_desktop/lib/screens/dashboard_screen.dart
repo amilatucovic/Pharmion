@@ -21,7 +21,6 @@ import 'medication_categories_screen.dart';
 import 'pharmacological_categories_screen.dart';
 import '../core/errors/app_exception.dart';
 
-
 class PlaceholderScreen extends StatelessWidget {
   final String title;
   const PlaceholderScreen({super.key, required this.title});
@@ -156,7 +155,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Dashboard':
         return _DashboardHome(isAdmin: _isAdmin);
       case 'Reservations':
-        return const ReservationsScreen();
+        return ReservationsScreen(
+          onNavigateToExceptions: () {
+            setState(() {
+              _selectedIndex = _navItems.indexWhere(
+                (item) => item.label == 'Exceptions',
+              );
+            });
+          },
+        );
       case 'Patients':
         return const PatientsScreen();
       case 'Prescriptions':
@@ -498,23 +505,23 @@ class _DashboardHomeState extends State<_DashboardHome> {
   }
 
   Future<void> _loadData() async {
-  try {
-    final stats = await DashboardService.getStats();
-    if (mounted) setState(() => _stats = stats);
-  } on UnauthorizedException {
-    if (mounted) {
-      await ApiService.clearToken();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (_) => false,
-      );
+    try {
+      final stats = await DashboardService.getStats();
+      if (mounted) setState(() => _stats = stats);
+    } on UnauthorizedException {
+      if (mounted) {
+        await ApiService.clearToken();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      }
+    } catch (e) {
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
-  } catch (e) {
-  } finally {
-    if (mounted) setState(() => _loading = false);
   }
-}
 
   @override
   Widget build(BuildContext context) {

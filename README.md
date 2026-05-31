@@ -76,6 +76,28 @@ Download `fit-build-2026-04-30.zip` from [GitHub Releases](https://github.com/am
 
 ---
 
+### Running Mobile App from Source Code
+
+If you want to run the mobile app from source code instead of the pre-built APK,
+you need to provide build-time configuration via `--dart-define`.
+
+1. Copy the example launch configuration:
+```bash
+cp pharmion_mobile/.vscode/launch.json.example pharmion_mobile/.vscode/launch.json
+```
+
+2. Fill in your values in `launch.json`, or run directly from terminal:
+```bash
+flutter run \
+  --dart-define=API_URL=http://10.0.2.2:5081 \
+  --dart-define=STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
+```
+
+> The actual `launch.json` with real values is excluded from the repository via `.gitignore`.
+
+
+---
+
 ## Test Accounts
 
 ### Desktop Application

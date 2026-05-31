@@ -102,15 +102,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
     try {
       await ApiService.post(
           'Reservation/${_reservation.id}/cancel', {'reason': reason});
-      if (_reservation.isPaid && _reservation.paymentMethod == 'Stripe') {
-        try {
-          await ApiService.post('Payment/refund/${_reservation.id}', {});
-        } catch (e) {
-          if (mounted)
-            _showError(
-                'Refund failed: ${e.toString().replaceAll('Exception: ', '')}');
-        }
-      }
       if (mounted) {
         _showSuccess('Reservation cancelled.');
         Navigator.pop(context, true);
@@ -332,7 +323,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                               builder: (_) => PaymentScreen(reservation: r),
                             ),
                           );
-                          if (paid == true && mounted) {
+                          if (paid != null && mounted) {
                             try {
                               final data = await ApiService.get(
                                       'Reservation/${_reservation.id}')
@@ -426,8 +417,10 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 message: r.earlyDispenseExceptionStatus == 2
                     ? 'Early dispense request approved by pharmacist.'
                     : r.earlyDispenseExceptionStatus == 3
-                        ? 'Early dispense request was rejected by pharmacist.'
-                        : 'Early dispense request is pending pharmacist approval.',
+                        ? 'Early dispense request was rejected by pharmacist. Unfortunately, your reservation cannot be approved at this time.'
+                        : r.isDraft
+                            ? 'Early dispense request is pending pharmacist approval. You can still submit the order and the pharmacist will review your request.'
+                            : 'Early dispense request is pending pharmacist approval. The pharmacist will review your request before approving.',
               ),
             if (r.isRejected)
               _Banner(

@@ -81,5 +81,14 @@ namespace Pharmion.WebAPI.Controllers
             var result = await _paymentService.GetByReservationIdAsync(reservationId, userId, role, pharmacyId);
             return result == null ? NotFound() : Ok(result);
         }
+
+        [HttpGet("check-stripe-status/{reservationId}")]
+        [Authorize(Roles = Roles.Patient)]
+        public async Task<IActionResult> CheckStripeStatus(int reservationId)
+        {
+            var patientId = _currentUserService.GetUserId();
+            var result = await _paymentService.CheckStripeStatusAsync(patientId, reservationId);
+            return Ok(result);
+        }
     }
 }

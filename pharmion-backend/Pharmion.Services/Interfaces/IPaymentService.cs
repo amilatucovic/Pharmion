@@ -10,5 +10,6 @@ namespace Pharmion.Services.Interfaces
         Task<PaymentResponse> ProcessPayOnPickupAsync(int pharmacistId, int reservationId);
         Task<PaymentResponse> RefundAsync(int reservationId, int userId, string userRole, int? pharmacyId);
         Task<PaymentResponse?> GetByReservationIdAsync(int reservationId, int userId, string userRole, int? pharmacyId);
+        Task<PaymentResponse> CheckStripeStatusAsync(int patientId, int reservationId);
     }
 }

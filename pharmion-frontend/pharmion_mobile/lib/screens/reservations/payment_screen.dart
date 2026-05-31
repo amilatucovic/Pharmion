@@ -18,6 +18,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool _loading = false;
   bool _isPaid = false;
   String? _error;
+  bool _paymentMethodSelected = false;
   int _selectedMethod = 1;
   Map<String, dynamic>? _payment;
   bool _loadingPayment = false;
@@ -91,24 +92,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     await Stripe.instance.presentPaymentSheet();
 
-    try {
-      final checkData = await PaymentService.createPaymentIntent(
-        reservationId: widget.reservation.id,
-        method: 1,
-      );
-      final alreadyPaid = checkData['isPaid'] as bool? ?? false;
-      if (alreadyPaid && mounted) {
-        setState(() => _isPaid = true);
-        return;
-      }
-    } catch (_) {}
-
     bool confirmed = false;
-    for (int i = 0; i < 5; i++) {
-      await Future.delayed(const Duration(seconds: 2));
+    for (int i = 0; i < 10; i++) {
       try {
         final paymentData = await ApiService.get(
-          'Payment/by-reservation/${widget.reservation.id}',
+          'Payment/check-stripe-status/${widget.reservation.id}',
         ) as Map<String, dynamic>;
         final isPaid = paymentData['isPaid'] as bool? ?? false;
         if (isPaid) {
@@ -118,6 +106,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
       } on NetworkException {
         break;
       } catch (_) {}
+
+      if (i < 9) await Future.delayed(const Duration(seconds: 3));
     }
 
     if (mounted) {
@@ -135,7 +125,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       reservationId: widget.reservation.id,
       method: 2,
     );
-    if (mounted) setState(() => _isPaid = true);
+    if (mounted) setState(() => _paymentMethodSelected = true);
   }
 
   @override
@@ -152,11 +142,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ) as Map<String, dynamic>;
 
       final isPaid = data['isPaid'] as bool? ?? false;
+      final methodSelected = data['status'] != null;
 
       if (mounted) {
         setState(() {
           _payment = data;
           _isPaid = isPaid;
+          final method = data['method'];
+          _paymentMethodSelected = !isPaid &&
+              (method == 1 || method?.toString() == 'PayOnPickup') &&
+              methodSelected;
         });
       }
     } on NetworkException catch (e) {
@@ -171,6 +166,71 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  Widget _buildResultScreen({
+    required bool fullyPaid,
+    required String title,
+    required String message,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return Scaffold(
+      backgroundColor: AppColors.kBg,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new,
+              size: 18, color: AppColors.kTextDark),
+          onPressed: () => Navigator.pop(context, fullyPaid),
+        ),
+        title: const Text('Payment',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.kTextDark)),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: iconColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: Colors.white, size: 40),
+              ),
+              const SizedBox(height: 24),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.kTextDark)),
+              const SizedBox(height: 12),
+              Text(message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.kTextMid, height: 1.5)),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, fullyPaid),
+                  child: const Text('Back to Reservation'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final r = widget.reservation;
     int? _paymentStatusValue() {
@@ -186,68 +246,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final hasPendingPayment = !paymentIsPaid && status == 1;
 
     if (_isPaid) {
-      return Scaffold(
-        backgroundColor: AppColors.kBg,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new,
-                size: 18, color: AppColors.kTextDark),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-          title: const Text('Payment',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.kTextDark)),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppColors.kSuccess,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, color: Colors.white, size: 40),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  _selectedMethod == 1
-                      ? 'Payment Successful!'
-                      : 'Pay on Pickup Selected',
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.kTextDark),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _selectedMethod == 1
-                      ? 'Your payment has been processed. The pharmacy will prepare your medications.'
-                      : 'Please pay when you collect your medications from the pharmacy.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 14, color: AppColors.kTextMid, height: 1.5),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Back to Reservation'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      return _buildResultScreen(
+        fullyPaid: true,
+        title: 'Payment Successful!',
+        message:
+            'Your payment has been processed. The pharmacy will prepare your medications.',
+        icon: Icons.check,
+        iconColor: AppColors.kSuccess,
+      );
+    }
+
+    if (_paymentMethodSelected) {
+      return _buildResultScreen(
+        fullyPaid: false,
+        title: 'Pay on Pickup Selected',
+        message:
+            'Your payment method has been selected. Please pay when you collect your medications from the pharmacy.',
+        icon: Icons.store_outlined,
+        iconColor: AppColors.kTeal,
       );
     }
 
