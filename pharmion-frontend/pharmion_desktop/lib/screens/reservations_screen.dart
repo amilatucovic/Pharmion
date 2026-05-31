@@ -285,7 +285,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                         context: context,
                         initialDate: _dateFrom ?? DateTime.now(),
                         firstDate: DateTime(2024),
-                        lastDate: DateTime.now(),
+                        lastDate: _dateTo ?? DateTime.now(),
                         builder: (context, child) => Theme(
                           data: ThemeData.light().copyWith(
                             colorScheme: const ColorScheme.light(
@@ -335,7 +335,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                       final picked = await showDatePicker(
                         context: context,
                         initialDate: _dateTo ?? DateTime.now(),
-                        firstDate: DateTime(2024),
+                        firstDate: _dateFrom ?? DateTime(2024),
                         lastDate: DateTime.now(),
                         builder: (context, child) => Theme(
                           data: ThemeData.light().copyWith(

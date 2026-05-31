@@ -1011,7 +1011,7 @@ class _StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        status,
+        status.replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (match) => ' '),
         style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600),
         overflow: TextOverflow.ellipsis,
       ),

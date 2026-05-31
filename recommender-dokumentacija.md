@@ -169,7 +169,7 @@ GET /Recommendation/{patientId}
     "imageUrl": "..."
   },
   "score": 0.87,
-  "reason": "Recommended because it is frequently reserved together with similar users"
+  "reason": "Recommended because patients who reserved Vitamin C 1000mg and Probiotic Complex also reserved this supplement."
 }
 ```
 
@@ -180,7 +180,7 @@ GET /Recommendation/{patientId}
 Preporuke su dostupne u **Products** screenu, u tabu **"For You"**:
 
 - Prikazuju se kao kartice sa slikom, nazivom, cijenom i razlogom preporuke
-- Ispod svake preporuke prikazuje se banner s razlogom: *"Recommended because it is frequently reserved together with similar users"*
+- Ispod svake preporuke prikazuje se personalizovani razlog koji navodi konkretne suplemente iz historije pacijenta koji su bili osnova za preporuku, npr.: *"Recommended because patients who reserved Vitamin C 1000mg and Probiotic Complex also reserved this supplement."*
 - U slučaju fallback preporuka (popularni suplementi): *"Popular supplement among our users"*
 - Svaka kartica sadrži dugme **"Find in Pharmacy"** koje otvara bottom sheet sa listom apoteka u pacijentovom gradu gdje je suplement dostupan
 

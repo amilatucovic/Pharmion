@@ -131,7 +131,7 @@ class _ProductsScreenState extends State<ProductsScreen>
       _recsError = null;
     });
     try {
-      final data = await ApiService.get('Recommendation/$patientId?count=4')
+      final data = await ApiService.get('Recommendation/$patientId?count=5')
           as List<dynamic>;
       final items = data
           .map((r) => RecommendationModel.fromJson(r as Map<String, dynamic>))

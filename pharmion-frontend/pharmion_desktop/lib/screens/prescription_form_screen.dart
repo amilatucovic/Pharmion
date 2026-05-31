@@ -16,6 +16,8 @@ class PrescriptionFormScreen extends StatefulWidget {
 
   @override
   State<PrescriptionFormScreen> createState() => _PrescriptionFormScreenState();
+
+  
 }
 
 class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
@@ -96,6 +98,60 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
     }
     super.dispose();
   }
+
+  bool _hasUnsavedChanges() {
+  if (!_isEdit) {
+    return _selectedPatient != null ||
+        _doctorNameController.text.isNotEmpty ||
+        _facilityController.text.isNotEmpty ||
+        _notesController.text.isNotEmpty ||
+        _validFrom != null ||
+        _validTo != null ||
+        _items.isNotEmpty;
+  } else {
+    final p = widget.prescription!;
+    return _doctorNameController.text != p.doctorName ||
+        _facilityController.text != (p.facility ?? '') ||
+        _notesController.text != (p.notes ?? '') ||
+        _validFrom != p.validFrom ||
+        _validTo != p.validTo;
+  }
+}
+
+Future<void> _confirmDiscard() async {
+  if (!_hasUnsavedChanges()) {
+    Navigator.pop(context);
+    return;
+  }
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Discard Changes',
+          style: TextStyle(fontWeight: FontWeight.bold)),
+      content: const Text(
+          'You have unsaved changes. Are you sure you want to discard them?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Keep Editing',
+              style: TextStyle(color: AppColors.kTextMid)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFDC2626),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8)),
+          ),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Discard'),
+        ),
+      ],
+    ),
+  ) ?? false;
+  if (confirmed && mounted) Navigator.pop(context);
+}
 
   Future<void> _searchPatients(String query) async {
     if (query.length < 2) {
@@ -277,7 +333,7 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: _confirmDiscard,
                   icon: const Icon(
                     Icons.arrow_back_ios_new,
                     size: 16,
@@ -306,7 +362,7 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                 ),
                 const Spacer(),
                 OutlinedButton(
-                  onPressed: _saving ? null : () => Navigator.pop(context),
+                  onPressed: _saving ? null : _confirmDiscard,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.kTextMid,
                     side: const BorderSide(color: Color(0xFFE2E8F0)),

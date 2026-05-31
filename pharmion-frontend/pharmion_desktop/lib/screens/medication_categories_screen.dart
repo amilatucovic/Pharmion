@@ -664,10 +664,7 @@ class _MedicationCategoryDialog extends StatefulWidget {
   final MedicationCategoryModel? item;
   final VoidCallback onSaved;
 
-  const _MedicationCategoryDialog({
-    this.item,
-    required this.onSaved
-  });
+  const _MedicationCategoryDialog({this.item, required this.onSaved});
 
   @override
   State<_MedicationCategoryDialog> createState() =>
@@ -682,33 +679,30 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
   final _patientCtrl = TextEditingController();
   final _insuranceCtrl = TextEditingController();
   final _flatFeeCtrl = TextEditingController();
-  final _codeCtrl = TextEditingController();       
-final _codeLabelCtrl = TextEditingController();  
+  final _codeCtrl = TextEditingController();
+  final _codeLabelCtrl = TextEditingController();
 
-  
   bool _hasFlatFee = false;
   bool _saving = false;
   String? _error;
 
-  
-
   @override
-void initState() {
-  super.initState();
-  if (_isEdit) {
-    final item = widget.item!;
-    _codeCtrl.text = item.code.toString();
-    _codeLabelCtrl.text = item.codeLabel;
-    _nameCtrl.text = item.name;
-    _descCtrl.text = item.description;
-    _patientCtrl.text = item.patientPaymentPercentage.toString();
-    _insuranceCtrl.text = item.insurancePaymentPercentage.toString();
-    if (item.flatFee != null) {
-      _hasFlatFee = true;
-      _flatFeeCtrl.text = item.flatFee.toString();
+  void initState() {
+    super.initState();
+    if (_isEdit) {
+      final item = widget.item!;
+      _codeCtrl.text = item.code.toString();
+      _codeLabelCtrl.text = item.codeLabel;
+      _nameCtrl.text = item.name;
+      _descCtrl.text = item.description;
+      _patientCtrl.text = item.patientPaymentPercentage.toString();
+      _insuranceCtrl.text = item.insurancePaymentPercentage.toString();
+      if (item.flatFee != null) {
+        _hasFlatFee = true;
+        _flatFeeCtrl.text = item.flatFee.toString();
+      }
     }
   }
-}
 
   @override
   void dispose() {
@@ -717,8 +711,8 @@ void initState() {
     _patientCtrl.dispose();
     _insuranceCtrl.dispose();
     _flatFeeCtrl.dispose();
-    _codeCtrl.dispose();      
-  _codeLabelCtrl.dispose();
+    _codeCtrl.dispose();
+    _codeLabelCtrl.dispose();
     super.dispose();
   }
 
@@ -764,21 +758,21 @@ void initState() {
 
       if (_isEdit) {
         if (_codeCtrl.text.trim().isEmpty) {
-    setState(() => _error = 'Code is required.');
-    return;
-  }
-  if (_codeLabelCtrl.text.trim().isEmpty) {
-    setState(() => _error = 'Code label is required.');
-    return;
-  }
-  if (int.tryParse(_codeCtrl.text.trim()) == null) {
-    setState(() => _error = 'Code must be a valid number.');
-    return;
-  }
+          setState(() => _error = 'Code is required.');
+          return;
+        }
+        if (_codeLabelCtrl.text.trim().isEmpty) {
+          setState(() => _error = 'Code label is required.');
+          return;
+        }
+        if (int.tryParse(_codeCtrl.text.trim()) == null) {
+          setState(() => _error = 'Code must be a valid number.');
+          return;
+        }
         await ApiService.put('MedicationCategory/${widget.item!.id}', body);
       } else {
-        body['code'] = int.parse(_codeCtrl.text.trim());  
-  body['codeLabel'] = _codeLabelCtrl.text.trim();
+        body['code'] = int.parse(_codeCtrl.text.trim());
+        body['codeLabel'] = _codeLabelCtrl.text.trim();
         await ApiService.post('MedicationCategory', body);
       }
 
@@ -914,39 +908,39 @@ void initState() {
                 if (!_isEdit) ...[
                   _Label('Category Code *'),
                   const SizedBox(height: 6),
-                  // Umjesto dropdowna:
-Row(
-  children: [
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Label('Code (number) *'),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _codeCtrl,
-            keyboardType: TextInputType.number,
-            decoration: _inputDeco(hint: 'e.g. 4'),
-          ),
-        ],
-      ),
-    ),
-    const SizedBox(width: 12),
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Label('Code Label *'),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _codeLabelCtrl,
-            decoration: _inputDeco(hint: 'e.g. CategoryD'),
-          ),
-        ],
-      ),
-    ),
-  ],
-),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _Label('Code (number) *'),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _codeCtrl,
+                              keyboardType: TextInputType.number,
+                              decoration: _inputDeco(hint: 'e.g. 4'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _Label('Code Label *'),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _codeLabelCtrl,
+                              decoration: _inputDeco(hint: 'e.g. CategoryD'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 14),
                 ],
                 _Label('Name *'),

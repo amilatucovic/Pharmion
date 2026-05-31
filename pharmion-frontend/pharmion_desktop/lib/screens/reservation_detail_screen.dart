@@ -554,7 +554,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          // Nakon zatvaranja prve Container kartice i SizedBox(height: 20):
           if (r.hasEarlyDispenseException) ...[
             Container(
               margin: const EdgeInsets.only(bottom: 20),
@@ -626,7 +625,6 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                       ],
                     ),
                   ),
-                  // Dugme samo za pending
                   if (r.earlyDispenseExceptionStatus == null ||
                       r.earlyDispenseExceptionStatus == 1) ...[
                     const SizedBox(width: 16),

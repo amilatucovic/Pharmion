@@ -401,7 +401,7 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
                 message:
                     'This reservation is a draft. Review items and submit when ready.',
               ),
-            if (r.hasEarlyDispenseException)
+            if (r.hasEarlyDispenseException && !r.isPickedUp && !r.isCancelled)
               _Banner(
                 color: r.earlyDispenseExceptionStatus == 2
                     ? AppColors.kSuccess

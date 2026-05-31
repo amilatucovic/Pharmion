@@ -364,10 +364,14 @@ namespace Pharmion.WebAPI.Controllers
                 search.PatientId = userId;
             else if (role == Roles.Pharmacist)
             {
-                var pharmacyId = _currentUserService.GetPharmacyId();
-                if (pharmacyId == null)
-                    return new PagedResult<ReservationResponse> { Items = new(), TotalCount = 0 };
-                search.PharmacyId = pharmacyId;
+                var isAdmin = _currentUserService.IsAdministrator();
+                if (!isAdmin)
+                {
+                    var pharmacyId = _currentUserService.GetPharmacyId();
+                    if (pharmacyId == null)
+                        return new PagedResult<ReservationResponse> { Items = new(), TotalCount = 0 };
+                    search.PharmacyId = pharmacyId;
+                }
                 search.ExcludeDraft = true;
             }
 

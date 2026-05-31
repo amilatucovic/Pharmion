@@ -100,6 +100,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
       lastName: _lastName,
       email: _email,
       licenseNumber: _licenseNumber,
+      isAdmin: _isAdmin,
       onSaved: _loadProfile,
     ),
   );
@@ -425,6 +426,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
 class _EditProfileDialog extends StatefulWidget {
   final int userId;
   final String firstName, lastName, email, licenseNumber;
+  final bool isAdmin;
   final VoidCallback onSaved;
 
   const _EditProfileDialog({
@@ -433,6 +435,7 @@ class _EditProfileDialog extends StatefulWidget {
     required this.lastName,
     required this.email,
     required this.licenseNumber,
+    required this.isAdmin,
     required this.onSaved,
   });
 
@@ -699,34 +702,35 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
                 ),
               ),
               const SizedBox(height: 6),
-
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7ED),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFFED7AA)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 14,
-                      color: Color(0xFFD97706),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Pharmacy and role can only be changed by an administrator.',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF92400E),
+              if (!widget.isAdmin) ...[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF7ED),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFFED7AA)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 14,
+                        color: Color(0xFFD97706),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Pharmacy and role can only be changed by an administrator.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF92400E),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 20),
 
               Row(

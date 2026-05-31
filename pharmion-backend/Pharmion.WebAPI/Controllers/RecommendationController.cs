@@ -21,7 +21,7 @@ namespace Pharmion.WebAPI.Controllers
 
         [HttpGet("{patientId}")]
         [Authorize(Roles = Roles.Patient)]
-        public async Task<IActionResult> GetRecommendations(int patientId, [FromQuery] int count = 3)
+        public async Task<IActionResult> GetRecommendations(int patientId, [FromQuery] int count = 5)
         {
             try
             {

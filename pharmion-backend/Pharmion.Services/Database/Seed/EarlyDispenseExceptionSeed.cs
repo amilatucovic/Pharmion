@@ -44,13 +44,10 @@ namespace Pharmion.Services.Database.Seed
                     r.Items.Any(i => i.PrescriptionItemId == amlodipinPrescItem.Id));
             if (pickedUpReservation == null) return;
 
-           
-            var approvedReservation = await context.Reservations
-                .Include(r => r.Items)
-                .FirstOrDefaultAsync(r =>
-                    r.PatientId == patient.Id &&
-                    r.ReservationState == "ApprovedReservationState");
-            if (approvedReservation == null) return;
+
+            var submittedReservation = await context.Reservations.Include(r => r.Items)
+                                      .FirstOrDefaultAsync(r => r.PatientId == patient.Id && r.ReservationState == "SubmittedReservationState");
+            if (submittedReservation == null) return;
 
             var exceptions = new[]
             {
@@ -71,7 +68,7 @@ namespace Pharmion.Services.Database.Seed
                 new EarlyDispenseException
                 {
                     PrescriptionItemId = metforminPrescItem.Id,
-                    ReservationId = approvedReservation.Id,
+                    ReservationId = submittedReservation.Id,
                     RequestedAt = DateTime.UtcNow.AddDays(-4),
                     Status = ExceptionStatus.Pending,
                     ReasonType = EarlyDispenseReasonType.DoctorRecommendation,

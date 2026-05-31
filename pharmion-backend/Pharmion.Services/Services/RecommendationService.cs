@@ -122,7 +122,7 @@ public class RecommendationService : IRecommendationService
         _logger.LogInformation("ML model trained with {Count} records and saved", data.Count);
     }
 
-    public async Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId, int count = 3)
+    public async Task<List<RecommendationResponse>> GetRecommendationsAsync(int patientId, int count = 5)
     {
         if (_model == null || _predictionEngine == null)
             await LoadOrTrainModelAsync();
@@ -191,16 +191,21 @@ public class RecommendationService : IRecommendationService
             .OrderBy(s => topIds.IndexOf(s.Id))
             .ToList();
 
+        var reservedNames = await context.Products
+                    .Where(p => reservedIds.Contains(p.Id))
+                    .Select(p => p.Name)
+                    .ToListAsync();
+
         return topSupplements.Select(s => new RecommendationResponse
         {
             Product = MapToProductResponse(s),
             Score = scores[s.Id],
-            Reason = BuildReason()
+            Reason = BuildReason(reservedNames)
         }).ToList();
     }
 
     private async Task<List<RecommendationResponse>> GetFallbackRecommendationsAsync(
-        PharmionDbContext context, List<Product> supplements, List<int> reservedIds, int count = 3)
+        PharmionDbContext context, List<Product> supplements, List<int> reservedIds, int count = 5)
     {
         var popular = await context.ReservationItems
             .Where(ri => ri.Product.Type == ProductType.Supplement
@@ -245,8 +250,15 @@ public class RecommendationService : IRecommendationService
         UpdatedAt = s.UpdatedAt
     };
 
-    private string BuildReason()
+    private string BuildReason(List<string> reservedNames)
     {
-        return "Recommended because it is frequently reserved together with similar users";
+        if (!reservedNames.Any())
+            return "Recommended based on your reservation history.";
+
+        var names = reservedNames.Count <= 2
+            ? string.Join(" and ", reservedNames)
+            : $"{reservedNames[0]}, {reservedNames[1]} and others";
+
+        return $"Recommended because patients who reserved {names} also reserved this supplement.";
     }
 }
