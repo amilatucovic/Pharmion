@@ -58,7 +58,7 @@ Verify API is running: [http://localhost:5081/swagger](http://localhost:5081/swa
 
 ### 2. Desktop Application (Windows)
 
-Download `fit-build-2026-05-31.zip` from [GitHub Releases](https://github.com/amilatucovic/Pharmion/releases/tag/predaja-2026-05-31) and extract it. Navigate to the `Release/` folder and run `pharmion_desktop.exe`.
+Download `fit-build-2026-05-31.zip` from [GitHub Releases](https://github.com/amilatucovic/Pharmion/releases/tag/predaja-rada-2026-05-31) and extract it. Navigate to the `Release/` folder and run `pharmion_desktop.exe`.
 
 **API Base URL:** `http://localhost:5081`
 
@@ -66,7 +66,7 @@ Download `fit-build-2026-05-31.zip` from [GitHub Releases](https://github.com/am
 
 ### 3. Mobile Application (Android)
 
-Download `fit-build-2026-05-31.zip` from [GitHub Releases](https://github.com/amilatucovic/Pharmion/releases/tag/predaja-2026-05-31) and extract it. Find `app-release.apk` in the extracted folder.
+Download `fit-build-2026-05-31.zip` from [GitHub Releases](https://github.com/amilatucovic/Pharmion/releases/tag/predaja-rada-2026-05-31) and extract it. Find `app-release.apk` in the extracted folder.
 
 - Open Android Emulator (AVD)
 - Drag & drop `app-release.apk` into the emulator to install
