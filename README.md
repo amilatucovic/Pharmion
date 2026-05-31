@@ -119,7 +119,10 @@ flutter run \
 
 Stripe webhook secret is generated dynamically each time the Stripe CLI starts and cannot be predefined.
 
-**Steps before testing payments:**
+> **Note:** Webhook setup is optional. The app uses direct Stripe API verification as a fallback, so payments will work even without
+> the webhook. Setting up the webhook provides faster payment confirmation.
+
+**Steps before testing payments (optional):**
 
 1. Start Stripe CLI in a separate terminal:
 ```bash
@@ -205,5 +208,15 @@ See [recommender-dokumentacija.md](./recommender-dokumentacija.md) for full docu
   the most frequently reserved supplements across all patients are suggested.
 
 Recommendations include an explanation shown to the user.
+
+---
+
+## Academic Context
+
+This project was developed as part of the **Software Development II** (*Razvoj softvera II*)
+course at the **Faculty of Information Technologies, University "Džemal Bijedić" of Mostar**.
+
+**Author:** Amila Tucović  
+**Academic Year:** 2025/2026
 
 ---
