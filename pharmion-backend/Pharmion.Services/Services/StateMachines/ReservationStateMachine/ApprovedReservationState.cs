@@ -28,7 +28,7 @@ namespace Pharmion.Services.Services.StateMachines.ReservationStateMachine
                 throw new UserException("Reservation not found");
 
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
-            if (pharmacist == null || pharmacist.PharmacyId != entity.PharmacyId)
+            if (pharmacist == null || (!pharmacist.IsAdministrator && pharmacist.PharmacyId != entity.PharmacyId))
                 throw new UserException("You can only mark reservations from your pharmacy as ready");
 
             var payment = await _context.Payments

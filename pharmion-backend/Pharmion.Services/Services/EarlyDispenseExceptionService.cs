@@ -98,12 +98,22 @@ namespace Pharmion.Services.Services
             int id, int pharmacistId, ApproveExceptionRequest request)
         {
             var exception = await _context.EarlyDispenseExceptions
-                .Include(e => e.PrescriptionItem)
-                .FirstOrDefaultAsync(e => e.Id == id)
-                ?? throw new UserException("Exception not found.");
+        .Include(e => e.PrescriptionItem)
+        .Include(e => e.Reservation)
+        .FirstOrDefaultAsync(e => e.Id == id)
+        ?? throw new UserException("Exception not found.");
+
+            var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId)
+                ?? throw new UserException("Pharmacist not found.");
+
+            if (!pharmacist.IsAdministrator &&
+                pharmacist.PharmacyId != exception.Reservation!.PharmacyId)
+                throw new ForbiddenException();
 
             if (exception.Status != ExceptionStatus.Pending)
                 throw new UserException("Only pending exceptions can be approved.");
+
+           
 
             exception.Status = ExceptionStatus.Approved;
             exception.ApprovedAt = DateTime.UtcNow;
@@ -117,11 +127,18 @@ namespace Pharmion.Services.Services
 
         public async Task<EarlyDispenseExceptionResponse> RejectAsync(int id, int pharmacistId, RejectExceptionRequest request)
         {
+
             var exception = await _context.EarlyDispenseExceptions
                 .Include(e => e.PrescriptionItem)
                 .Include(e => e.Reservation) 
                 .FirstOrDefaultAsync(e => e.Id == id)
                 ?? throw new UserException("Exception not found.");
+            var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId)
+    ?? throw new UserException("Pharmacist not found.");
+
+            if (!pharmacist.IsAdministrator &&
+                pharmacist.PharmacyId != exception.Reservation!.PharmacyId)
+                throw new ForbiddenException();
 
             if (exception.Status != ExceptionStatus.Pending)
                 throw new UserException("Only pending exceptions can be rejected.");

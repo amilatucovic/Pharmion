@@ -717,22 +717,45 @@ class _MedicationCategoryDialogState extends State<_MedicationCategoryDialog> {
   }
 
   Future<void> _save() async {
+    if (!_isEdit) {
+      if (_codeCtrl.text.trim().isEmpty) {
+        setState(() => _error = 'Code is required.');
+        return;
+      }
+      if (int.tryParse(_codeCtrl.text.trim()) == null) {
+        setState(() => _error = 'Code must be a valid number.');
+        return;
+      }
+      if (_codeLabelCtrl.text.trim().isEmpty) {
+        setState(() => _error = 'Code label is required.');
+        return;
+      }
+    }
     if (_nameCtrl.text.trim().isEmpty) {
       setState(() => _error = 'Name is required.');
       return;
     }
-    if (_patientCtrl.text.trim().isEmpty ||
-        _insuranceCtrl.text.trim().isEmpty) {
-      setState(
-        () => _error = 'Patient and insurance percentages are required.',
-      );
-      return;
-    }
-    final patient = double.tryParse(_patientCtrl.text.trim());
-    final insurance = double.tryParse(_insuranceCtrl.text.trim());
-    if (patient == null || insurance == null) {
-      setState(() => _error = 'Percentages must be valid numbers.');
-      return;
+    if (!_hasFlatFee) {
+      if (_patientCtrl.text.trim().isEmpty ||
+          _insuranceCtrl.text.trim().isEmpty) {
+        setState(
+          () => _error = 'Patient and insurance percentages are required.',
+        );
+        return;
+      }
+      final patient = double.tryParse(_patientCtrl.text.trim());
+      final insurance = double.tryParse(_insuranceCtrl.text.trim());
+      if (patient == null || insurance == null) {
+        setState(() => _error = 'Percentages must be valid numbers.');
+        return;
+      }
+    } else {
+      final patient = double.tryParse(_patientCtrl.text.trim()) ?? 0;
+      final insurance = double.tryParse(_insuranceCtrl.text.trim()) ?? 0;
+      if (patient + insurance > 100) {
+        setState(() => _error = 'Percentages cannot exceed 100.');
+        return;
+      }
     }
     if (_hasFlatFee && _flatFeeCtrl.text.trim().isEmpty) {
       setState(() => _error = 'Flat fee value is required.');

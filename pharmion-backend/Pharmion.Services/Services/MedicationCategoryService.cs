@@ -44,15 +44,15 @@ namespace Pharmion.Services.Services
 
         private void ValidatePaymentPercentages(decimal patientPercentage, decimal insurancePercentage, decimal? flatFee)
         {
-            if (flatFee.HasValue)
-            {
-                if (patientPercentage != 0 || insurancePercentage != 0)
-                    throw new UserException("FlatFee category should not have patient or insurance percentages.");
-            }
-            else
+            if (!flatFee.HasValue)
             {
                 if (patientPercentage + insurancePercentage != 100)
                     throw new UserException("Patient and Insurance percentages must sum to 100 if FlatFee is not set.");
+            }
+            else
+            {
+                if (patientPercentage + insurancePercentage > 100)
+                    throw new UserException("Patient and Insurance percentages cannot exceed 100.");
             }
         }
 

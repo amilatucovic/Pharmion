@@ -23,7 +23,13 @@ namespace Pharmion.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] EarlyDispenseExceptionSearchObject search)
         {
-            
+            var isAdmin = _currentUserService.IsAdministrator();
+            if (!isAdmin)
+            {
+                var pharmacyId = _currentUserService.GetPharmacyId();
+                if (pharmacyId != null)
+                    search.PharmacyId = pharmacyId;
+            }
             var result = await _service.GetAsync(search);
             return Ok(result);
         }

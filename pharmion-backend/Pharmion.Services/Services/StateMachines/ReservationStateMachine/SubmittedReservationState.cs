@@ -27,7 +27,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 throw new UserException("Reservation not found");
 
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
-            if (pharmacist == null || pharmacist.PharmacyId != entity.PharmacyId)
+            if (pharmacist == null || (!pharmacist.IsAdministrator && pharmacist.PharmacyId != entity.PharmacyId))
                 throw new UserException("You can only approve reservations from your pharmacy");
             if (!entity.Items.Any())
                 throw new UserException("Cannot approve reservation with no items");
@@ -60,7 +60,7 @@ namespace Pharmion.Services.StateMachines.ReservationStateMachine
                 throw new UserException("Reservation not found");
 
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
-            if (pharmacist == null || pharmacist.PharmacyId != entity.PharmacyId)
+            if (pharmacist == null || (!pharmacist.IsAdministrator && pharmacist.PharmacyId != entity.PharmacyId))
                 throw new UserException("You can only reject reservations from your pharmacy");
 
             await ReturnReservedInventoryAsync(entity);

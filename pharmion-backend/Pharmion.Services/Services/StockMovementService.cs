@@ -31,7 +31,7 @@ namespace Pharmion.Services.Services
             var pharmacist = await _context.Pharmacists.FindAsync(pharmacistId);
             if (pharmacist == null)
                 throw new UserException("Pharmacist not found.");
-            if (pharmacist.PharmacyId != item.PharmacyId)
+            if (!pharmacist.IsAdministrator && pharmacist.PharmacyId != item.PharmacyId)
                 throw new UserException("You can only manage inventory for your own pharmacy.");
 
 

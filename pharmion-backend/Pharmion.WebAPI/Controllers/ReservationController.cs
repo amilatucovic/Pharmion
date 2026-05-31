@@ -167,9 +167,13 @@ namespace Pharmion.WebAPI.Controllers
 
                 if (role == Roles.Pharmacist)
                 {
-                    var pharmacyId = _currentUserService.GetPharmacyId();
-                    if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
-                        return Forbid();
+                    var isAdmin = _currentUserService.IsAdministrator();
+                    if (!isAdmin)
+                    {
+                        var pharmacyId = _currentUserService.GetPharmacyId();
+                        if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
+                            return Forbid();
+                    }
                 }
 
                 var actions = await _reservationService.GetAllowedActionsAsync(id);
@@ -337,9 +341,13 @@ namespace Pharmion.WebAPI.Controllers
 
                 if (role == Roles.Pharmacist)
                 {
-                    var pharmacyId = _currentUserService.GetPharmacyId();
-                    if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
-                        return Forbid();
+                    var isAdmin = _currentUserService.IsAdministrator();
+                    if (!isAdmin)  
+                    {
+                        var pharmacyId = _currentUserService.GetPharmacyId();
+                        if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
+                            return Forbid();
+                    }
                 }
 
                 var result = await _reservationService.CancelAsync(id, userId, request.Reason ?? "Cancelled");
@@ -393,9 +401,13 @@ namespace Pharmion.WebAPI.Controllers
 
             if (role == Roles.Pharmacist)
             {
-                var pharmacyId = _currentUserService.GetPharmacyId();
-                if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
-                    throw new ForbiddenException();
+                var isAdmin = _currentUserService.IsAdministrator();
+                if (!isAdmin)
+                {
+                    var pharmacyId = _currentUserService.GetPharmacyId();
+                    if (pharmacyId == null || pharmacyId != reservation.PharmacyId)
+                        throw new ForbiddenException();
+                }
             }
 
             return reservation;
